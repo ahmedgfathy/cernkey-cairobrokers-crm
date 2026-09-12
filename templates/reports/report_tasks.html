@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Tasks Report - Cairobrokers CRM{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+    .chart-container { position: relative; width: 100%; max-height: 20rem; }
+    .chart-container canvas { width: 100% !important; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-header d-flex justify-content-between align-items-center">
     <div>
@@ -7,6 +16,22 @@
         <div class="page-subtitle">Task completion, overdue, categories & agent load</div>
     </div>
     <a href="{% url 'reports_dashboard' %}" class="sap-btn sap-btn-default"><i class="fas fa-arrow-left me-1"></i> Back</a>
+</div>
+
+<div class="sap-card" style="margin-bottom:1.5rem;">
+    <div class="sap-card-header" style="padding:0.75rem 1.25rem;"><h3 style="margin:0;font-size:0.875rem;"><i class="fas fa-th-large me-2"></i>Detailed Reports</h3></div>
+    <div class="sap-card-body" style="padding:0.75rem 1.25rem;">
+        <div style="display:flex;gap:0.5rem;overflow-x:auto;padding-bottom:0.25rem;">
+            <a href="{% url 'reports_dashboard' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-chart-line me-1"></i> Dashboard</a>
+            <a href="{% url 'report_leads' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-user-plus me-1"></i> Leads</a>
+            <a href="{% url 'report_properties' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-building me-1"></i> Properties</a>
+            <a href="{% url 'report_opportunities' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-handshake me-1"></i> Opportunities</a>
+            <a href="{% url 'report_tasks' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;background:#0A6ED1;color:#fff;"><i class="fas fa-clipboard-check me-1"></i> Tasks</a>
+            <a href="{% url 'report_agents' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-users me-1"></i> Agents</a>
+            <a href="{% url 'report_pipeline' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-filter me-1"></i> Pipeline</a>
+            <a href="{% url 'report_revenue' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-coins me-1"></i> Revenue</a>
+        </div>
+    </div>
 </div>
 
 <div class="report-kpi-row">
@@ -17,57 +42,25 @@
     <div class="kpi-card info"><div class="kpi-icon"><i class="fas fa-percentage"></i></div><div class="kpi-value">{{ completion_rate }}%</div><div class="kpi-label">Completion Rate</div></div>
 </div>
 
-<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-flag me-2"></i>By Status</h3></div>
-        <div class="sap-card-body">
-            {% for s in by_status %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ s.status }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-brand" style="width:{{ s.count }}%"></div></div>
-                <span class="chart-bar-value">{{ s.count }}</span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-flag me-2"></i>Tasks by Status</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartStatus"></canvas></div></div>
     </div>
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-arrow-up me-2"></i>By Priority</h3></div>
-        <div class="sap-card-body">
-            {% for p in by_priority %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ p.priority }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-warning" style="width:{{ p.count }}%"></div></div>
-                <span class="chart-bar-value">{{ p.count }}</span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-arrow-up me-2"></i>Tasks by Priority</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartPriority"></canvas></div></div>
     </div>
 </div>
 
-<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-folder me-2"></i>By Category</h3></div>
-        <div class="sap-card-body">
-            {% for c in by_category %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ c.category }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-info" style="width:{{ c.count }}%"></div></div>
-                <span class="chart-bar-value">{{ c.count }}</span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-folder me-2"></i>Tasks by Category</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartCategory"></canvas></div></div>
     </div>
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-user-tie me-2"></i>By Agent</h3></div>
-        <div class="sap-card-body">
-            {% for a in by_agent %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ a.first_name|default:a.username }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-success" style="width:{{ a.count }}%"></div></div>
-                <span class="chart-bar-value">{{ a.count }} <small>{{ a.completed }} done</small></span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-user-tie me-2"></i>Tasks by Agent</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartAgent"></canvas></div></div>
     </div>
 </div>
 
@@ -94,4 +87,51 @@
         </div>
     </div>
 </div>
+
+<script>
+const COLORS = ['#0A6ED1','#36B37E','#EE6723','#EE3939','#6f42c1','#ffc107','#17a2b8','#6c757d','#fd7e14','#20c997'];
+Chart.defaults.font.family = "'Roboto','Segoe UI','Helvetica Neue',Arial,sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+
+// By Status - Doughnut
+new Chart(document.getElementById('chartStatus'), {
+    type: 'doughnut',
+    data: {
+        labels: [{% for s in by_status %}'{{ s.status }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ data: [{% for s in by_status %}{{ s.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: ['#36B37E','#0A6ED1','#EE6723','#EE3939','#6f42c1'], borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, cutout: '50%', plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 12, weight: '500' }, padding: 16, usePointStyle: true, pointStyle: 'circle' } }, title: { display: true, text: 'Tasks by Status', font: { size: 14, weight: '600' }, padding: { bottom: 16 } } } }
+});
+
+// By Priority - Bar
+new Chart(document.getElementById('chartPriority'), {
+    type: 'bar',
+    data: {
+        labels: [{% for p in by_priority %}'{{ p.priority }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ label: 'Tasks', data: [{% for p in by_priority %}{{ p.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: ['#36B37E','#0A6ED1','#EE6723','#EE3939'], borderRadius: 4, maxBarThickness: 48 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Tasks by Priority', font: { size: 14, weight: '600' }, padding: { bottom: 16 } } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#EBEEF0' }, ticks: { precision: 0 } } } }
+});
+
+// By Category - Pie
+new Chart(document.getElementById('chartCategory'), {
+    type: 'pie',
+    data: {
+        labels: [{% for c in by_category %}'{{ c.category }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ data: [{% for c in by_category %}{{ c.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: COLORS.slice(0,{{ by_category|length }}), borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 12, weight: '500' }, padding: 16, usePointStyle: true, pointStyle: 'circle' } }, title: { display: true, text: 'Tasks by Category', font: { size: 14, weight: '600' }, padding: { bottom: 16 } } } }
+});
+
+// By Agent - Bar
+new Chart(document.getElementById('chartAgent'), {
+    type: 'bar',
+    data: {
+        labels: [{% for a in by_agent %}'{{ a.first_name|default:a.username }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ label: 'Tasks', data: [{% for a in by_agent %}{{ a.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: COLORS.slice(0,{{ by_agent|length }}), borderRadius: 4, maxBarThickness: 48 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Tasks by Agent', font: { size: 14, weight: '600' }, padding: { bottom: 16 } } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#EBEEF0' }, ticks: { precision: 0 } } } }
+});
+</script>
 {% endblock %}

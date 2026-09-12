@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Opportunities Report - Cairobrokers CRM{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+    .chart-container { position: relative; width: 100%; max-height: 20rem; }
+    .chart-container canvas { width: 100% !important; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-header d-flex justify-content-between align-items-center">
     <div>
@@ -7,6 +16,22 @@
         <div class="page-subtitle">Pipeline, win rate, types & monthly trends</div>
     </div>
     <a href="{% url 'reports_dashboard' %}" class="sap-btn sap-btn-default"><i class="fas fa-arrow-left me-1"></i> Back</a>
+</div>
+
+<div class="sap-card" style="margin-bottom:1.5rem;">
+    <div class="sap-card-header" style="padding:0.75rem 1.25rem;"><h3 style="margin:0;font-size:0.875rem;"><i class="fas fa-th-large me-2"></i>Detailed Reports</h3></div>
+    <div class="sap-card-body" style="padding:0.75rem 1.25rem;">
+        <div style="display:flex;gap:0.5rem;overflow-x:auto;padding-bottom:0.25rem;">
+            <a href="{% url 'reports_dashboard' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-chart-line me-1"></i> Dashboard</a>
+            <a href="{% url 'report_leads' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-user-plus me-1"></i> Leads</a>
+            <a href="{% url 'report_properties' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-building me-1"></i> Properties</a>
+            <a href="{% url 'report_opportunities' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;background:#0A6ED1;color:#fff;"><i class="fas fa-handshake me-1"></i> Opportunities</a>
+            <a href="{% url 'report_tasks' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-clipboard-check me-1"></i> Tasks</a>
+            <a href="{% url 'report_agents' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-users me-1"></i> Agents</a>
+            <a href="{% url 'report_pipeline' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-filter me-1"></i> Pipeline</a>
+            <a href="{% url 'report_revenue' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-coins me-1"></i> Revenue</a>
+        </div>
+    </div>
 </div>
 
 <div class="report-kpi-row">
@@ -17,57 +42,25 @@
     <div class="kpi-card warning"><div class="kpi-icon"><i class="fas fa-coins"></i></div><div class="kpi-value">${{ won_value|floatformat:0 }}</div><div class="kpi-label">Revenue Won</div></div>
 </div>
 
-<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-layer-group me-2"></i>By Stage</h3></div>
-        <div class="sap-card-body">
-            {% for s in by_stage %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ s.name }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-warning" style="width:{{ s.count }}%"></div></div>
-                <span class="chart-bar-value">{{ s.count }} <small>${{ s.total_value|floatformat:0 }}</small></span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-layer-group me-2"></i>Opportunities by Stage</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartStage"></canvas></div></div>
     </div>
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-tag me-2"></i>By Type</h3></div>
-        <div class="sap-card-body">
-            {% for t in by_type %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ t.opportunity_type|title }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-info" style="width:{{ t.count }}%"></div></div>
-                <span class="chart-bar-value">{{ t.count }} <small>${{ t.total_value|floatformat:0 }}</small></span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-tag me-2"></i>Opportunities by Type</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartType"></canvas></div></div>
     </div>
 </div>
 
-<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-user-tie me-2"></i>By Agent</h3></div>
-        <div class="sap-card-body">
-            {% for a in by_agent %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ a.first_name|default:a.username }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-success" style="width:{{ a.count }}%"></div></div>
-                <span class="chart-bar-value">{{ a.count }} <small>${{ a.total_value|floatformat:0 }}</small></span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-user-tie me-2"></i>Opportunities by Agent</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartAgent"></canvas></div></div>
     </div>
     <div class="sap-card">
         <div class="sap-card-header"><h3><i class="fas fa-calendar me-2"></i>Monthly Trends</h3></div>
-        <div class="sap-card-body">
-            {% for m in monthly %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ m.month|date:"M Y" }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-brand" style="width:{{ m.count }}%"></div></div>
-                <span class="chart-bar-value">{{ m.count }} <small>${{ m.total_value|floatformat:0 }}</small></span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartMonthly"></canvas></div></div>
     </div>
 </div>
 
@@ -94,4 +87,56 @@
         </div>
     </div>
 </div>
+
+<script>
+const COLORS = ['#0A6ED1','#36B37E','#EE6723','#EE3939','#6f42c1','#ffc107','#17a2b8','#6c757d','#fd7e14','#20c997'];
+Chart.defaults.font.family = "'Roboto','Segoe UI','Helvetica Neue',Arial,sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+
+// By Stage - Bar
+new Chart(document.getElementById('chartStage'), {
+    type: 'bar',
+    data: {
+        labels: [{% for s in by_stage %}'{{ s.name }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ label: 'Opportunities', data: [{% for s in by_stage %}{{ s.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: COLORS.slice(0,{{ by_stage|length }}), borderRadius: 4, maxBarThickness: 48 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Opportunities by Stage', font: { size: 13, weight: '600' } } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#EBEEF0' }, ticks: { precision: 0 } } } }
+});
+
+// By Type - Pie
+new Chart(document.getElementById('chartType'), {
+    type: 'pie',
+    data: {
+        labels: [{% for t in by_type %}'{{ t.opportunity_type|title }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ data: [{% for t in by_type %}{{ t.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: COLORS.slice(0,{{ by_type|length }}), borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 12, weight: '500' }, padding: 16, usePointStyle: true, pointStyle: 'circle' } }, title: { display: true, text: 'Opportunities by Type', font: { size: 14, weight: '600' }, padding: { bottom: 16 } } } }
+});
+
+// By Agent - Bar
+new Chart(document.getElementById('chartAgent'), {
+    type: 'bar',
+    data: {
+        labels: [{% for a in by_agent %}'{{ a.first_name|default:a.username }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ label: 'Opportunities', data: [{% for a in by_agent %}{{ a.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: COLORS.slice(0,{{ by_agent|length }}), borderRadius: 4, maxBarThickness: 48 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Opportunities by Agent', font: { size: 13, weight: '600' } } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#EBEEF0' }, ticks: { precision: 0 } } } }
+});
+
+// Monthly Trends - Line
+new Chart(document.getElementById('chartMonthly'), {
+    type: 'line',
+    data: {
+        labels: [{% for m in monthly %}'{{ m.month|date:"M Y" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Opportunities',
+            data: [{% for m in monthly %}{{ m.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            borderColor: '#0A6ED1', backgroundColor: 'rgba(10,110,209,0.1)',
+            fill: true, tension: 0.3, pointRadius: 4, pointBackgroundColor: '#0A6ED1'
+        }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Monthly Trends', font: { size: 13, weight: '600' } } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#EBEEF0' }, ticks: { precision: 0 } } } }
+});
+</script>
 {% endblock %}

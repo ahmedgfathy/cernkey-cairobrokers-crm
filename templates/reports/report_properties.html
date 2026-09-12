@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Properties Report - Cairobrokers CRM{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+    .chart-container { position: relative; width: 100%; max-height: 20rem; }
+    .chart-container canvas { width: 100% !important; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-header d-flex justify-content-between align-items-center">
     <div>
@@ -9,63 +18,47 @@
     <a href="{% url 'reports_dashboard' %}" class="sap-btn sap-btn-default"><i class="fas fa-arrow-left me-1"></i> Back</a>
 </div>
 
+<div class="sap-card" style="margin-bottom:1.5rem;">
+    <div class="sap-card-header" style="padding:0.75rem 1.25rem;"><h3 style="margin:0;font-size:0.875rem;"><i class="fas fa-th-large me-2"></i>Detailed Reports</h3></div>
+    <div class="sap-card-body" style="padding:0.75rem 1.25rem;">
+        <div style="display:flex;gap:0.5rem;overflow-x:auto;padding-bottom:0.25rem;">
+            <a href="{% url 'reports_dashboard' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-chart-line me-1"></i> Dashboard</a>
+            <a href="{% url 'report_leads' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-user-plus me-1"></i> Leads</a>
+            <a href="{% url 'report_properties' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;background:#0A6ED1;color:#fff;"><i class="fas fa-building me-1"></i> Properties</a>
+            <a href="{% url 'report_opportunities' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-handshake me-1"></i> Opportunities</a>
+            <a href="{% url 'report_tasks' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-clipboard-check me-1"></i> Tasks</a>
+            <a href="{% url 'report_agents' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-users me-1"></i> Agents</a>
+            <a href="{% url 'report_pipeline' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-filter me-1"></i> Pipeline</a>
+            <a href="{% url 'report_revenue' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-coins me-1"></i> Revenue</a>
+        </div>
+    </div>
+</div>
+
 <div class="report-kpi-row">
     <div class="kpi-card brand"><div class="kpi-icon"><i class="fas fa-building"></i></div><div class="kpi-value">{{ total }}</div><div class="kpi-label">Total Properties</div></div>
     <div class="kpi-card success"><div class="kpi-icon"><i class="fas fa-dollar-sign"></i></div><div class="kpi-value">${{ total_value|floatformat:0 }}</div><div class="kpi-label">Total Value</div></div>
     <div class="kpi-card info"><div class="kpi-icon"><i class="fas fa-calculator"></i></div><div class="kpi-value">${{ avg_price|floatformat:0 }}</div><div class="kpi-label">Average Price</div></div>
 </div>
 
-<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-th-large me-2"></i>By Type</h3></div>
-        <div class="sap-card-body">
-            {% for t in by_type %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ t.name }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-success" style="width:{{ t.count }}%"></div></div>
-                <span class="chart-bar-value">{{ t.count }}</span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-th-large me-2"></i>Properties by Type</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartType"></canvas></div></div>
     </div>
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-flag me-2"></i>By Status</h3></div>
-        <div class="sap-card-body">
-            {% for s in by_status %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ s.status }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-brand" style="width:{{ s.count }}%"></div></div>
-                <span class="chart-bar-value">{{ s.count }}</span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-flag me-2"></i>Properties by Status</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartStatus"></canvas></div></div>
     </div>
 </div>
 
-<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-map-marker-alt me-2"></i>By City</h3></div>
-        <div class="sap-card-body">
-            {% for c in by_city %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ c.city }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-info" style="width:{{ c.count }}%"></div></div>
-                <span class="chart-bar-value">{{ c.count }} <small>${{ c.avg_price|floatformat:0 }}</small></span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-map-marker-alt me-2"></i>Properties by City</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartCity"></canvas></div></div>
     </div>
     <div class="sap-card">
         <div class="sap-card-header"><h3><i class="fas fa-dollar-sign me-2"></i>Price Distribution</h3></div>
-        <div class="sap-card-body">
-            {% for p in price_distribution %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ p.label }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-warning" style="width:{{ p.count }}%"></div></div>
-                <span class="chart-bar-value">{{ p.count }}</span>
-            </div>
-            {% endfor %}
-        </div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartPrice"></canvas></div></div>
     </div>
 </div>
 
@@ -105,4 +98,53 @@
         </div>
     </div>
 </div>
+
+<script>
+const COLORS = ['#0A6ED1','#36B37E','#EE6723','#EE3939','#6f42c1','#ffc107','#17a2b8','#6c757d','#fd7e14','#20c997'];
+Chart.defaults.font.family = "'Roboto','Segoe UI','Helvetica Neue',Arial,sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.padding = 16;
+Chart.defaults.plugins.legend.labels.font = { size: 12, weight: '500' };
+
+// By Type - Pie
+new Chart(document.getElementById('chartType'), {
+    type: 'pie',
+    data: {
+        labels: [{% for t in by_type %}'{{ t.name }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ data: [{% for t in by_type %}{{ t.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: COLORS.slice(0,{{ by_type|length }}), borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 12, weight: '500' }, padding: 16, usePointStyle: true, pointStyle: 'circle' } }, title: { display: true, text: 'Properties by Type', font: { size: 14, weight: '600' }, padding: { bottom: 16 } } } }
+});
+
+// By Status - Pie
+new Chart(document.getElementById('chartStatus'), {
+    type: 'pie',
+    data: {
+        labels: [{% for s in by_status %}'{{ s.status }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ data: [{% for s in by_status %}{{ s.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: COLORS.slice(0,{{ by_status|length }}), borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 12, weight: '500' }, padding: 16, usePointStyle: true, pointStyle: 'circle' } }, title: { display: true, text: 'Properties by Status', font: { size: 14, weight: '600' }, padding: { bottom: 16 } } } }
+});
+
+// By City - Bar
+new Chart(document.getElementById('chartCity'), {
+    type: 'bar',
+    data: {
+        labels: [{% for c in by_city %}'{{ c.city }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ label: 'Properties', data: [{% for c in by_city %}{{ c.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: COLORS.slice(0,{{ by_city|length }}), borderRadius: 4, maxBarThickness: 48 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Properties by City', font: { size: 13, weight: '600' } } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#EBEEF0' }, ticks: { precision: 0 } } } }
+});
+
+// Price Distribution - Bar
+new Chart(document.getElementById('chartPrice'), {
+    type: 'bar',
+    data: {
+        labels: [{% for p in price_distribution %}'{{ p.label }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ label: 'Properties', data: [{% for p in price_distribution %}{{ p.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: ['#36B37E','#0A6ED1','#6f42c1','#EE6723','#EE3939'], borderRadius: 4, maxBarThickness: 48 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Price Distribution', font: { size: 13, weight: '600' } } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#EBEEF0' }, ticks: { precision: 0 } } } }
+});
+</script>
 {% endblock %}

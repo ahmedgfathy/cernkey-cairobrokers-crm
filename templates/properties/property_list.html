@@ -1,10 +1,63 @@
 {% extends "base.html" %}
 
+{% block extra_css %}
+<style>
+    .view-toggle { display: flex; gap: 0.25rem; background: #F5F6F7; border-radius: 0.5rem; padding: 0.25rem; }
+    .view-toggle-btn { background: none; border: none; padding: 0.5rem 0.75rem; border-radius: 0.375rem; cursor: pointer; color: #6A6D70; font-size: 0.875rem; transition: all 0.15s; display: inline-flex; align-items: center; gap: 0.375rem; }
+    .view-toggle-btn.active { background: #fff; color: #0A6ED1; box-shadow: 0 1px 3px rgba(0,0,0,0.1); font-weight: 500; }
+    .view-toggle-btn:hover:not(.active) { color: #32363A; }
+
+    .property-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr)); gap: 1.25rem; }
+    .property-card { background: #fff; border: 1px solid #D9D9D9; border-radius: 0.75rem; overflow: hidden; transition: all 0.2s; box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.04); }
+    .property-card:hover { box-shadow: 0 0.5rem 1.5rem rgba(0,0,0,0.1); transform: translateY(-2px); }
+    .property-card-image { height: 12rem; background: linear-gradient(135deg, #EBF5FF 0%, #E8F4FD 100%); display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden; }
+    .property-card-image i { font-size: 2.5rem; color: #0A6ED1; opacity: 0.3; }
+    .property-card-image .property-status-badge { position: absolute; top: 0.75rem; left: 0.75rem; }
+    .property-card-image .property-type-badge { position: absolute; top: 0.75rem; right: 0.75rem; background: rgba(0,0,0,0.6); color: #fff; font-size: 0.6875rem; padding: 0.25rem 0.625rem; border-radius: 1rem; font-weight: 500; }
+    .property-card-body { padding: 1rem 1.25rem; }
+    .property-card-title { font-size: 1rem; font-weight: 600; color: #32363A; margin: 0 0 0.375rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .property-card-title a { color: inherit; text-decoration: none; }
+    .property-card-title a:hover { color: #0A6ED1; }
+    .property-card-address { font-size: 0.8125rem; color: #6A6D70; margin: 0 0 0.75rem; display: flex; align-items: center; gap: 0.375rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .property-card-price { font-size: 1.25rem; font-weight: 700; color: #32363A; margin: 0 0 0.75rem; }
+    .property-card-features { display: flex; gap: 1rem; padding: 0.75rem 0; border-top: 1px solid #EBEEF0; margin: 0; }
+    .property-card-feature { display: flex; align-items: center; gap: 0.375rem; font-size: 0.8125rem; color: #6A6D70; }
+    .property-card-feature i { color: #0A6ED1; font-size: 0.75rem; }
+    .property-card-feature strong { color: #32363A; font-weight: 600; }
+    .property-card-footer { display: flex; gap: 0.5rem; padding: 0.75rem 1.25rem; border-top: 1px solid #EBEEF0; background: #FAFBFC; }
+    .property-card-footer .sap-btn { flex: 1; justify-content: center; font-size: 0.8125rem; padding: 0.375rem 0.75rem; }
+    .property-card-agent { font-size: 0.75rem; color: #6A6D70; display: flex; align-items: center; gap: 0.375rem; margin-top: 0.5rem; }
+    .property-card-agent i { color: #0A6ED1; }
+
+    #propertyListView { display: block; }
+    #propertyGridView { display: none; }
+    body.view-grid #propertyListView { display: none; }
+    body.view-grid #propertyGridView { display: block; }
+
+    @media (max-width: 768px) {
+        .property-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="sap-page">
-  <div class="page-header">
-    <h1>Properties</h1>
-    <a href="{% url 'property_create' %}" class="sap-btn sap-btn-emphasized">Add Property</a>
+  <div class="page-header" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;">
+    <div>
+      <h1><i class="fas fa-building me-2"></i>Properties</h1>
+      <div class="page-subtitle">{{ properties|length }} properties found</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:1rem;">
+      <div class="view-toggle">
+        <button type="button" class="view-toggle-btn active" onclick="setView('list')" id="btnListView" title="List View">
+          <i class="fas fa-list"></i> List
+        </button>
+        <button type="button" class="view-toggle-btn" onclick="setView('grid')" id="btnGridView" title="Grid View">
+          <i class="fas fa-th-large"></i> Cards
+        </button>
+      </div>
+      <a href="{% url 'property_create' %}" class="sap-btn sap-btn-emphasized"><i class="fas fa-plus me-1"></i> Add Property</a>
+    </div>
   </div>
 
   <div class="sap-card mb-4">
@@ -39,63 +92,126 @@
     </div>
   </div>
 
-  <div class="sap-card" style="margin-top: 1.5rem;">
-    <div class="sap-card-header">
-      Property List
-      <span class="sap-badge sap-badge--info">{{ properties|length }}</span>
+  <!-- LIST VIEW -->
+  <div id="propertyListView">
+    <div class="sap-card">
+      <div class="sap-card-header">
+        Property List
+        <span class="sap-badge sap-badge--info">{{ properties|length }}</span>
+      </div>
+      <div class="sap-card-body no-padding">
+        <table class="sap-table">
+          <thead>
+            <tr>
+              <th>Title</th>
+              <th>Address</th>
+              <th>City</th>
+              <th>Price</th>
+              <th>Beds</th>
+              <th>Baths</th>
+              <th>Sq Ft</th>
+              <th>Status</th>
+              <th>Listed By</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for property in properties %}
+            <tr>
+              <td><a href="{% url 'property_detail' pk=property.pk %}">{{ property.title }}</a></td>
+              <td>{{ property.address }}</td>
+              <td>{{ property.city }}</td>
+              <td>${{ property.price|floatformat:0 }}</td>
+              <td>{{ property.bedrooms }}</td>
+              <td>{{ property.bathrooms }}</td>
+              <td>{{ property.square_feet|floatformat:0 }}</td>
+              <td>
+                {% if property.status.name == 'Available' %}
+                <span class="sap-badge sap-badge--success">{{ property.status }}</span>
+                {% elif property.status.name == 'Sold' %}
+                <span class="sap-badge sap-badge--error">{{ property.status }}</span>
+                {% else %}
+                <span class="sap-badge sap-badge--warning">{{ property.status }}</span>
+                {% endif %}
+              </td>
+              <td>{{ property.listed_by }}</td>
+              <td>
+                <a href="{% url 'property_detail' pk=property.pk %}" class="sap-btn sap-btn-default sap-btn-sm" title="View">View</a>
+                <a href="{% url 'property_update' pk=property.pk %}" class="sap-btn sap-btn-default sap-btn-sm" title="Edit">Edit</a>
+                <a href="{% url 'property_delete' pk=property.pk %}" class="sap-btn sap-btn-danger sap-btn-sm" title="Delete">Delete</a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="10" class="text-center" style="padding: 2rem; color: var(--sapNeutralTextColor);">
+                No properties found.
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
     </div>
-    <div class="sap-card-body no-padding">
-      <table class="sap-table">
-        <thead>
-          <tr>
-            <th>Title</th>
-            <th>Address</th>
-            <th>City</th>
-            <th>Price</th>
-            <th>Beds</th>
-            <th>Baths</th>
-            <th>Sq Ft</th>
-            <th>Status</th>
-            <th>Listed By</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for property in properties %}
-          <tr>
-            <td><a href="{% url 'property_detail' pk=property.pk %}">{{ property.title }}</a></td>
-            <td>{{ property.address }}</td>
-            <td>{{ property.city }}</td>
-            <td>${{ property.price|floatformat:0 }}</td>
-            <td>{{ property.bedrooms }}</td>
-            <td>{{ property.bathrooms }}</td>
-            <td>{{ property.square_feet|floatformat:0 }}</td>
-            <td>
-              {% if property.status.name == 'Available' %}
-              <span class="sap-badge sap-badge--success">{{ property.status }}</span>
-              {% elif property.status.name == 'Sold' %}
-              <span class="sap-badge sap-badge--error">{{ property.status }}</span>
-              {% else %}
-              <span class="sap-badge sap-badge--warning">{{ property.status }}</span>
-              {% endif %}
-            </td>
-            <td>{{ property.listed_by }}</td>
-            <td>
-              <a href="{% url 'property_detail' pk=property.pk %}" class="sap-btn sap-btn-default sap-btn-sm" title="View">View</a>
-              <a href="{% url 'property_update' pk=property.pk %}" class="sap-btn sap-btn-default sap-btn-sm" title="Edit">Edit</a>
-              <a href="{% url 'property_delete' pk=property.pk %}" class="sap-btn sap-btn-danger sap-btn-sm" title="Delete">Delete</a>
-            </td>
-          </tr>
-          {% empty %}
-          <tr>
-            <td colspan="10" class="text-center" style="padding: 2rem; color: var(--sapNeutralTextColor);">
-              No properties found.
-            </td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
+  </div>
+
+  <!-- GRID / CARD VIEW -->
+  <div id="propertyGridView">
+    <div class="property-grid">
+      {% for property in properties %}
+      <div class="property-card">
+        <div class="property-card-image">
+          {% if property.main_image %}
+          <img src="{{ property.main_image.url }}" alt="{{ property.title }}" style="width:100%;height:100%;object-fit:cover;">
+          {% else %}
+          <i class="fas fa-home"></i>
+          {% endif %}
+          {% if property.status %}
+          <span class="property-status-badge sap-badge {% if property.status.name == 'Available' %}sap-badge--success{% elif property.status.name == 'Sold' %}sap-badge--error{% else %}sap-badge--warning{% endif %}">{{ property.status }}</span>
+          {% endif %}
+          {% if property.property_type %}
+          <span class="property-type-badge">{{ property.property_type }}</span>
+          {% endif %}
+        </div>
+        <div class="property-card-body">
+          <h3 class="property-card-title"><a href="{% url 'property_detail' pk=property.pk %}">{{ property.title }}</a></h3>
+          <div class="property-card-address"><i class="fas fa-map-marker-alt"></i> {{ property.address }}, {{ property.city }}</div>
+          <div class="property-card-price">${{ property.price|floatformat:0 }}</div>
+          <div class="property-card-features">
+            <span class="property-card-feature"><i class="fas fa-bed"></i> <strong>{{ property.bedrooms }}</strong> Beds</span>
+            <span class="property-card-feature"><i class="fas fa-bath"></i> <strong>{{ property.bathrooms }}</strong> Baths</span>
+            <span class="property-card-feature"><i class="fas fa-ruler-combined"></i> <strong>{{ property.square_feet|floatformat:0 }}</strong> Sq Ft</span>
+          </div>
+          {% if property.listed_by %}
+          <div class="property-card-agent"><i class="fas fa-user"></i> {{ property.listed_by.get_full_name|default:property.listed_by.username }}</div>
+          {% endif %}
+        </div>
+        <div class="property-card-footer">
+          <a href="{% url 'property_detail' pk=property.pk %}" class="sap-btn sap-btn-default"><i class="fas fa-eye me-1"></i> View</a>
+          <a href="{% url 'property_update' pk=property.pk %}" class="sap-btn sap-btn-default"><i class="fas fa-edit me-1"></i> Edit</a>
+          <a href="{% url 'property_delete' pk=property.pk %}" class="sap-btn sap-btn-danger"><i class="fas fa-trash me-1"></i> Delete</a>
+        </div>
+      </div>
+      {% empty %}
+      <div style="grid-column: 1/-1; text-align:center; padding:3rem; color:#6A6D70;">
+        <i class="fas fa-building" style="font-size:2.5rem; opacity:0.3; margin-bottom:0.75rem; display:block;"></i>
+        <p style="font-size:0.9375rem;">No properties found.</p>
+      </div>
+      {% endfor %}
     </div>
   </div>
 </div>
+
+<script>
+function setView(view) {
+    document.body.classList.remove('view-list', 'view-grid');
+    document.body.classList.add('view-' + view);
+    document.getElementById('btnListView').classList.toggle('active', view === 'list');
+    document.getElementById('btnGridView').classList.toggle('active', view === 'grid');
+    localStorage.setItem('propertyView', view);
+}
+(function() {
+    var saved = localStorage.getItem('propertyView') || 'list';
+    setView(saved);
+})();
+</script>
 {% endblock content %}

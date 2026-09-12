@@ -1,6 +1,17 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Analytics & Reports - Cairobrokers CRM{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+    .chart-container { position: relative; width: 100%; height: 18rem; }
+    .chart-container canvas { width: 100% !important; height: 100% !important; }
+    .chart-card { margin-bottom: 1.25rem; }
+    .chart-card .sap-card-header h3 { font-size: 0.9375rem; font-weight: 600; }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="page-header">
@@ -41,123 +52,11 @@
     </div>
 </div>
 
-<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
-    <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-flag me-2"></i>Leads by Status</h3></div>
-        <div class="sap-card-body">
-            {% for s in leads_by_status %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ s.status }}</span>
-                <div class="chart-bar-track">
-                    <div class="chart-bar-fill chart-bar-brand" style="width:{{ s.count|floatformat:0 }}%"></div>
-                </div>
-                <span class="chart-bar-value">{{ s.count }}</span>
-            </div>
-            {% empty %}
-            <div class="empty-state"><p>No data</p></div>
-            {% endfor %}
-        </div>
-    </div>
-    <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-link me-2"></i>Leads by Source</h3></div>
-        <div class="sap-card-body">
-            {% for s in leads_by_source %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ s.source }}</span>
-                <div class="chart-bar-track">
-                    <div class="chart-bar-fill chart-bar-info" style="width:{{ s.count|floatformat:0 }}%"></div>
-                </div>
-                <span class="chart-bar-value">{{ s.count }}</span>
-            </div>
-            {% empty %}
-            <div class="empty-state"><p>No data</p></div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
-<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
-    <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-layer-group me-2"></i>Pipeline by Stage</h3></div>
-        <div class="sap-card-body">
-            {% for s in opps_by_stage %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ s.name }}</span>
-                <div class="chart-bar-track">
-                    <div class="chart-bar-fill chart-bar-warning" style="width:{{ s.count|floatformat:0 }}%"></div>
-                </div>
-                <span class="chart-bar-value">{{ s.count }} <small class="text-muted">${{ s.total_value|floatformat:0 }}</small></span>
-            </div>
-            {% empty %}
-            <div class="empty-state"><p>No data</p></div>
-            {% endfor %}
-        </div>
-    </div>
-    <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-building me-2"></i>Properties by Type</h3></div>
-        <div class="sap-card-body">
-            {% for t in properties_by_type %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ t.name }}</span>
-                <div class="chart-bar-track">
-                    <div class="chart-bar-fill chart-bar-success" style="width:{{ t.count|floatformat:0 }}%"></div>
-                </div>
-                <span class="chart-bar-value">{{ t.count }}</span>
-            </div>
-            {% empty %}
-            <div class="empty-state"><p>No data</p></div>
-            {% endfor %}
-        </div>
-    </div>
-</div>
-
-<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
-    <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-exclamation me-2"></i>Tasks by Priority</h3></div>
-        <div class="sap-card-body">
-            {% for p in tasks_by_priority %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ p.name }}</span>
-                <div class="chart-bar-track">
-                    <div class="chart-bar-fill chart-bar-error" style="width:{{ p.count|floatformat:0 }}%"></div>
-                </div>
-                <span class="chart-bar-value">{{ p.count }}</span>
-            </div>
-            {% empty %}
-            <div class="empty-state"><p>No data</p></div>
-            {% endfor %}
-        </div>
-    </div>
-    <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-chart-pie me-2"></i>Pipeline Summary</h3></div>
-        <div class="sap-card-body">
-            <div class="summary-grid">
-                <div class="summary-item">
-                    <div class="summary-number text-brand">{{ total_opps }}</div>
-                    <div class="summary-label">Total Deals</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-number text-success">${{ total_value|floatformat:0 }}</div>
-                    <div class="summary-label">Total Value</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-number text-success">{{ won_opps }}</div>
-                    <div class="summary-label">Won</div>
-                </div>
-                <div class="summary-item">
-                    <div class="summary-number text-warning">{{ lost_opps }}</div>
-                    <div class="summary-label">Open/Lost</div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="page-header" style="margin-top:1.5rem;">
+<div class="page-header" style="margin-bottom:1.5rem;">
     <h1 style="font-size:1.25rem;"><i class="fas fa-file-alt me-2"></i>Detailed Reports</h1>
 </div>
 
-<div class="kpi-row" style="grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));">
+<div class="kpi-row" style="grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); margin-bottom:1.5rem;">
     <a href="{% url 'report_leads' %}" class="sap-card report-card text-decoration-none">
         <div class="sap-card-body report-card-body">
             <div class="kpi-icon" style="background:rgba(10,110,209,0.1); color:var(--sapBrandColor);"><i class="fas fa-user-plus"></i></div>
@@ -208,4 +107,212 @@
         </div>
     </a>
 </div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+    <div class="sap-card chart-card">
+        <div class="sap-card-header"><h3><i class="fas fa-flag me-2"></i>Leads by Status</h3></div>
+        <div class="sap-card-body">
+            <div class="chart-container"><canvas id="chartLeadsStatus"></canvas></div>
+        </div>
+    </div>
+    <div class="sap-card chart-card">
+        <div class="sap-card-header"><h3><i class="fas fa-link me-2"></i>Leads by Source</h3></div>
+        <div class="sap-card-body">
+            <div class="chart-container"><canvas id="chartLeadsSource"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+    <div class="sap-card chart-card">
+        <div class="sap-card-header"><h3><i class="fas fa-layer-group me-2"></i>Pipeline by Stage</h3></div>
+        <div class="sap-card-body">
+            <div class="chart-container"><canvas id="chartOppsStage"></canvas></div>
+        </div>
+    </div>
+    <div class="sap-card chart-card">
+        <div class="sap-card-header"><h3><i class="fas fa-building me-2"></i>Properties by Type</h3></div>
+        <div class="sap-card-body">
+            <div class="chart-container"><canvas id="chartPropType"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+    <div class="sap-card chart-card">
+        <div class="sap-card-header"><h3><i class="fas fa-exclamation me-2"></i>Tasks by Priority</h3></div>
+        <div class="sap-card-body">
+            <div class="chart-container"><canvas id="chartTaskPriority"></canvas></div>
+        </div>
+    </div>
+    <div class="sap-card chart-card">
+        <div class="sap-card-header"><h3><i class="fas fa-chart-pie me-2"></i>Pipeline Summary</h3></div>
+        <div class="sap-card-body">
+            <div class="chart-container"><canvas id="chartPipelineSummary"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<script>
+const COLORS = ['#0A6ED1','#36B37E','#EE6723','#EE3939','#6f42c1','#ffc107','#17a2b8','#6c757d','#fd7e14','#20c997'];
+const COLORS_LIGHT = ['rgba(10,110,209,0.15)','rgba(54,179,126,0.15)','rgba(238,103,35,0.15)','rgba(238,57,57,0.15)','rgba(111,66,193,0.15)','rgba(255,193,7,0.15)','rgba(23,162,184,0.15)','rgba(108,117,125,0.15)','rgba(253,126,20,0.15)','rgba(32,201,151,0.15)'];
+
+Chart.defaults.font.family = "'Roboto','Segoe UI','Helvetica Neue',Arial,sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.padding = 16;
+Chart.defaults.plugins.legend.labels.font = { size: 12, weight: '500' };
+Chart.defaults.plugins.legend.position = 'bottom';
+
+// Leads by Status - Pie
+new Chart(document.getElementById('chartLeadsStatus'), {
+    type: 'pie',
+    data: {
+        labels: [{% for s in leads_by_status %}'{{ s.status }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            data: [{% for s in leads_by_status %}{{ s.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: COLORS.slice(0, {{ leads_by_status|length }}),
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: true, position: 'bottom', labels: { font: { size: 12, weight: '500' }, padding: 16, usePointStyle: true, pointStyle: 'circle' } },
+            title: { display: true, text: 'Leads by Status', font: { size: 14, weight: '600' }, padding: { bottom: 16 } },
+            tooltip: { callbacks: { label: function(ctx) { var total = ctx.dataset.data.reduce(function(a,b){return a+b;},0); return ctx.label + ': ' + ctx.raw + ' (' + Math.round(ctx.raw / total * 100) + '%)'; } } }
+        }
+    }
+});
+
+// Leads by Source - Pie
+new Chart(document.getElementById('chartLeadsSource'), {
+    type: 'pie',
+    data: {
+        labels: [{% for s in leads_by_source %}'{{ s.source }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            data: [{% for s in leads_by_source %}{{ s.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: COLORS.slice(0, {{ leads_by_source|length }}),
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: true, position: 'bottom', labels: { font: { size: 12, weight: '500' }, padding: 16, usePointStyle: true, pointStyle: 'circle' } },
+            title: { display: true, text: 'Leads by Source', font: { size: 14, weight: '600' }, padding: { bottom: 16 } },
+            tooltip: { callbacks: { label: function(ctx) { var total = ctx.dataset.data.reduce(function(a,b){return a+b;},0); return ctx.label + ': ' + ctx.raw + ' (' + Math.round(ctx.raw / total * 100) + '%)'; } } }
+        }
+    }
+});
+
+// Pipeline by Stage - Bar (vertical)
+new Chart(document.getElementById('chartOppsStage'), {
+    type: 'bar',
+    data: {
+        labels: [{% for s in opps_by_stage %}'{{ s.name }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Opportunities',
+            data: [{% for s in opps_by_stage %}{{ s.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: COLORS.slice(0, {{ opps_by_stage|length }}),
+            borderRadius: 4,
+            maxBarThickness: 48
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Pipeline by Stage', font: { size: 13, weight: '600' }, padding: { bottom: 12 } }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: { beginAtZero: true, grid: { color: '#EBEEF0' }, ticks: { precision: 0, font: { size: 11 } } }
+        }
+    }
+});
+
+// Properties by Type - Bar (vertical)
+new Chart(document.getElementById('chartPropType'), {
+    type: 'bar',
+    data: {
+        labels: [{% for t in properties_by_type %}'{{ t.name }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Properties',
+            data: [{% for t in properties_by_type %}{{ t.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: COLORS.slice(0, {{ properties_by_type|length }}),
+            borderRadius: 4,
+            maxBarThickness: 48
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Properties by Type', font: { size: 13, weight: '600' }, padding: { bottom: 12 } }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: { beginAtZero: true, grid: { color: '#EBEEF0' }, ticks: { precision: 0, font: { size: 11 } } }
+        }
+    }
+});
+
+// Tasks by Priority - Bar (vertical)
+new Chart(document.getElementById('chartTaskPriority'), {
+    type: 'bar',
+    data: {
+        labels: [{% for p in tasks_by_priority %}'{{ p.name }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{
+            label: 'Tasks',
+            data: [{% for p in tasks_by_priority %}{{ p.count }}{% if not forloop.last %},{% endif %}{% endfor %}],
+            backgroundColor: ['#36B37E','#0A6ED1','#EE6723','#EE3939'].slice(0, {{ tasks_by_priority|length }}),
+            borderRadius: 4,
+            maxBarThickness: 48
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            title: { display: true, text: 'Tasks by Priority', font: { size: 13, weight: '600' }, padding: { bottom: 12 } }
+        },
+        scales: {
+            x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+            y: { beginAtZero: true, grid: { color: '#EBEEF0' }, ticks: { precision: 0, font: { size: 11 } } }
+        }
+    }
+});
+
+// Pipeline Summary - Doughnut
+new Chart(document.getElementById('chartPipelineSummary'), {
+    type: 'doughnut',
+    data: {
+        labels: ['Total Deals', 'Won', 'Open/Lost'],
+        datasets: [{
+            data: [{{ total_opps }}, {{ won_opps }}, {{ lost_opps }}],
+            backgroundColor: ['#0A6ED1', '#36B37E', '#EE6723'],
+            borderWidth: 2,
+            borderColor: '#fff'
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '55%',
+        plugins: {
+            legend: { display: true, position: 'bottom', labels: { font: { size: 12, weight: '500' }, padding: 16, usePointStyle: true, pointStyle: 'circle' } },
+            title: { display: true, text: 'Pipeline Summary', font: { size: 14, weight: '600' }, padding: { bottom: 16 } },
+            tooltip: { callbacks: { label: function(ctx) { var total = ctx.dataset.data.reduce(function(a,b){return a+b;},0); return ctx.label + ': ' + ctx.raw + ' (' + Math.round(ctx.raw / total * 100) + '%)'; } } }
+        }
+    }
+});
+</script>
 {% endblock %}

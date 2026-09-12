@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 {% block title %}Leads Report - Cairobrokers CRM{% endblock %}
+
+{% block extra_css %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+    .chart-container { position: relative; width: 100%; max-height: 20rem; }
+    .chart-container canvas { width: 100% !important; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="page-header d-flex justify-content-between align-items-center">
     <div>
@@ -9,61 +18,45 @@
     <a href="{% url 'reports_dashboard' %}" class="sap-btn sap-btn-default"><i class="fas fa-arrow-left me-1"></i> Back</a>
 </div>
 
+<div class="sap-card" style="margin-bottom:1.5rem;">
+    <div class="sap-card-header" style="padding:0.75rem 1.25rem;"><h3 style="margin:0;font-size:0.875rem;"><i class="fas fa-th-large me-2"></i>Detailed Reports</h3></div>
+    <div class="sap-card-body" style="padding:0.75rem 1.25rem;">
+        <div style="display:flex;gap:0.5rem;overflow-x:auto;padding-bottom:0.25rem;">
+            <a href="{% url 'reports_dashboard' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-chart-line me-1"></i> Dashboard</a>
+            <a href="{% url 'report_leads' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;background:#0A6ED1;color:#fff;"><i class="fas fa-user-plus me-1"></i> Leads</a>
+            <a href="{% url 'report_properties' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-building me-1"></i> Properties</a>
+            <a href="{% url 'report_opportunities' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-handshake me-1"></i> Opportunities</a>
+            <a href="{% url 'report_tasks' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-clipboard-check me-1"></i> Tasks</a>
+            <a href="{% url 'report_agents' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-users me-1"></i> Agents</a>
+            <a href="{% url 'report_pipeline' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-filter me-1"></i> Pipeline</a>
+            <a href="{% url 'report_revenue' %}" class="sap-btn sap-btn-default" style="white-space:nowrap;font-size:0.8125rem;"><i class="fas fa-coins me-1"></i> Revenue</a>
+        </div>
+    </div>
+</div>
+
 <div class="report-kpi-row">
     <div class="kpi-card brand"><div class="kpi-icon"><i class="fas fa-users"></i></div><div class="kpi-value">{{ total }}</div><div class="kpi-label">Total Leads</div></div>
 </div>
 
-<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-flag me-2"></i>By Status</h3></div>
-        <div class="sap-card-body">
-            {% for s in by_status %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ s.status }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-brand" style="width:{{ s.count }}%"></div></div>
-                <span class="chart-bar-value">{{ s.count }}</span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-flag me-2"></i>Leads by Status</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartStatus"></canvas></div></div>
     </div>
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-link me-2"></i>By Source</h3></div>
-        <div class="sap-card-body">
-            {% for s in by_source %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ s.source }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-info" style="width:{{ s.count }}%"></div></div>
-                <span class="chart-bar-value">{{ s.count }}</span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-link me-2"></i>Leads by Source</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartSource"></canvas></div></div>
     </div>
 </div>
 
-<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+<div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-arrow-up me-2"></i>By Priority</h3></div>
-        <div class="sap-card-body">
-            {% for p in by_priority %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ p.priority|default:"None" }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-warning" style="width:{{ p.count }}%"></div></div>
-                <span class="chart-bar-value">{{ p.count }}</span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-arrow-up me-2"></i>Leads by Priority</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartPriority"></canvas></div></div>
     </div>
     <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-user-tie me-2"></i>By Agent</h3></div>
-        <div class="sap-card-body">
-            {% for a in by_agent %}
-            <div class="chart-bar-row">
-                <span class="chart-bar-label">{{ a.first_name|default:a.username }}</span>
-                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-success" style="width:{{ a.count }}%"></div></div>
-                <span class="chart-bar-value">{{ a.count }}</span>
-            </div>
-            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
-        </div>
+        <div class="sap-card-header"><h3><i class="fas fa-user-tie me-2"></i>Leads by Agent</h3></div>
+        <div class="sap-card-body"><div class="chart-container"><canvas id="chartAgent"></canvas></div></div>
     </div>
 </div>
 
@@ -90,4 +83,53 @@
         </div>
     </div>
 </div>
+
+<script>
+const COLORS = ['#0A6ED1','#36B37E','#EE6723','#EE3939','#6f42c1','#ffc107','#17a2b8','#6c757d','#fd7e14','#20c997'];
+Chart.defaults.font.family = "'Roboto','Segoe UI','Helvetica Neue',Arial,sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.padding = 16;
+Chart.defaults.plugins.legend.labels.font = { size: 12, weight: '500' };
+
+// By Status - Pie
+new Chart(document.getElementById('chartStatus'), {
+    type: 'pie',
+    data: {
+        labels: [{% for s in by_status %}'{{ s.status }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ data: [{% for s in by_status %}{{ s.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: COLORS.slice(0,{{ by_status|length }}), borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 12, weight: '500' }, padding: 16, usePointStyle: true, pointStyle: 'circle' } }, title: { display: true, text: 'Leads by Status', font: { size: 14, weight: '600' }, padding: { bottom: 16 } } } }
+});
+
+// By Source - Pie
+new Chart(document.getElementById('chartSource'), {
+    type: 'pie',
+    data: {
+        labels: [{% for s in by_source %}'{{ s.source }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ data: [{% for s in by_source %}{{ s.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: COLORS.slice(0,{{ by_source|length }}), borderWidth: 2, borderColor: '#fff' }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 12, weight: '500' }, padding: 16, usePointStyle: true, pointStyle: 'circle' } }, title: { display: true, text: 'Leads by Source', font: { size: 14, weight: '600' }, padding: { bottom: 16 } } } }
+});
+
+// By Priority - Bar
+new Chart(document.getElementById('chartPriority'), {
+    type: 'bar',
+    data: {
+        labels: [{% for p in by_priority %}'{{ p.priority|default:"None" }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ label: 'Leads', data: [{% for p in by_priority %}{{ p.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: ['#36B37E','#0A6ED1','#EE6723','#EE3939'], borderRadius: 4, maxBarThickness: 48 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Leads by Priority', font: { size: 13, weight: '600' } } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#EBEEF0' }, ticks: { precision: 0 } } } }
+});
+
+// By Agent - Bar
+new Chart(document.getElementById('chartAgent'), {
+    type: 'bar',
+    data: {
+        labels: [{% for a in by_agent %}'{{ a.first_name|default:a.username }}'{% if not forloop.last %},{% endif %}{% endfor %}],
+        datasets: [{ label: 'Leads', data: [{% for a in by_agent %}{{ a.count }}{% if not forloop.last %},{% endif %}{% endfor %}], backgroundColor: COLORS.slice(0,{{ by_agent|length }}), borderRadius: 4, maxBarThickness: 48 }]
+    },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, title: { display: true, text: 'Leads by Agent', font: { size: 13, weight: '600' } } }, scales: { x: { grid: { display: false } }, y: { beginAtZero: true, grid: { color: '#EBEEF0' }, ticks: { precision: 0 } } } }
+});
+</script>
 {% endblock %}

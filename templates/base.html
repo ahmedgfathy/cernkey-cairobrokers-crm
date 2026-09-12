@@ -46,6 +46,11 @@
             <a href="{% url 'reports_dashboard' %}" class="{% if 'report' in request.resolver_match.url_name %}active{% endif %}">
                 <i class="fas fa-chart-bar"></i> Analytics
             </a>
+            {% if user.is_staff %}
+            <a href="{% url 'admin:index' %}">
+                <i class="fas fa-cog"></i> Admin
+            </a>
+            {% endif %}
         </nav>
         <div class="shell-bar-right">
             <a href="{% url 'notification_list' %}" class="user-btn notification-badge" title="Notifications">
@@ -171,6 +176,11 @@
                     <a href="{% url 'reports_dashboard' %}" class="nav-item {% if 'report' in request.resolver_match.url_name %}active{% endif %}">
                         <i class="fas fa-chart-bar"></i> Reports
                     </a>
+                    {% if user.is_staff %}
+                    <a href="{% url 'admin:index' %}" class="nav-item">
+                        <i class="fas fa-cog"></i> Admin Panel
+                    </a>
+                    {% endif %}
                 </div>
             </div>
         </aside>

@@ -19,7 +19,7 @@ class UserAdmin(BaseUserAdmin):
 
     fieldsets = BaseUserAdmin.fieldsets + (
         ('Additional Info', {
-            'fields': ('user_type', 'phone', 'profile_picture', 'bio', 'hire_date')
+            'fields': ('user_type', 'phone', 'profile_picture', 'bio')
         }),
     )
 

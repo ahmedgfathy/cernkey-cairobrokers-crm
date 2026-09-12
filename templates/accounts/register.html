@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Register - Cairobrokers CRM{% endblock %}
+
+{% block content_noauth %}
+<div class="login-wrapper">
+    <div class="login-left">
+        <div class="login-left-content">
+            <div class="brand-icon">
+                <i class="fas fa-building"></i>
+            </div>
+            <h1>Cairobrokers CRM</h1>
+            <p>Create your account and start managing properties, leads, and opportunities today.</p>
+        </div>
+    </div>
+    <div class="login-right">
+        <div class="login-form-container">
+            <h2>Create Account</h2>
+            <p class="login-subtitle">Fill in the details to register</p>
+
+            {% if form.errors %}
+            <div class="sap-alert sap-alert--error mb-3">
+                <i class="fas fa-exclamation-circle"></i>
+                Please correct the errors below.
+            </div>
+            {% endif %}
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="sap-form-group">
+                    <label class="sap-form-label">Username</label>
+                    {{ form.username }}
+                    {% if form.username.errors %}<small class="text-error">{{ form.username.errors.0 }}</small>{% endif %}
+                </div>
+                <div class="sap-form-group">
+                    <label class="sap-form-label">Email</label>
+                    {{ form.email }}
+                    {% if form.email.errors %}<small class="text-error">{{ form.email.errors.0 }}</small>{% endif %}
+                </div>
+                <div class="form-row">
+                    <div class="sap-form-group">
+                        <label class="sap-form-label">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="sap-form-group">
+                        <label class="sap-form-label">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+                <div class="sap-form-group">
+                    <label class="sap-form-label">User Type</label>
+                    {{ form.user_type }}
+                </div>
+                <div class="sap-form-group">
+                    <label class="sap-form-label">Password</label>
+                    {{ form.password1 }}
+                    {% if form.password1.errors %}<small class="text-error">{{ form.password1.errors.0 }}</small>{% endif %}
+                </div>
+                <div class="sap-form-group">
+                    <label class="sap-form-label">Confirm Password</label>
+                    {{ form.password2 }}
+                    {% if form.password2.errors %}<small class="text-error">{{ form.password2.errors.0 }}</small>{% endif %}
+                </div>
+                <button type="submit" class="sap-btn sap-btn-emphasized" style="margin-top:0.5rem;">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+            </form>
+            <div class="login-footer">
+                Already have an account? <a href="{% url 'login' %}">Sign in</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

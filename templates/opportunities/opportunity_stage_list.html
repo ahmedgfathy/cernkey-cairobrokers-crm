@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1>Opportunity Stages</h1>
+            <p class="page-subtitle">Configure your sales pipeline stages</p>
+        </div>
+        <a href="{% url 'opportunity_stage_create' %}" class="sap-btn sap-btn-emphasized">
+            <i class="fas fa-plus"></i> Add Stage
+        </a>
+    </div>
+
+    <div class="sap-card">
+        <div class="sap-card-body no-padding">
+            <div class="table-responsive">
+                <table class="sap-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Color</th>
+                            <th>Probability</th>
+                            <th>Order</th>
+                            <th>Active</th>
+                            <th style="text-align:center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for stage in stages %}
+                        <tr>
+                            <td style="font-weight:600;">{{ stage.name }}</td>
+                            <td>
+                                {% if stage.color %}
+                                <div style="display:flex; align-items:center; gap:0.5rem;">
+                                    <span style="display:inline-block; width:1rem; height:1rem; border-radius:0.25rem; background:{{ stage.color }}; border:1px solid rgba(0,0,0,0.1);"></span>
+                                    <span class="text-muted" style="font-size:0.75rem;">{{ stage.color }}</span>
+                                </div>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ stage.probability }}%</td>
+                            <td>{{ stage.order }}</td>
+                            <td>
+                                {% if stage.is_active %}
+                                <span class="sap-badge sap-badge--success">Active</span>
+                                {% else %}
+                                <span class="sap-badge sap-badge--default">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td style="text-align:center;">
+                                <div class="d-flex gap-1" style="justify-content:center;">
+                                    <a href="{% url 'opportunity_stage_update' pk=stage.pk %}" class="sap-btn sap-btn-default sap-btn-sm" title="Edit">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    <a href="{% url 'opportunity_stage_delete' pk=stage.pk %}" class="sap-btn sap-btn-danger sap-btn-sm" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6">
+                                <div class="empty-state">
+                                    <i class="fas fa-layer-group"></i>
+                                    <h4>No stages found</h4>
+                                    <p>Create your first pipeline stage to get started.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

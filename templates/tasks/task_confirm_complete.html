@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-check-double" style="margin-right:0.5rem; opacity:0.7;"></i> Complete Task</h1>
+    <div class="page-header-actions">
+        <a href="{% url 'task_detail' pk=task.pk %}" class="sap-btn sap-btn-default">
+            <i class="fas fa-arrow-left"></i> Back to Task
+        </a>
+    </div>
+</div>
+
+<div class="sap-card">
+    <div class="sap-card-body">
+        <div class="sap-alert sap-alert--success" style="margin-bottom:1rem;">
+            <i class="fas fa-check-circle"></i>
+            <div>
+                <strong>Mark this task as completed?</strong><br>
+                This will mark the task as done and record the completion time.
+            </div>
+        </div>
+
+        <div class="sap-card" style="margin-bottom:1rem;">
+            <div class="sap-card-body">
+                <div class="form-grid">
+                    <div>
+                        <div class="form-field-label">Title</div>
+                        <div class="form-field-value">{{ task.title }}</div>
+                    </div>
+                    <div>
+                        <div class="form-field-label">Assigned To</div>
+                        <div class="form-field-value">{{ task.assigned_to|default:"-" }}</div>
+                    </div>
+                    <div>
+                        <div class="form-field-label">Category</div>
+                        <div class="form-field-value">
+                            {% if task.category %}
+                            <span class="sap-badge" style="background-color:{{ task.category.color }}; color:#fff;">{{ task.category }}</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-field-label">Priority</div>
+                        <div class="form-field-value">
+                            {% if task.priority %}
+                            <span class="sap-badge" style="background-color:{{ task.priority.color }}; color:#fff;">{{ task.priority }}</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-field-label">Due Date</div>
+                        <div class="form-field-value">{{ task.due_date|date:"M d, Y"|default:"-" }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div style="display:flex; justify-content:flex-end; gap:0.5rem;">
+                <a href="{% url 'task_detail' pk=task.pk %}" class="sap-btn sap-btn-default">Cancel</a>
+                <button type="submit" class="sap-btn sap-btn-success">
+                    <i class="fas fa-check"></i> Mark Complete
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}

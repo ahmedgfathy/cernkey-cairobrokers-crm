@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-arrow-up" style="margin-right:0.5rem; opacity:0.7;"></i> Task Priorities</h1>
+    <div class="page-header-actions">
+        <a href="{% url 'task_priority_create' %}" class="sap-btn sap-btn-emphasized">
+            <i class="fas fa-plus"></i> Add Priority
+        </a>
+    </div>
+</div>
+
+<div class="sap-card">
+    <div class="sap-card-body no-padding">
+        <div class="table-responsive">
+            <table class="sap-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Color</th>
+                        <th>Description</th>
+                        <th>Tasks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for priority in priorities %}
+                    <tr>
+                        <td>
+                            <span class="sap-badge" style="background-color:{{ priority.color }}; color:#fff;">{{ priority.name }}</span>
+                        </td>
+                        <td>
+                            <span style="display:inline-block; width:20px; height:20px; border-radius:4px; background-color:{{ priority.color }}; vertical-align:middle;"></span>
+                            <code style="margin-left:0.5rem; font-size:0.75rem;">{{ priority.color }}</code>
+                        </td>
+                        <td>{{ priority.description|default:"-"|truncatewords:15 }}</td>
+                        <td>{{ priority.tasks.count }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h4>No priorities found</h4>
+                                <p>Create a priority level for your tasks.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

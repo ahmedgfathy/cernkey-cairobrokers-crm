@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% block title %}Properties Report - Cairobrokers CRM{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1><i class="fas fa-building me-2"></i>Properties Report</h1>
+        <div class="page-subtitle">Property types, prices, cities & features</div>
+    </div>
+    <a href="{% url 'reports_dashboard' %}" class="sap-btn sap-btn-default"><i class="fas fa-arrow-left me-1"></i> Back</a>
+</div>
+
+<div class="report-kpi-row">
+    <div class="kpi-card brand"><div class="kpi-icon"><i class="fas fa-building"></i></div><div class="kpi-value">{{ total }}</div><div class="kpi-label">Total Properties</div></div>
+    <div class="kpi-card success"><div class="kpi-icon"><i class="fas fa-dollar-sign"></i></div><div class="kpi-value">${{ total_value|floatformat:0 }}</div><div class="kpi-label">Total Value</div></div>
+    <div class="kpi-card info"><div class="kpi-icon"><i class="fas fa-calculator"></i></div><div class="kpi-value">${{ avg_price|floatformat:0 }}</div><div class="kpi-label">Average Price</div></div>
+</div>
+
+<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-th-large me-2"></i>By Type</h3></div>
+        <div class="sap-card-body">
+            {% for t in by_type %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ t.name }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-success" style="width:{{ t.count }}%"></div></div>
+                <span class="chart-bar-value">{{ t.count }}</span>
+            </div>
+            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
+        </div>
+    </div>
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-flag me-2"></i>By Status</h3></div>
+        <div class="sap-card-body">
+            {% for s in by_status %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ s.status }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-brand" style="width:{{ s.count }}%"></div></div>
+                <span class="chart-bar-value">{{ s.count }}</span>
+            </div>
+            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-map-marker-alt me-2"></i>By City</h3></div>
+        <div class="sap-card-body">
+            {% for c in by_city %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ c.city }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-info" style="width:{{ c.count }}%"></div></div>
+                <span class="chart-bar-value">{{ c.count }} <small>${{ c.avg_price|floatformat:0 }}</small></span>
+            </div>
+            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
+        </div>
+    </div>
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-dollar-sign me-2"></i>Price Distribution</h3></div>
+        <div class="sap-card-body">
+            {% for p in price_distribution %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ p.label }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-warning" style="width:{{ p.count }}%"></div></div>
+                <span class="chart-bar-value">{{ p.count }}</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="sap-card mb-4">
+    <div class="sap-card-header"><h3><i class="fas fa-star me-2"></i>Features Overview</h3></div>
+    <div class="sap-card-body">
+        <div class="summary-grid" style="grid-template-columns: repeat(5, 1fr);">
+            <div class="summary-item"><div class="summary-number text-brand">{{ features.garage }}</div><div class="summary-label">Garage</div></div>
+            <div class="summary-item"><div class="summary-number text-success">{{ features.pool }}</div><div class="summary-label">Pool</div></div>
+            <div class="summary-item"><div class="summary-number text-success">{{ features.garden }}</div><div class="summary-label">Garden</div></div>
+            <div class="summary-item"><div class="summary-number text-info">{{ features.pet_friendly }}</div><div class="summary-label">Pet Friendly</div></div>
+            <div class="summary-item"><div class="summary-number text-warning">{{ features.featured }}</div><div class="summary-label">Featured</div></div>
+        </div>
+    </div>
+</div>
+
+<div class="sap-card">
+    <div class="sap-card-header"><h3><i class="fas fa-list me-2"></i>Property Data</h3></div>
+    <div class="sap-card-body no-padding">
+        <div class="table-responsive">
+            <table class="sap-table">
+                <thead><tr><th>Title</th><th>City</th><th>Type</th><th>Price</th><th>Beds</th><th>Sq Ft</th><th>Status</th></tr></thead>
+                <tbody>
+                    {% for p in properties %}
+                    <tr>
+                        <td><a href="{% url 'property_detail' pk=p.pk %}" class="text-decoration-none text-brand fw-bold">{{ p.title }}</a></td>
+                        <td>{{ p.city }}</td>
+                        <td>{{ p.property_type|default:"-" }}</td>
+                        <td>${{ p.price|floatformat:0 }}</td>
+                        <td>{{ p.bedrooms }}</td>
+                        <td>{{ p.square_feet|floatformat:0 }}</td>
+                        <td><span class="sap-badge sap-badge--default">{{ p.status|default:"-" }}</span></td>
+                    </tr>
+                    {% empty %}<tr><td colspan="7"><div class="empty-state"><p>No properties found</p></div></td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

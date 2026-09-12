@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+{% block title %}Tasks Report - Cairobrokers CRM{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1><i class="fas fa-clipboard-check me-2"></i>Tasks Report</h1>
+        <div class="page-subtitle">Task completion, overdue, categories & agent load</div>
+    </div>
+    <a href="{% url 'reports_dashboard' %}" class="sap-btn sap-btn-default"><i class="fas fa-arrow-left me-1"></i> Back</a>
+</div>
+
+<div class="report-kpi-row">
+    <div class="kpi-card brand"><div class="kpi-icon"><i class="fas fa-tasks"></i></div><div class="kpi-value">{{ total }}</div><div class="kpi-label">Total Tasks</div></div>
+    <div class="kpi-card success"><div class="kpi-icon"><i class="fas fa-check-circle"></i></div><div class="kpi-value">{{ completed }}</div><div class="kpi-label">Completed</div></div>
+    <div class="kpi-card warning"><div class="kpi-icon"><i class="fas fa-clock"></i></div><div class="kpi-value">{{ pending }}</div><div class="kpi-label">Pending</div></div>
+    <div class="kpi-card error"><div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div><div class="kpi-value">{{ overdue }}</div><div class="kpi-label">Overdue</div></div>
+    <div class="kpi-card info"><div class="kpi-icon"><i class="fas fa-percentage"></i></div><div class="kpi-value">{{ completion_rate }}%</div><div class="kpi-label">Completion Rate</div></div>
+</div>
+
+<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-flag me-2"></i>By Status</h3></div>
+        <div class="sap-card-body">
+            {% for s in by_status %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ s.status }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-brand" style="width:{{ s.count }}%"></div></div>
+                <span class="chart-bar-value">{{ s.count }}</span>
+            </div>
+            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
+        </div>
+    </div>
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-arrow-up me-2"></i>By Priority</h3></div>
+        <div class="sap-card-body">
+            {% for p in by_priority %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ p.priority }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-warning" style="width:{{ p.count }}%"></div></div>
+                <span class="chart-bar-value">{{ p.count }}</span>
+            </div>
+            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-folder me-2"></i>By Category</h3></div>
+        <div class="sap-card-body">
+            {% for c in by_category %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ c.category }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-info" style="width:{{ c.count }}%"></div></div>
+                <span class="chart-bar-value">{{ c.count }}</span>
+            </div>
+            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
+        </div>
+    </div>
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-user-tie me-2"></i>By Agent</h3></div>
+        <div class="sap-card-body">
+            {% for a in by_agent %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ a.first_name|default:a.username }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-success" style="width:{{ a.count }}%"></div></div>
+                <span class="chart-bar-value">{{ a.count }} <small>{{ a.completed }} done</small></span>
+            </div>
+            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="sap-card">
+    <div class="sap-card-header"><h3><i class="fas fa-list me-2"></i>Task Data</h3></div>
+    <div class="sap-card-body no-padding">
+        <div class="table-responsive">
+            <table class="sap-table">
+                <thead><tr><th>Title</th><th>Assigned To</th><th>Category</th><th>Priority</th><th>Status</th><th>Due Date</th><th>Completed</th></tr></thead>
+                <tbody>
+                    {% for task in tasks %}
+                    <tr>
+                        <td><a href="{% url 'task_detail' pk=task.pk %}" class="text-decoration-none text-brand fw-bold">{{ task.title }}</a></td>
+                        <td>{{ task.assigned_to }}</td>
+                        <td><span class="sap-badge" style="background-color:{{ task.category.color|default:'#6c757d' }}; color:#fff;">{{ task.category|default:"-" }}</span></td>
+                        <td><span class="sap-badge" style="background-color:{{ task.priority.color|default:'#6c757d' }}; color:#fff;">{{ task.priority|default:"-" }}</span></td>
+                        <td><span class="sap-badge" style="background-color:{{ task.status.color|default:'#6c757d' }}; color:#fff;">{{ task.status|default:"-" }}</span></td>
+                        <td>{% if task.is_overdue %}<span class="sap-badge sap-badge--error">{{ task.due_date|date:"M d, Y" }}</span>{% elif task.due_date %}{{ task.due_date|date:"M d, Y" }}{% else %}-{% endif %}</td>
+                        <td>{% if task.is_completed %}<i class="fas fa-check-circle text-success"></i>{% else %}<i class="fas fa-minus-circle text-muted"></i>{% endif %}</td>
+                    </tr>
+                    {% empty %}<tr><td colspan="7"><div class="empty-state"><p>No tasks found</p></div></td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

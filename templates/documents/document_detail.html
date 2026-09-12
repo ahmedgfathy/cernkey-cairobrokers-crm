@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}{{ document.title }} - Cairobrokers CRM{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1>{{ document.title }}</h1>
+        <div class="page-subtitle">Document Detail</div>
+    </div>
+    <div class="d-flex gap-1">
+        <a href="{% url 'document_list' %}" class="sap-btn sap-btn-default">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+        <a href="{% url 'document_update' document.pk %}" class="sap-btn sap-btn-default">
+            <i class="fas fa-edit"></i> Edit
+        </a>
+        <a href="{% url 'document_delete' document.pk %}" class="sap-btn sap-btn-danger">
+            <i class="fas fa-trash"></i> Delete
+        </a>
+    </div>
+</div>
+
+<div class="object-page-section">
+    <div class="section-title">Document Information</div>
+    <div class="sap-card">
+        <div class="sap-card-body">
+            <div class="form-grid">
+                <div>
+                    <div class="form-field-label">Title</div>
+                    <div class="form-field-value">{{ document.title }}</div>
+                </div>
+                <div>
+                    <div class="form-field-label">Type</div>
+                    <div class="form-field-value">
+                        <span class="sap-badge sap-badge--default">{{ document.document_type }}</span>
+                    </div>
+                </div>
+                <div>
+                    <div class="form-field-label">Description</div>
+                    <div class="form-field-value">{{ document.description|default:"-" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="object-page-section">
+    <div class="section-title">File</div>
+    <div class="sap-card">
+        <div class="sap-card-body">
+            <div class="form-grid">
+                <div>
+                    <div class="form-field-label">File Name</div>
+                    <div class="form-field-value">
+                        {% if document.file %}
+                        <a href="{{ document.file.url }}" class="text-decoration-none" style="color:var(--sapBrandColor); font-weight:600;" download>
+                            <i class="fas fa-download"></i> {{ document.file.name|default:"Download" }}
+                        </a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
+                    <div class="form-field-label">Size</div>
+                    <div class="form-field-value">{{ document.file_size_display|default:"-" }}</div>
+                </div>
+                <div>
+                    <div class="form-field-label">Version</div>
+                    <div class="form-field-value">{{ document.version|default:"1" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="object-page-section">
+    <div class="section-title">Access</div>
+    <div class="sap-card">
+        <div class="sap-card-body">
+            <div class="form-grid">
+                <div>
+                    <div class="form-field-label">Uploaded By</div>
+                    <div class="form-field-value">{{ document.uploaded_by|default:"-" }}</div>
+                </div>
+                <div>
+                    <div class="form-field-label">Public</div>
+                    <div class="form-field-value">
+                        {% if document.is_public %}
+                        <span class="sap-badge sap-badge--success">Yes</span>
+                        {% else %}
+                        <span class="sap-badge sap-badge--default">No</span>
+                        {% endif %}
+                    </div>
+                </div>
+                <div>
+                    <div class="form-field-label">Created At</div>
+                    <div class="form-field-value">{{ document.created_at|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

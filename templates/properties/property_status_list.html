@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="sap-page">
+  <div class="page-header">
+    <h1>Property Statuses</h1>
+    <a href="{% url 'property_status_create' %}" class="sap-btn sap-btn-emphasized">Add Property Status</a>
+  </div>
+
+  <div class="sap-card">
+    <div class="sap-card-header">
+      Property Status List
+      <span class="sap-badge sap-badge--info">{{ property_statuses|length }}</span>
+    </div>
+    <div class="sap-card-body no-padding">
+      <table class="sap-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for status in property_statuses %}
+          <tr>
+            <td>
+              {% if status.name == 'Available' %}
+              <span class="sap-badge sap-badge--success">{{ status.name }}</span>
+              {% elif status.name == 'Sold' %}
+              <span class="sap-badge sap-badge--error">{{ status.name }}</span>
+              {% elif status.name == 'Pending' %}
+              <span class="sap-badge sap-badge--warning">{{ status.name }}</span>
+              {% else %}
+              <span class="sap-badge sap-badge--default">{{ status.name }}</span>
+              {% endif %}
+            </td>
+            <td>{{ status.description|default:"-" }}</td>
+            <td>
+              <a href="{% url 'property_status_update' pk=status.pk %}" class="sap-btn sap-btn-default sap-btn-sm">Edit</a>
+              <a href="{% url 'property_status_delete' pk=status.pk %}" class="sap-btn sap-btn-danger sap-btn-sm">Delete</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="text-center" style="padding: 2rem; color: var(--sapNeutralTextColor);">
+              No property statuses found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock content %}

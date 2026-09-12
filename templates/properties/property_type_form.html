@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="sap-page">
+  <div class="page-header">
+    <div>
+      <h1>{% if property_type %}Edit Property Type{% else %}Create Property Type{% endif %}</h1>
+      <p class="page-subtitle">{% if property_type %}Update property type information{% else %}Add a new property type to the system{% endif %}</p>
+    </div>
+    <a href="{% url 'property_type_list' %}" class="sap-btn sap-btn-transparent">Back to List</a>
+  </div>
+
+  <div class="sap-card">
+    <div class="sap-card-header">Property Type Information</div>
+    <div class="sap-card-body">
+      <form method="post"
+            action="{% if property_type %}{% url 'property_type_update' pk=property_type.pk %}{% else %}{% url 'property_type_create' %}{% endif %}">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+        <div class="sap-alert--error" style="margin-bottom: 1.5rem;">
+          {% for error in form.non_field_errors %}
+          <p>{{ error }}</p>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="sap-form-group">
+          <label for="{{ form.name.id_for_label }}" class="sap-form-label">Name</label>
+          {{ form.name }}
+          {% if form.name.errors %}
+          <div class="sap-alert--error">{{ form.name.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="sap-form-group" style="margin-top: 1rem;">
+          <label for="{{ form.description.id_for_label }}" class="sap-form-label">Description</label>
+          {{ form.description }}
+          {% if form.description.errors %}
+          <div class="sap-alert--error">{{ form.description.errors }}</div>
+          {% endif %}
+        </div>
+
+        <div class="form-row" style="margin-top: 1.5rem;">
+          <button type="submit" class="sap-btn sap-btn-emphasized">
+            {% if property_type %}Update Property Type{% else %}Create Property Type{% endif %}
+          </button>
+          <a href="{% url 'property_type_list' %}" class="sap-btn sap-btn-default">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}

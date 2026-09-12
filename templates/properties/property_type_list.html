@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="sap-page">
+  <div class="page-header">
+    <h1>Property Types</h1>
+    <a href="{% url 'property_type_create' %}" class="sap-btn sap-btn-emphasized">Add Property Type</a>
+  </div>
+
+  <div class="sap-card">
+    <div class="sap-card-header">
+      Property Type List
+      <span class="sap-badge sap-badge--info">{{ property_types|length }}</span>
+    </div>
+    <div class="sap-card-body no-padding">
+      <table class="sap-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for type in property_types %}
+          <tr>
+            <td>{{ type.name }}</td>
+            <td>{{ type.description|default:"-" }}</td>
+            <td>
+              <a href="{% url 'property_type_update' pk=type.pk %}" class="sap-btn sap-btn-default sap-btn-sm">Edit</a>
+              <a href="{% url 'property_type_delete' pk=type.pk %}" class="sap-btn sap-btn-danger sap-btn-sm">Delete</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="3" class="text-center" style="padding: 2rem; color: var(--sapNeutralTextColor);">
+              No property types found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-link me-2"></i>Lead Sources</h1>
+                <p class="page-subtitle">Manage lead source categories</p>
+            </div>
+            <a href="{% url 'lead_source_create' %}" class="sap-btn sap-btn-emphasized">
+                <i class="fas fa-plus me-1"></i> Add Source
+            </a>
+        </div>
+    </div>
+
+    <div class="sap-card">
+        <div class="sap-card-body p-0">
+            <div class="table-responsive">
+                <table class="sap-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Active</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for source in sources %}
+                        <tr>
+                            <td class="fw-semibold">{{ source.name }}</td>
+                            <td>{{ source.description|default:"-" }}</td>
+                            <td>
+                                {% if source.active %}
+                                <span class="sap-badge sap-badge--success">Active</span>
+                                {% else %}
+                                <span class="sap-badge sap-badge--default">Inactive</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <a href="{% url 'lead_source_update' pk=source.pk %}" class="sap-btn sap-btn-sm sap-btn-transparent me-1" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'lead_source_delete' pk=source.pk %}" class="sap-btn sap-btn-sm sap-btn-transparent" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                    No lead sources found.
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

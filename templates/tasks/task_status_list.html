@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-toggle-on" style="margin-right:0.5rem; opacity:0.7;"></i> Task Statuses</h1>
+    <div class="page-header-actions">
+        <a href="{% url 'task_status_create' %}" class="sap-btn sap-btn-emphasized">
+            <i class="fas fa-plus"></i> Add Status
+        </a>
+    </div>
+</div>
+
+<div class="sap-card">
+    <div class="sap-card-body no-padding">
+        <div class="table-responsive">
+            <table class="sap-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Color</th>
+                        <th>Description</th>
+                        <th>Tasks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for status in statuses %}
+                    <tr>
+                        <td>
+                            <span class="sap-badge" style="background-color:{{ status.color }}; color:#fff;">{{ status.name }}</span>
+                        </td>
+                        <td>
+                            <span style="display:inline-block; width:20px; height:20px; border-radius:4px; background-color:{{ status.color }}; vertical-align:middle;"></span>
+                            <code style="margin-left:0.5rem; font-size:0.75rem;">{{ status.color }}</code>
+                        </td>
+                        <td>{{ status.description|default:"-"|truncatewords:15 }}</td>
+                        <td>{{ status.tasks.count }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4">
+                            <div class="empty-state">
+                                <i class="fas fa-inbox"></i>
+                                <h4>No statuses found</h4>
+                                <p>Create a status for your tasks.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1>Opportunities</h1>
+            <p class="page-subtitle">Manage your sales pipeline</p>
+        </div>
+        <a href="{% url 'opportunity_create' %}" class="sap-btn sap-btn-emphasized">
+            <i class="fas fa-plus"></i> Add Opportunity
+        </a>
+    </div>
+
+    <div class="kpi-row">
+        <div class="kpi-card success">
+            <div class="kpi-icon"><i class="fas fa-dollar-sign"></i></div>
+            <div class="kpi-value">${{ total_value|floatformat:2 }}</div>
+            <div class="kpi-label">Total Pipeline Value</div>
+        </div>
+        <div class="kpi-card brand">
+            <div class="kpi-icon"><i class="fas fa-handshake"></i></div>
+            <div class="kpi-value">{{ opportunities|length }}</div>
+            <div class="kpi-label">Total Opportunities</div>
+        </div>
+    </div>
+
+    <div class="sap-card mb-4">
+        <div class="sap-card-body">
+            <form method="get" class="filter-bar">
+                <div class="filter-bar-item">
+                    <span class="filter-icon"><i class="fas fa-layer-group"></i></span>
+                    <select name="stage" class="sap-select" onchange="this.form.submit()">
+                        <option value="">All Stages</option>
+                        {% for stage in stages %}
+                        <option value="{{ stage.id }}" {% if selected_stage == stage.id|stringformat:"d" %}selected{% endif %}>
+                            {{ stage.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-bar-item">
+                    <span class="filter-icon"><i class="fas fa-tag"></i></span>
+                    <select name="opportunity_type" class="sap-select" onchange="this.form.submit()">
+                        <option value="">All Types</option>
+                        {% for value, label in opportunity_types %}
+                        <option value="{{ value }}" {% if selected_type == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if selected_stage or selected_type %}
+                <a href="{% url 'opportunity_list' %}" class="filter-clear-btn" title="Clear filters">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div class="sap-card">
+        <div class="sap-card-body no-padding">
+            <div class="table-responsive">
+                <table class="sap-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Lead</th>
+                            <th>Property</th>
+                            <th>Type</th>
+                            <th>Stage</th>
+                            <th>Value</th>
+                            <th>Expected Close</th>
+                            <th>Probability</th>
+                            <th style="text-align:center;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for opportunity in opportunities %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'opportunity_detail' pk=opportunity.pk %}" class="text-decoration-none fw-bold" style="color:var(--sapBrandColor);">
+                                    {{ opportunity.name }}
+                                </a>
+                            </td>
+                            <td>
+                                {% if opportunity.lead %}
+                                <a href="{% url 'lead_detail' pk=opportunity.lead.pk %}" class="text-decoration-none" style="color:var(--sapBrandColor);">
+                                    {{ opportunity.lead }}
+                                </a>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if opportunity.related_property %}
+                                <a href="{% url 'property_detail' pk=opportunity.related_property.pk %}" class="text-decoration-none" style="color:var(--sapBrandColor);">
+                                    {{ opportunity.related_property }}
+                                </a>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td><span class="sap-badge sap-badge--info">{{ opportunity.get_opportunity_type_display }}</span></td>
+                            <td><span class="sap-badge sap-badge--default">{{ opportunity.stage }}</span></td>
+                            <td style="font-weight:600;">${{ opportunity.estimated_value|floatformat:2 }}</td>
+                            <td>{{ opportunity.expected_close_date|date:"M d, Y" }}</td>
+                            <td>{{ opportunity.probability }}%</td>
+                            <td style="text-align:center;">
+                                <div class="d-flex gap-1" style="justify-content:center;">
+                                    <a href="{% url 'opportunity_detail' pk=opportunity.pk %}" class="sap-btn sap-btn-default sap-btn-sm" title="View">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'opportunity_update' pk=opportunity.pk %}" class="sap-btn sap-btn-default sap-btn-sm" title="Edit">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    <a href="{% url 'opportunity_delete' pk=opportunity.pk %}" class="sap-btn sap-btn-danger sap-btn-sm" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox"></i>
+                                    <h4>No opportunities found</h4>
+                                    <p>Create your first opportunity to get started.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

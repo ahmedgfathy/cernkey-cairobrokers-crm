@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-{% if lead %}edit{% else %}user-plus{% endif %} me-2"></i>{% if lead %}Update Lead{% else %}Create Lead{% endif %}</h1>
+                <p class="page-subtitle">{% if lead %}Edit lead information{% else %}Add a new lead to the system{% endif %}</p>
+            </div>
+            <a href="{% url 'lead_list' %}" class="sap-btn sap-btn-default">
+                <i class="fas fa-arrow-left me-1"></i> Back to List
+            </a>
+        </div>
+    </div>
+
+    <div class="sap-card">
+        <div class="sap-card-body">
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="sap-alert sap-alert--error mb-4">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Please correct the errors below.
+                    {% for error in form.non_field_errors %}
+                    <div>{{ error }}</div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="object-page-section">
+                    <h3 class="section-title"><i class="fas fa-user me-2"></i>Contact Information</h3>
+                    <div class="form-row">
+                        <div class="sap-form-group">
+                            <label for="{{ form.first_name.id_for_label }}" class="sap-form-label">
+                                First Name {% if form.first_name.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <input type="text" name="{{ form.first_name.html_name }}" id="{{ form.first_name.id_for_label }}"
+                                   class="sap-input {% if form.first_name.errors %}is-invalid{% endif %}"
+                                   value="{{ form.first_name.value|default:'' }}">
+                            {% if form.first_name.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.first_name.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="sap-form-group">
+                            <label for="{{ form.last_name.id_for_label }}" class="sap-form-label">
+                                Last Name {% if form.last_name.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <input type="text" name="{{ form.last_name.html_name }}" id="{{ form.last_name.id_for_label }}"
+                                   class="sap-input {% if form.last_name.errors %}is-invalid{% endif %}"
+                                   value="{{ form.last_name.value|default:'' }}">
+                            {% if form.last_name.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.last_name.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="sap-form-group">
+                            <label for="{{ form.email.id_for_label }}" class="sap-form-label">
+                                Email {% if form.email.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <input type="email" name="{{ form.email.html_name }}" id="{{ form.email.id_for_label }}"
+                                   class="sap-input {% if form.email.errors %}is-invalid{% endif %}"
+                                   value="{{ form.email.value|default:'' }}">
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.email.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="sap-form-group">
+                            <label for="{{ form.phone.id_for_label }}" class="sap-form-label">
+                                Phone {% if form.phone.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <input type="text" name="{{ form.phone.html_name }}" id="{{ form.phone.id_for_label }}"
+                                   class="sap-input {% if form.phone.errors %}is-invalid{% endif %}"
+                                   value="{{ form.phone.value|default:'' }}">
+                            {% if form.phone.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.phone.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="sap-form-group">
+                        <label for="{{ form.company.id_for_label }}" class="sap-form-label">
+                            Company {% if form.company.field.required %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        <input type="text" name="{{ form.company.html_name }}" id="{{ form.company.id_for_label }}"
+                               class="sap-input {% if form.company.errors %}is-invalid{% endif %}"
+                               value="{{ form.company.value|default:'' }}">
+                        {% if form.company.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.company.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <hr class="my-4">
+
+                <div class="object-page-section">
+                    <h3 class="section-title"><i class="fas fa-briefcase me-2"></i>Lead Details</h3>
+                    <div class="form-row">
+                        <div class="sap-form-group">
+                            <label for="{{ form.source.id_for_label }}" class="sap-form-label">
+                                Source {% if form.source.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <select name="{{ form.source.html_name }}" id="{{ form.source.id_for_label }}"
+                                    class="sap-select {% if form.source.errors %}is-invalid{% endif %}">
+                                <option value="">Select Source</option>
+                                {% for choice in form.source.field.queryset %}
+                                <option value="{{ choice.pk }}" {% if form.source.value|stringformat:"s" == choice.pk|stringformat:"s" %}selected{% endif %}>
+                                    {{ choice }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.source.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.source.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="sap-form-group">
+                            <label for="{{ form.status.id_for_label }}" class="sap-form-label">
+                                Status {% if form.status.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <select name="{{ form.status.html_name }}" id="{{ form.status.id_for_label }}"
+                                    class="sap-select {% if form.status.errors %}is-invalid{% endif %}">
+                                <option value="">Select Status</option>
+                                {% for choice in form.status.field.queryset %}
+                                <option value="{{ choice.pk }}" {% if form.status.value|stringformat:"s" == choice.pk|stringformat:"s" %}selected{% endif %}>
+                                    {{ choice }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.status.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.status.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="sap-form-group">
+                            <label for="{{ form.assigned_to.id_for_label }}" class="sap-form-label">
+                                Assigned To {% if form.assigned_to.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <select name="{{ form.assigned_to.html_name }}" id="{{ form.assigned_to.id_for_label }}"
+                                    class="sap-select {% if form.assigned_to.errors %}is-invalid{% endif %}">
+                                <option value="">Select User</option>
+                                {% for choice in form.assigned_to.field.queryset %}
+                                <option value="{{ choice.pk }}" {% if form.assigned_to.value|stringformat:"s" == choice.pk|stringformat:"s" %}selected{% endif %}>
+                                    {{ choice }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.assigned_to.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.assigned_to.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="sap-form-group">
+                            <label for="{{ form.priority.id_for_label }}" class="sap-form-label">
+                                Priority {% if form.priority.field.required %}<span class="text-danger">*</span>{% endif %}
+                            </label>
+                            <select name="{{ form.priority.html_name }}" id="{{ form.priority.id_for_label }}"
+                                    class="sap-select {% if form.priority.errors %}is-invalid{% endif %}">
+                                <option value="">Select Priority</option>
+                                {% for choice in form.priority.field.choices %}
+                                <option value="{{ choice.0 }}" {% if form.priority.value == choice.0 %}selected{% endif %}>
+                                    {{ choice.1 }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            {% if form.priority.errors %}
+                            <div class="invalid-feedback">
+                                {% for error in form.priority.errors %}{{ error }}{% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="sap-form-group">
+                        <label for="{{ form.notes.id_for_label }}" class="sap-form-label">
+                            Notes {% if form.notes.field.required %}<span class="text-danger">*</span>{% endif %}
+                        </label>
+                        <textarea name="{{ form.notes.html_name }}" id="{{ form.notes.id_for_label }}"
+                                  class="sap-textarea {% if form.notes.errors %}is-invalid{% endif %}"
+                                  rows="4">{{ form.notes.value|default:'' }}</textarea>
+                        {% if form.notes.errors %}
+                        <div class="invalid-feedback">
+                            {% for error in form.notes.errors %}{{ error }}{% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{% url 'lead_list' %}" class="sap-btn sap-btn-default">
+                        <i class="fas fa-times me-1"></i> Cancel
+                    </a>
+                    <button type="submit" class="sap-btn sap-btn-emphasized">
+                        <i class="fas fa-save me-1"></i> Save
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock content %}

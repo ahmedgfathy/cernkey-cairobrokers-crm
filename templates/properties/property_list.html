@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="sap-page">
+  <div class="page-header">
+    <h1>Properties</h1>
+    <a href="{% url 'property_create' %}" class="sap-btn sap-btn-emphasized">Add Property</a>
+  </div>
+
+  <div class="sap-card mb-4">
+    <div class="sap-card-body">
+      <form method="get" class="filter-bar">
+        <div class="filter-bar-item filter-bar-search">
+          <span class="filter-icon"><i class="fas fa-search"></i></span>
+          {{ search_form.query }}
+        </div>
+        <div class="filter-bar-item">
+          <span class="filter-icon"><i class="fas fa-dollar-sign"></i></span>
+          {{ search_form.min_price }}
+        </div>
+        <div class="filter-bar-item">
+          <span class="filter-icon"><i class="fas fa-dollar-sign"></i></span>
+          {{ search_form.max_price }}
+        </div>
+        <div class="filter-bar-item">
+          <span class="filter-icon"><i class="fas fa-bed"></i></span>
+          {{ search_form.bedrooms }}
+        </div>
+        <div class="filter-bar-item">
+          <span class="filter-icon"><i class="fas fa-map-marker-alt"></i></span>
+          {{ search_form.city }}
+        </div>
+        {% if search_form.query.value or search_form.min_price.value or search_form.max_price.value or search_form.bedrooms.value or search_form.city.value %}
+        <a href="{% url 'property_list' %}" class="filter-clear-btn" title="Clear filters">
+          <i class="fas fa-times"></i> Clear
+        </a>
+        {% endif %}
+      </form>
+    </div>
+  </div>
+
+  <div class="sap-card" style="margin-top: 1.5rem;">
+    <div class="sap-card-header">
+      Property List
+      <span class="sap-badge sap-badge--info">{{ properties|length }}</span>
+    </div>
+    <div class="sap-card-body no-padding">
+      <table class="sap-table">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Address</th>
+            <th>City</th>
+            <th>Price</th>
+            <th>Beds</th>
+            <th>Baths</th>
+            <th>Sq Ft</th>
+            <th>Status</th>
+            <th>Listed By</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for property in properties %}
+          <tr>
+            <td><a href="{% url 'property_detail' pk=property.pk %}">{{ property.title }}</a></td>
+            <td>{{ property.address }}</td>
+            <td>{{ property.city }}</td>
+            <td>${{ property.price|floatformat:0 }}</td>
+            <td>{{ property.bedrooms }}</td>
+            <td>{{ property.bathrooms }}</td>
+            <td>{{ property.square_feet|floatformat:0 }}</td>
+            <td>
+              {% if property.status.name == 'Available' %}
+              <span class="sap-badge sap-badge--success">{{ property.status }}</span>
+              {% elif property.status.name == 'Sold' %}
+              <span class="sap-badge sap-badge--error">{{ property.status }}</span>
+              {% else %}
+              <span class="sap-badge sap-badge--warning">{{ property.status }}</span>
+              {% endif %}
+            </td>
+            <td>{{ property.listed_by }}</td>
+            <td>
+              <a href="{% url 'property_detail' pk=property.pk %}" class="sap-btn sap-btn-default sap-btn-sm" title="View">View</a>
+              <a href="{% url 'property_update' pk=property.pk %}" class="sap-btn sap-btn-default sap-btn-sm" title="Edit">Edit</a>
+              <a href="{% url 'property_delete' pk=property.pk %}" class="sap-btn sap-btn-danger sap-btn-sm" title="Delete">Delete</a>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="10" class="text-center" style="padding: 2rem; color: var(--sapNeutralTextColor);">
+              No properties found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+
+{% block title %}Documents - Cairobrokers CRM{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1>Documents</h1>
+        <div class="page-subtitle">Manage your uploaded files</div>
+    </div>
+    <a href="{% url 'document_create' %}" class="sap-btn sap-btn-emphasized">
+        <i class="fas fa-upload"></i> Upload Document
+    </a>
+</div>
+
+<div class="sap-card mb-4">
+    <div class="sap-card-body">
+        <form method="get" class="filter-bar">
+            <div class="filter-bar-item">
+                <span class="filter-icon"><i class="fas fa-file-alt"></i></span>
+                <select name="type" class="sap-select" onchange="this.form.submit()">
+                    <option value="">All Types</option>
+                    {% for dtype in document_types %}
+                    <option value="{{ dtype.pk }}" {% if selected_type == dtype.pk|stringformat:"d" %}selected{% endif %}>{{ dtype.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            {% if selected_type %}
+            <a href="{% url 'document_list' %}" class="filter-clear-btn" title="Clear filters">
+                <i class="fas fa-times"></i> Clear
+            </a>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<div class="sap-card">
+    <div class="sap-card-body no-padding">
+        <div style="overflow-x:auto;">
+            <table class="sap-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Uploaded By</th>
+                        <th>Size</th>
+                        <th>Public</th>
+                        <th>Created</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for document in documents %}
+                    <tr>
+                        <td>
+                            <a href="{% url 'document_detail' document.pk %}" class="text-decoration-none" style="color:var(--sapBrandColor); font-weight:600;">
+                                {{ document.title }}
+                            </a>
+                        </td>
+                        <td><span class="sap-badge sap-badge--default">{{ document.document_type }}</span></td>
+                        <td>{{ document.uploaded_by|default:"-" }}</td>
+                        <td>{{ document.file_size_display|default:"-" }}</td>
+                        <td>
+                            {% if document.is_public %}
+                            <span class="sap-badge sap-badge--success">&#10003;</span>
+                            {% else %}
+                            <span class="sap-badge sap-badge--default">&mdash;</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ document.created_at|date:"M d, Y" }}</td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                <a href="{% url 'document_detail' document.pk %}" class="sap-btn sap-btn-default sap-btn-sm" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'document_update' document.pk %}" class="sap-btn sap-btn-default sap-btn-sm" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'document_delete' document.pk %}" class="sap-btn sap-btn-danger sap-btn-sm" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-muted" style="text-align:center; padding:2rem;">No documents found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

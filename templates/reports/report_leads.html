@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% block title %}Leads Report - Cairobrokers CRM{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1><i class="fas fa-user-plus me-2"></i>Leads Report</h1>
+        <div class="page-subtitle">Lead sources, status, priority & agent performance</div>
+    </div>
+    <a href="{% url 'reports_dashboard' %}" class="sap-btn sap-btn-default"><i class="fas fa-arrow-left me-1"></i> Back</a>
+</div>
+
+<div class="report-kpi-row">
+    <div class="kpi-card brand"><div class="kpi-icon"><i class="fas fa-users"></i></div><div class="kpi-value">{{ total }}</div><div class="kpi-label">Total Leads</div></div>
+</div>
+
+<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-flag me-2"></i>By Status</h3></div>
+        <div class="sap-card-body">
+            {% for s in by_status %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ s.status }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-brand" style="width:{{ s.count }}%"></div></div>
+                <span class="chart-bar-value">{{ s.count }}</span>
+            </div>
+            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
+        </div>
+    </div>
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-link me-2"></i>By Source</h3></div>
+        <div class="sap-card-body">
+            {% for s in by_source %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ s.source }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-info" style="width:{{ s.count }}%"></div></div>
+                <span class="chart-bar-value">{{ s.count }}</span>
+            </div>
+            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-arrow-up me-2"></i>By Priority</h3></div>
+        <div class="sap-card-body">
+            {% for p in by_priority %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ p.priority|default:"None" }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-warning" style="width:{{ p.count }}%"></div></div>
+                <span class="chart-bar-value">{{ p.count }}</span>
+            </div>
+            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
+        </div>
+    </div>
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-user-tie me-2"></i>By Agent</h3></div>
+        <div class="sap-card-body">
+            {% for a in by_agent %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ a.first_name|default:a.username }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-success" style="width:{{ a.count }}%"></div></div>
+                <span class="chart-bar-value">{{ a.count }}</span>
+            </div>
+            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="sap-card">
+    <div class="sap-card-header"><h3><i class="fas fa-list me-2"></i>Lead Data</h3></div>
+    <div class="sap-card-body no-padding">
+        <div class="table-responsive">
+            <table class="sap-table">
+                <thead><tr><th>Name</th><th>Email</th><th>Source</th><th>Status</th><th>Priority</th><th>Assigned To</th><th>Created</th></tr></thead>
+                <tbody>
+                    {% for lead in leads %}
+                    <tr>
+                        <td><a href="{% url 'lead_detail' pk=lead.pk %}" class="text-decoration-none text-brand fw-bold">{{ lead.full_name }}</a></td>
+                        <td>{{ lead.email }}</td>
+                        <td><span class="sap-badge sap-badge--info">{{ lead.source|default:"-" }}</span></td>
+                        <td><span class="sap-badge sap-badge--default">{{ lead.status|default:"-" }}</span></td>
+                        <td>{{ lead.priority|title }}</td>
+                        <td>{{ lead.assigned_to|default:"-" }}</td>
+                        <td>{{ lead.created_at|date:"M d, Y" }}</td>
+                    </tr>
+                    {% empty %}<tr><td colspan="7"><div class="empty-state"><p>No leads found</p></div></td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-tasks" style="margin-right:0.5rem; opacity:0.7;"></i> {{ action }} Task</h1>
+    <div class="page-header-actions">
+        <a href="{% url 'task_list' %}" class="sap-btn sap-btn-default">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>
+
+<div class="sap-card">
+    <div class="sap-card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="sap-alert sap-alert--error">
+                <i class="fas fa-exclamation-circle"></i>
+                {% for error in form.non_field_errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="object-page-section">
+                <div class="section-title">Task Details</div>
+                <div class="form-grid">
+                    <div class="sap-form-group" style="grid-column: 1 / -1;">
+                        <label for="{{ form.title.id_for_label }}" class="sap-form-label">Title <span class="required">*</span></label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.title.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="sap-form-group" style="grid-column: 1 / -1;">
+                        <label for="{{ form.description.id_for_label }}" class="sap-form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.description.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="object-page-section">
+                <div class="section-title">Classification</div>
+                <div class="form-grid">
+                    <div class="sap-form-group">
+                        <label for="{{ form.category.id_for_label }}" class="sap-form-label">Category</label>
+                        {{ form.category }}
+                        {% if form.category.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.category.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="sap-form-group">
+                        <label for="{{ form.priority.id_for_label }}" class="sap-form-label">Priority</label>
+                        {{ form.priority }}
+                        {% if form.priority.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.priority.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="sap-form-group">
+                        <label for="{{ form.status.id_for_label }}" class="sap-form-label">Status</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.status.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="object-page-section">
+                <div class="section-title">Assignment</div>
+                <div class="form-grid">
+                    <div class="sap-form-group">
+                        <label for="{{ form.assigned_to.id_for_label }}" class="sap-form-label">Assigned To <span class="required">*</span></label>
+                        {{ form.assigned_to }}
+                        {% if form.assigned_to.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.assigned_to.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="object-page-section">
+                <div class="section-title">Schedule</div>
+                <div class="form-grid">
+                    <div class="sap-form-group">
+                        <label for="{{ form.due_date.id_for_label }}" class="sap-form-label">Due Date</label>
+                        {{ form.due_date }}
+                        {% if form.due_date.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.due_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="sap-form-group">
+                        <label for="{{ form.due_time.id_for_label }}" class="sap-form-label">Due Time</label>
+                        {{ form.due_time }}
+                        {% if form.due_time.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.due_time.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="sap-form-group">
+                        <label for="{{ form.start_date.id_for_label }}" class="sap-form-label">Start Date</label>
+                        {{ form.start_date }}
+                        {% if form.start_date.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.start_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="sap-form-group">
+                        <label for="{{ form.end_date.id_for_label }}" class="sap-form-label">End Date</label>
+                        {{ form.end_date }}
+                        {% if form.end_date.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.end_date.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="object-page-section">
+                <div class="section-title">Related Records</div>
+                <div class="form-grid">
+                    <div class="sap-form-group">
+                        <label for="{{ form.lead.id_for_label }}" class="sap-form-label">Related Lead</label>
+                        {{ form.lead }}
+                        {% if form.lead.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.lead.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="sap-form-group">
+                        <label for="{{ form.property.id_for_label }}" class="sap-form-label">Related Property</label>
+                        {{ form.property }}
+                        {% if form.property.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.property.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="sap-form-group">
+                        <label for="{{ form.opportunity.id_for_label }}" class="sap-form-label">Related Opportunity</label>
+                        {{ form.opportunity }}
+                        {% if form.opportunity.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.opportunity.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:0.5rem; padding-top:0.75rem; border-top:1px solid var(--sapNeutralBorderColor);">
+                <a href="{% url 'task_list' %}" class="sap-btn sap-btn-default">Cancel</a>
+                <button type="submit" class="sap-btn sap-btn-emphasized">
+                    <i class="fas fa-save"></i> {{ action }} Task
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}

@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}My Profile - Cairobrokers CRM{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1>My Profile</h1>
+    <p class="page-subtitle">Manage your personal information</p>
+</div>
+
+<div class="sap-card" style="max-width:48rem;">
+    <div class="sap-card-header">
+        <h3><i class="fas fa-user me-2"></i>Profile Information</h3>
+    </div>
+    <div class="sap-card-body">
+        {% if form.errors %}
+        <div class="sap-alert sap-alert--error mb-3">
+            <i class="fas fa-exclamation-circle"></i>
+            Please correct the errors below.
+        </div>
+        {% endif %}
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="object-page-section">
+                <div class="section-title">Personal Details</div>
+                <div class="form-row">
+                    <div class="sap-form-group">
+                        <label class="sap-form-label">First Name</label>
+                        {{ form.first_name }}
+                    </div>
+                    <div class="sap-form-group">
+                        <label class="sap-form-label">Last Name</label>
+                        {{ form.last_name }}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="sap-form-group">
+                        <label class="sap-form-label">Email</label>
+                        {{ form.email }}
+                    </div>
+                    <div class="sap-form-group">
+                        <label class="sap-form-label">Phone</label>
+                        {{ form.phone }}
+                    </div>
+                </div>
+                <div class="sap-form-group">
+                    <label class="sap-form-label">Bio</label>
+                    {{ form.bio }}
+                </div>
+            </div>
+            <div class="object-page-section">
+                <div class="section-title">Profile Picture</div>
+                <div class="sap-form-group">
+                    {{ form.profile_picture }}
+                </div>
+            </div>
+            <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+                <button type="submit" class="sap-btn sap-btn-emphasized"><i class="fas fa-save"></i> Save Changes</button>
+                <a href="{% url 'dashboard' %}" class="sap-btn sap-btn-default">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

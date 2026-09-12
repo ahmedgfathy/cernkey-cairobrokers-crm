@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="sap-page">
+  <div class="page-header">
+    <div>
+      <h1>Delete Property</h1>
+      <p class="page-subtitle">Confirm deletion of property record</p>
+    </div>
+    <a href="{% url 'property_list' %}" class="sap-btn sap-btn-transparent">Back to List</a>
+  </div>
+
+  <div class="sap-card">
+    <div class="sap-card-header">Confirm Deletion</div>
+    <div class="sap-card-body">
+      <div class="sap-alert--error" style="margin-bottom: 1.5rem;">
+        Are you sure you want to delete the property <strong>"{{ property.title }}"</strong>? This action cannot be undone.
+      </div>
+
+      <div class="sap-card" style="margin-bottom: 1.5rem;">
+        <div class="sap-card-body">
+          <div class="form-grid">
+            <div class="sap-form-group">
+              <div class="form-field-label">Title</div>
+              <div class="form-field-value">{{ property.title }}</div>
+            </div>
+            <div class="sap-form-group">
+              <div class="form-field-label">Address</div>
+              <div class="form-field-value">{{ property.full_address }}</div>
+            </div>
+            <div class="sap-form-group">
+              <div class="form-field-label">Price</div>
+              <div class="form-field-value">${{ property.price|floatformat:0 }}</div>
+            </div>
+            <div class="sap-form-group">
+              <div class="form-field-label">Type</div>
+              <div class="form-field-value">{{ property.property_type }}</div>
+            </div>
+            <div class="sap-form-group">
+              <div class="form-field-label">Status</div>
+              <div class="form-field-value">{{ property.status }}</div>
+            </div>
+            <div class="sap-form-group">
+              <div class="form-field-label">Listed By</div>
+              <div class="form-field-value">{{ property.listed_by }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <form method="post">
+        {% csrf_token %}
+        <div class="form-row">
+          <button type="submit" class="sap-btn sap-btn-danger">Yes, Delete Property</button>
+          <a href="{% url 'property_list' %}" class="sap-btn sap-btn-default">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock content %}

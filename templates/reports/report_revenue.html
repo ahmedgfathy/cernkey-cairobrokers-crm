@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Revenue Report - Cairobrokers CRM{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1><i class="fas fa-coins me-2"></i>Revenue Report</h1>
+        <div class="page-subtitle">Monthly revenue, closed deals & average deal size</div>
+    </div>
+    <a href="{% url 'reports_dashboard' %}" class="sap-btn sap-btn-default"><i class="fas fa-arrow-left me-1"></i> Back</a>
+</div>
+
+<div class="report-kpi-row">
+    <div class="kpi-card success"><div class="kpi-icon"><i class="fas fa-dollar-sign"></i></div><div class="kpi-value">${{ total_revenue|floatformat:0 }}</div><div class="kpi-label">Total Revenue</div></div>
+    <div class="kpi-card brand"><div class="kpi-icon"><i class="fas fa-handshake"></i></div><div class="kpi-value">{{ total_deals }}</div><div class="kpi-label">Closed Deals</div></div>
+    <div class="kpi-card info"><div class="kpi-icon"><i class="fas fa-calculator"></i></div><div class="kpi-value">${{ avg_deal|floatformat:0 }}</div><div class="kpi-label">Avg Deal Size</div></div>
+</div>
+
+<div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-calendar me-2"></i>Monthly Revenue</h3></div>
+        <div class="sap-card-body">
+            {% for m in monthly %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ m.month|date:"M Y" }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-success" style="width:{{ m.total_value }}%"></div></div>
+                <span class="chart-bar-value">${{ m.total_value|floatformat:0 }} <small>{{ m.count }} deals</small></span>
+            </div>
+            {% empty %}<div class="empty-state"><p>No closed deals yet</p></div>{% endfor %}
+        </div>
+    </div>
+    <div class="sap-card">
+        <div class="sap-card-header"><h3><i class="fas fa-tag me-2"></i>Revenue by Type</h3></div>
+        <div class="sap-card-body">
+            {% for t in by_type %}
+            <div class="chart-bar-row">
+                <span class="chart-bar-label">{{ t.opportunity_type|title }}</span>
+                <div class="chart-bar-track"><div class="chart-bar-fill chart-bar-brand" style="width:{{ t.total_value }}%"></div></div>
+                <span class="chart-bar-value">${{ t.total_value|floatformat:0 }} <small>{{ t.count }} deals</small></span>
+            </div>
+            {% empty %}<div class="empty-state"><p>No data</p></div>{% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="sap-card">
+    <div class="sap-card-header"><h3><i class="fas fa-list me-2"></i>Monthly Breakdown</h3></div>
+    <div class="sap-card-body no-padding">
+        <div class="table-responsive">
+            <table class="sap-table">
+                <thead><tr><th>Month</th><th>Deals Closed</th><th>Revenue</th><th>Avg Deal</th></tr></thead>
+                <tbody>
+                    {% for m in monthly %}
+                    <tr>
+                        <td class="fw-bold">{{ m.month|date:"F Y" }}</td>
+                        <td>{{ m.count }}</td>
+                        <td class="fw-bold text-success">${{ m.total_value|floatformat:2 }}</td>
+                        <td>${% widthratio m.total_value m.count 1 %}</td>
+                    </tr>
+                    {% empty %}<tr><td colspan="4"><div class="empty-state"><p>No revenue data</p></div></td></tr>{% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

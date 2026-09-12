@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+            <h1>{{ opportunity.name }}</h1>
+            <p class="page-subtitle">Opportunity Detail</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{% url 'opportunity_update' pk=opportunity.pk %}" class="sap-btn sap-btn-default">
+                <i class="fas fa-pen"></i> Edit
+            </a>
+            <a href="{% url 'opportunity_delete' pk=opportunity.pk %}" class="sap-btn sap-btn-danger">
+                <i class="fas fa-trash"></i> Delete
+            </a>
+            <a href="{% url 'opportunity_list' %}" class="sap-btn sap-btn-transparent">
+                <i class="fas fa-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+
+    <div class="object-page-section">
+        <div class="sap-card">
+            <div class="sap-card-header">
+                <h3>Opportunity Information</h3>
+            </div>
+            <div class="sap-card-body">
+                <div class="form-grid">
+                    <div>
+                        <div class="form-field-label">Name</div>
+                        <div class="form-field-value">{{ opportunity.name }}</div>
+                    </div>
+                    <div>
+                        <div class="form-field-label">Type</div>
+                        <div class="form-field-value">
+                            <span class="sap-badge sap-badge--info">{{ opportunity.get_opportunity_type_display }}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-field-label">Description</div>
+                        <div class="form-field-value">{{ opportunity.description|default:"No description provided." }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="object-page-section">
+        <div class="sap-card">
+            <div class="sap-card-header">
+                <h3>Related Records</h3>
+            </div>
+            <div class="sap-card-body">
+                <div class="form-grid">
+                    <div>
+                        <div class="form-field-label">Lead</div>
+                        <div class="form-field-value">
+                            {% if opportunity.lead %}
+                            <a href="{% url 'lead_detail' pk=opportunity.lead.pk %}" class="text-decoration-none" style="color:var(--sapBrandColor);">
+                                {{ opportunity.lead }}
+                            </a>
+                            {% else %}
+                            <span class="text-muted">Not assigned</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-field-label">Property</div>
+                        <div class="form-field-value">
+                            {% if opportunity.related_property %}
+                            <a href="{% url 'property_detail' pk=opportunity.related_property.pk %}" class="text-decoration-none" style="color:var(--sapBrandColor);">
+                                {{ opportunity.related_property }}
+                            </a>
+                            {% else %}
+                            <span class="text-muted">Not assigned</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="object-page-section">
+        <div class="sap-card">
+            <div class="sap-card-header">
+                <h3>Sales Process</h3>
+            </div>
+            <div class="sap-card-body">
+                <div class="form-grid">
+                    <div>
+                        <div class="form-field-label">Stage</div>
+                        <div class="form-field-value">
+                            <span class="sap-badge sap-badge--default">{{ opportunity.stage }}</span>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-field-label">Assigned To</div>
+                        <div class="form-field-value">{{ opportunity.assigned_to|default:"Unassigned" }}</div>
+                    </div>
+                    <div>
+                        <div class="form-field-label">Probability</div>
+                        <div class="form-field-value">{{ opportunity.probability }}%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="object-page-section">
+        <div class="sap-card">
+            <div class="sap-card-header">
+                <h3>Financial</h3>
+            </div>
+            <div class="sap-card-body">
+                <div class="form-grid">
+                    <div>
+                        <div class="form-field-label">Estimated Value</div>
+                        <div class="form-field-value" style="font-size:1.25rem;font-weight:700;color:var(--sapSuccessColor);">
+                            ${{ opportunity.estimated_value|floatformat:2 }}
+                        </div>
+                    </div>
+                    <div>
+                        <div class="form-field-label">Expected Close Date</div>
+                        <div class="form-field-value">{{ opportunity.expected_close_date|date:"M d, Y" }}</div>
+                    </div>
+                    <div>
+                        <div class="form-field-label">Actual Close Date</div>
+                        <div class="form-field-value">{{ opportunity.actual_close_date|date:"M d, Y"|default:"-" }}</div>
+                    </div>
+                    <div>
+                        <div class="form-field-label">Days Open</div>
+                        <div class="form-field-value">{{ opportunity.days_open }} days</div>
+                    </div>
+                    <div>
+                        <div class="form-field-label">Status</div>
+                        <div class="form-field-value">
+                            {% if opportunity.is_won %}
+                            <span class="sap-badge sap-badge--success">Won</span>
+                            {% else %}
+                            <span class="sap-badge sap-badge--warning">Open</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

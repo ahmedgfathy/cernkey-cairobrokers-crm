@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{% if form.instance.pk %}Edit Document Type{% else %}Add Document Type{% endif %} - Cairobrokers CRM{% endblock %}
+
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1>{% if form.instance.pk %}Edit Document Type{% else %}Add Document Type{% endif %}</h1>
+        <div class="page-subtitle">{% if form.instance.pk %}Update document type details{% else %}Create a new document type category{% endif %}</div>
+    </div>
+    <a href="{% url 'document_type_list' %}" class="sap-btn sap-btn-default">
+        <i class="fas fa-arrow-left"></i> Back
+    </a>
+</div>
+
+<div class="sap-card" style="max-width:40rem;">
+    <div class="sap-card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="sap-alert sap-alert--error" style="margin-bottom:1rem;">
+                <i class="fas fa-exclamation-circle"></i>
+                {% for error in form.non_field_errors %}{{ error }}{% endfor %}
+            </div>
+            {% endif %}
+
+            {% for field in form %}
+            <div class="sap-form-group">
+                <label for="{{ field.id_for_label }}" class="sap-form-label">
+                    {{ field.label }}
+                    {% if field.field.required %}<span class="required">*</span>{% endif %}
+                </label>
+                {{ field }}
+                {% if field.help_text %}
+                <div style="font-size:0.75rem; color:var(--sapTextColorLight); margin-top:0.25rem;">{{ field.help_text }}</div>
+                {% endif %}
+                {% if field.errors %}
+                <div style="color:var(--sapErrorColor); font-size:0.75rem; margin-top:0.25rem;">
+                    {% for error in field.errors %}{{ error }}{% endfor %}
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+
+            <div class="d-flex gap-1" style="margin-top:1.5rem;">
+                <button type="submit" class="sap-btn sap-btn-emphasized">
+                    <i class="fas fa-save"></i> {% if form.instance.pk %}Update{% else %}Create{% endif %}
+                </button>
+                <a href="{% url 'document_type_list' %}" class="sap-btn sap-btn-default">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

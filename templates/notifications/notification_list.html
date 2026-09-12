@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications - Cairobrokers CRM{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h1>Notifications
+                {% if unread_count %}
+                <span class="sap-badge sap-badge--info">{{ unread_count }} unread</span>
+                {% endif %}
+            </h1>
+            <p class="page-subtitle">Manage your notifications and alerts</p>
+        </div>
+        <div>
+            <form method="post" action="{% url 'notification_mark_all_read' %}">
+                {% csrf_token %}
+                <button type="submit" class="sap-btn sap-btn-emphasized">
+                    Mark All Read
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="sap-card">
+    <div class="sap-card-header">
+        <h3>All Notifications</h3>
+    </div>
+    <div class="sap-card-body">
+        {% if notifications %}
+        <table class="sap-table">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Message</th>
+                    <th>Priority</th>
+                    <th>Created</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for notification in notifications %}
+                <tr class="{% if not notification.is_read %}fw-bold{% endif %}">
+                    <td>
+                        <a href="{% url 'notification_detail' notification.pk %}" class="text-decoration-none">
+                            {{ notification.title }}
+                        </a>
+                    </td>
+                    <td class="text-muted">{{ notification.message|truncatewords:20 }}</td>
+                    <td>
+                        {% if notification.priority == 'high' %}
+                        <span class="sap-badge sap-badge--error">High</span>
+                        {% elif notification.priority == 'medium' %}
+                        <span class="sap-badge sap-badge--warning">Medium</span>
+                        {% else %}
+                        <span class="sap-badge sap-badge--default">Low</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-muted">
+                        <small>{{ notification.created_at|timesince }} ago</small>
+                    </td>
+                    <td>
+                        {% if notification.is_read %}
+                        <span class="sap-badge sap-badge--success">Read</span>
+                        {% else %}
+                        <span class="sap-badge sap-badge--info">Unread</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            {% if not notification.is_read %}
+                            <form method="post" action="{% url 'notification_mark_read' notification.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="sap-btn sap-btn-sm sap-btn-transparent" title="Mark Read">
+                                    Read
+                                </button>
+                            </form>
+                            {% endif %}
+                            <form method="post" action="{% url 'notification_archive' notification.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="sap-btn sap-btn-sm sap-btn-transparent" title="Archive">
+                                    Archive
+                                </button>
+                            </form>
+                            <form method="post" action="{% url 'notification_delete' notification.pk %}">
+                                {% csrf_token %}
+                                <button type="submit" class="sap-btn sap-btn-sm sap-btn-danger" title="Delete">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="text-center py-5">
+            <p class="text-muted">No notifications.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,238 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-tasks" style="margin-right:0.5rem; opacity:0.7;"></i> {{ task.title }}</h1>
+    <div class="page-header-actions">
+        {% if not task.is_completed %}
+        <a href="{% url 'task_complete' pk=task.pk %}" class="sap-btn sap-btn-success">
+            <i class="fas fa-check"></i> Mark Complete
+        </a>
+        {% endif %}
+        <a href="{% url 'task_update' pk=task.pk %}" class="sap-btn sap-btn-emphasized">
+            <i class="fas fa-edit"></i> Edit
+        </a>
+        <a href="{% url 'task_delete' pk=task.pk %}" class="sap-btn sap-btn-danger">
+            <i class="fas fa-trash"></i> Delete
+        </a>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:2fr 1fr; gap:1rem;">
+    <div>
+        <div class="object-page-section">
+            <div class="sap-card">
+                <div class="sap-card-header">
+                    <h3><i class="fas fa-info-circle" style="margin-right:0.375rem; opacity:0.6;"></i> Task Information</h3>
+                </div>
+                <div class="sap-card-body">
+                    <div class="form-grid">
+                        <div>
+                            <div class="form-field-label">Title</div>
+                            <div class="form-field-value">{{ task.title }}</div>
+                        </div>
+                        <div>
+                            <div class="form-field-label">Description</div>
+                            <div class="form-field-value">{{ task.description|default:"-"|linebreaksbr }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="object-page-section">
+            <div class="sap-card">
+                <div class="sap-card-header">
+                    <h3><i class="fas fa-link" style="margin-right:0.375rem; opacity:0.6;"></i> Related Records</h3>
+                </div>
+                <div class="sap-card-body">
+                    <div class="form-grid">
+                        {% if task.lead %}
+                        <div>
+                            <div class="form-field-label">Related Lead</div>
+                            <div class="form-field-value">{{ task.lead }}</div>
+                            <a href="{% url 'lead_detail' pk=task.lead.pk %}" class="sap-btn sap-btn-transparent sap-btn-sm" style="margin-top:0.375rem;">
+                                <i class="fas fa-eye"></i> View Lead
+                            </a>
+                        </div>
+                        {% endif %}
+                        {% if task.related_property %}
+                        <div>
+                            <div class="form-field-label">Related Property</div>
+                            <div class="form-field-value">{{ task.related_property }}</div>
+                            <a href="{% url 'property_detail' pk=task.related_property.pk %}" class="sap-btn sap-btn-transparent sap-btn-sm" style="margin-top:0.375rem;">
+                                <i class="fas fa-eye"></i> View Property
+                            </a>
+                        </div>
+                        {% endif %}
+                        {% if task.opportunity %}
+                        <div>
+                            <div class="form-field-label">Related Opportunity</div>
+                            <div class="form-field-value">{{ task.opportunity }}</div>
+                            <a href="{% url 'opportunity_detail' pk=task.opportunity.pk %}" class="sap-btn sap-btn-transparent sap-btn-sm" style="margin-top:0.375rem;">
+                                <i class="fas fa-eye"></i> View Opportunity
+                            </a>
+                        </div>
+                        {% endif %}
+                        {% if not task.lead and not task.related_property and not task.opportunity %}
+                        <div>
+                            <span class="text-muted">No related records.</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="object-page-section">
+            <div class="sap-card">
+                <div class="sap-card-header">
+                    <h3><i class="fas fa-layer-group" style="margin-right:0.375rem; opacity:0.6;"></i> Details</h3>
+                </div>
+                <div class="sap-card-body">
+                    <div class="form-grid">
+                        <div>
+                            <div class="form-field-label">Category</div>
+                            <div class="form-field-value">
+                                {% if task.category %}
+                                <span class="sap-badge" style="background-color:{{ task.category.color }}; color:#fff;">{{ task.category }}</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-field-label">Priority</div>
+                            <div class="form-field-value">
+                                {% if task.priority %}
+                                <span class="sap-badge" style="background-color:{{ task.priority.color }}; color:#fff;">{{ task.priority }}</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-field-label">Status</div>
+                            <div class="form-field-value">
+                                {% if task.status %}
+                                <span class="sap-badge" style="background-color:{{ task.status.color }}; color:#fff;">{{ task.status }}</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="object-page-section">
+            <div class="sap-card">
+                <div class="sap-card-header">
+                    <h3><i class="fas fa-user-circle" style="margin-right:0.375rem; opacity:0.6;"></i> Assignment</h3>
+                </div>
+                <div class="sap-card-body">
+                    <div class="form-grid">
+                        <div>
+                            <div class="form-field-label">Assigned To</div>
+                            <div class="form-field-value">{{ task.assigned_to|default:"-" }}</div>
+                        </div>
+                        <div>
+                            <div class="form-field-label">Created By</div>
+                            <div class="form-field-value">{{ task.created_by|default:"-" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <div class="object-page-section">
+            <div class="sap-card">
+                <div class="sap-card-header">
+                    <h3><i class="fas fa-calendar-alt" style="margin-right:0.375rem; opacity:0.6;"></i> Schedule</h3>
+                </div>
+                <div class="sap-card-body">
+                    <div class="form-grid" style="grid-template-columns:1fr;">
+                        <div>
+                            <div class="form-field-label">Due Date</div>
+                            <div class="form-field-value">
+                                {% if task.is_overdue %}
+                                <span class="sap-badge sap-badge--error">
+                                    <i class="fas fa-exclamation-triangle" style="margin-right:0.25rem;"></i>{{ task.due_date|date:"M d, Y" }} (Overdue)
+                                </span>
+                                {% elif task.due_date %}
+                                {{ task.due_date|date:"M d, Y" }}
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-field-label">Due Time</div>
+                            <div class="form-field-value">{{ task.due_time|time:"g:i A"|default:"-" }}</div>
+                        </div>
+                        <div>
+                            <div class="form-field-label">Start Date</div>
+                            <div class="form-field-value">{{ task.start_date|date:"M d, Y"|default:"-" }}</div>
+                        </div>
+                        <div>
+                            <div class="form-field-label">End Date</div>
+                            <div class="form-field-value">{{ task.end_date|date:"M d, Y"|default:"-" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="object-page-section">
+            <div class="sap-card">
+                <div class="sap-card-header">
+                    <h3><i class="fas fa-check-double" style="margin-right:0.375rem; opacity:0.6;"></i> Completion</h3>
+                </div>
+                <div class="sap-card-body">
+                    <div class="form-grid" style="grid-template-columns:1fr;">
+                        <div>
+                            <div class="form-field-label">Completed</div>
+                            <div class="form-field-value">
+                                {% if task.is_completed %}
+                                <span class="sap-badge sap-badge--success"><i class="fas fa-check" style="margin-right:0.25rem;"></i> Yes</span>
+                                {% else %}
+                                <span class="sap-badge sap-badge--default">No</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% if task.completed_at %}
+                        <div>
+                            <div class="form-field-label">Completed At</div>
+                            <div class="form-field-value">{{ task.completed_at|date:"M d, Y g:i A" }}</div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="object-page-section">
+            <div class="sap-card">
+                <div class="sap-card-header">
+                    <h3><i class="fas fa-clock" style="margin-right:0.375rem; opacity:0.6;"></i> Timestamps</h3>
+                </div>
+                <div class="sap-card-body">
+                    <div class="form-grid" style="grid-template-columns:1fr;">
+                        <div>
+                            <div class="form-field-label">Created</div>
+                            <div class="form-field-value">{{ task.created_at|date:"M d, Y g:i A" }}</div>
+                        </div>
+                        <div>
+                            <div class="form-field-label">Updated</div>
+                            <div class="form-field-value">{{ task.updated_at|date:"M d, Y g:i A" }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

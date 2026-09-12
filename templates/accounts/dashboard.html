@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Dashboard - Cairobrokers CRM{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <h1>Dashboard</h1>
+    <p class="page-subtitle">Welcome back, {{ user.get_full_name|default:user.username }}. Here's your business overview.</p>
+</div>
+
+<!-- KPI Row -->
+<div class="kpi-row">
+    <div class="kpi-card brand">
+        <div class="kpi-icon"><i class="fas fa-user-plus"></i></div>
+        <div class="kpi-value">{{ total_leads }}</div>
+        <div class="kpi-label">Total Leads</div>
+    </div>
+    <div class="kpi-card success">
+        <div class="kpi-icon"><i class="fas fa-building"></i></div>
+        <div class="kpi-value">{{ total_properties }}</div>
+        <div class="kpi-label">Active Properties</div>
+    </div>
+    <div class="kpi-card warning">
+        <div class="kpi-icon"><i class="fas fa-handshake"></i></div>
+        <div class="kpi-value">{{ total_opportunities }}</div>
+        <div class="kpi-label">Open Opportunities</div>
+    </div>
+    <div class="kpi-card info">
+        <div class="kpi-icon"><i class="fas fa-tasks"></i></div>
+        <div class="kpi-value">{{ total_tasks }}</div>
+        <div class="kpi-label">Pending Tasks</div>
+    </div>
+    <div class="kpi-card error">
+        <div class="kpi-icon"><i class="fas fa-bell"></i></div>
+        <div class="kpi-value">{{ unread_notifications }}</div>
+        <div class="kpi-label">Unread Notifications</div>
+    </div>
+</div>
+
+<!-- Content Grid -->
+<div class="content-grid-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem;">
+    <!-- Recent Leads -->
+    <div class="sap-card">
+        <div class="sap-card-header">
+            <h3><i class="fas fa-user-plus me-2 text-brand"></i>Recent Leads</h3>
+            <a href="{% url 'lead_list' %}" class="sap-btn sap-btn-transparent sap-btn-sm">View All</a>
+        </div>
+        <div class="sap-card-body no-padding">
+            <table class="sap-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Priority</th>
+                        <th>Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for lead in recent_leads %}
+                    <tr>
+                        <td><a href="{% url 'lead_detail' pk=lead.pk %}" class="text-decoration-none text-brand fw-bold">{{ lead.full_name }}</a></td>
+                        <td>{{ lead.email }}</td>
+                        <td>
+                            <span class="sap-badge sap-badge--{% if lead.priority == 'high' %}error{% elif lead.priority == 'medium' %}warning{% else %}success{% endif %}">
+                                {{ lead.get_priority_display }}
+                            </span>
+                        </td>
+                        <td>{{ lead.created_at|date:"M d" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-muted" style="text-align:center;padding:1.5rem;">No leads yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Properties -->
+    <div class="sap-card">
+        <div class="sap-card-header">
+            <h3><i class="fas fa-building me-2 text-success"></i>Recent Properties</h3>
+            <a href="{% url 'property_list' %}" class="sap-btn sap-btn-transparent sap-btn-sm">View All</a>
+        </div>
+        <div class="sap-card-body no-padding">
+            <table class="sap-table">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>City</th>
+                        <th>Price</th>
+                        <th>Beds</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for prop in recent_properties %}
+                    <tr>
+                        <td><a href="{% url 'property_detail' pk=prop.pk %}" class="text-decoration-none text-brand fw-bold">{{ prop.title|truncatechars:25 }}</a></td>
+                        <td>{{ prop.city }}</td>
+                        <td>${{ prop.price|floatformat:0 }}</td>
+                        <td>{{ prop.bedrooms }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-muted" style="text-align:center;padding:1.5rem;">No properties yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Opportunities -->
+    <div class="sap-card">
+        <div class="sap-card-header">
+            <h3><i class="fas fa-handshake me-2 text-warning"></i>Open Opportunities</h3>
+            <a href="{% url 'opportunity_list' %}" class="sap-btn sap-btn-transparent sap-btn-sm">View All</a>
+        </div>
+        <div class="sap-card-body no-padding">
+            <table class="sap-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Type</th>
+                        <th>Value</th>
+                        <th>Close Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for opp in recent_opportunities %}
+                    <tr>
+                        <td><a href="{% url 'opportunity_detail' pk=opp.pk %}" class="text-decoration-none text-brand fw-bold">{{ opp.name|truncatechars:25 }}</a></td>
+                        <td><span class="sap-badge sap-badge--info">{{ opp.get_opportunity_type_display }}</span></td>
+                        <td>${{ opp.estimated_value|floatformat:0 }}</td>
+                        <td>{{ opp.expected_close_date|date:"M d, Y" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-muted" style="text-align:center;padding:1.5rem;">No opportunities yet</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Upcoming Tasks -->
+    <div class="sap-card">
+        <div class="sap-card-header">
+            <h3><i class="fas fa-tasks me-2 text-info"></i>My Pending Tasks</h3>
+            <a href="{% url 'task_list' %}" class="sap-btn sap-btn-transparent sap-btn-sm">View All</a>
+        </div>
+        <div class="sap-card-body no-padding">
+            <table class="sap-table">
+                <thead>
+                    <tr>
+                        <th>Task</th>
+                        <th>Priority</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in upcoming_tasks %}
+                    <tr>
+                        <td><a href="{% url 'task_detail' pk=task.pk %}" class="text-decoration-none text-brand fw-bold">{{ task.title|truncatechars:25 }}</a></td>
+                        <td>
+                            <span class="sap-badge sap-badge--{% if task.priority.name == 'High' %}error{% elif task.priority.name == 'Medium' %}warning{% else %}success{% endif %}">
+                                {{ task.priority|default:"-" }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if task.due_date %}
+                                {{ task.due_date|date:"M d, Y" }}
+                                {% if task.is_overdue %}<span class="sap-badge sap-badge--error" style="margin-left:4px;">Overdue</span>{% endif %}
+                            {% else %}-{% endif %}
+                        </td>
+                        <td>{{ task.status|default:"-" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" class="text-muted" style="text-align:center;padding:1.5rem;">No pending tasks</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

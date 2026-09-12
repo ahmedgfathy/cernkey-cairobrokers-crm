@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="sap-page">
+  <div class="page-header">
+    <div>
+      <h1>{% if property %}Edit Property{% else %}Create Property{% endif %}</h1>
+      <p class="page-subtitle">{% if property %}Update property information{% else %}Add a new property to the system{% endif %}</p>
+    </div>
+    <a href="{% url 'property_list' %}" class="sap-btn sap-btn-transparent">Back to List</a>
+  </div>
+
+  <form method="post" enctype="multipart/form-data"
+        action="{% if property %}{% url 'property_update' pk=property.pk %}{% else %}{% url 'property_create' %}{% endif %}">
+    {% csrf_token %}
+
+    {% if form.non_field_errors %}
+    <div class="sap-alert--error" style="margin-bottom: 1.5rem;">
+      {% for error in form.non_field_errors %}
+      <p>{{ error }}</p>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="sap-card" style="margin-bottom: 1.5rem;">
+      <div class="sap-card-header">Basic Info</div>
+      <div class="sap-card-body">
+        <div class="form-grid">
+          <div class="sap-form-group">
+            <label for="{{ form.title.id_for_label }}" class="sap-form-label">Title</label>
+            {{ form.title }}
+            {% if form.title.errors %}
+            <div class="sap-alert--error">{{ form.title.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="sap-form-group">
+            <label for="{{ form.property_type.id_for_label }}" class="sap-form-label">Property Type</label>
+            {{ form.property_type }}
+            {% if form.property_type.errors %}
+            <div class="sap-alert--error">{{ form.property_type.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="sap-form-group" style="margin-top: 1rem;">
+          <label for="{{ form.description.id_for_label }}" class="sap-form-label">Description</label>
+          {{ form.description }}
+          {% if form.description.errors %}
+          <div class="sap-alert--error">{{ form.description.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="sap-form-group" style="margin-top: 1rem;">
+          <label for="{{ form.address.id_for_label }}" class="sap-form-label">Address</label>
+          {{ form.address }}
+          {% if form.address.errors %}
+          <div class="sap-alert--error">{{ form.address.errors }}</div>
+          {% endif %}
+        </div>
+        <div class="form-grid" style="margin-top: 1rem;">
+          <div class="sap-form-group">
+            <label for="{{ form.city.id_for_label }}" class="sap-form-label">City</label>
+            {{ form.city }}
+            {% if form.city.errors %}
+            <div class="sap-alert--error">{{ form.city.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="sap-form-group">
+            <label for="{{ form.state.id_for_label }}" class="sap-form-label">State</label>
+            {{ form.state }}
+            {% if form.state.errors %}
+            <div class="sap-alert--error">{{ form.state.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="sap-form-group">
+            <label for="{{ form.zip_code.id_for_label }}" class="sap-form-label">Zip Code</label>
+            {{ form.zip_code }}
+            {% if form.zip_code.errors %}
+            <div class="sap-alert--error">{{ form.zip_code.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="sap-form-group" style="margin-top: 1rem;">
+          <label for="{{ form.country.id_for_label }}" class="sap-form-label">Country</label>
+          {{ form.country }}
+          {% if form.country.errors %}
+          <div class="sap-alert--error">{{ form.country.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="sap-card" style="margin-bottom: 1.5rem;">
+      <div class="sap-card-header">Details</div>
+      <div class="sap-card-body">
+        <div class="form-grid">
+          <div class="sap-form-group">
+            <label for="{{ form.bedrooms.id_for_label }}" class="sap-form-label">Bedrooms</label>
+            {{ form.bedrooms }}
+            {% if form.bedrooms.errors %}
+            <div class="sap-alert--error">{{ form.bedrooms.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="sap-form-group">
+            <label for="{{ form.bathrooms.id_for_label }}" class="sap-form-label">Bathrooms</label>
+            {{ form.bathrooms }}
+            {% if form.bathrooms.errors %}
+            <div class="sap-alert--error">{{ form.bathrooms.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="sap-form-group">
+            <label for="{{ form.square_feet.id_for_label }}" class="sap-form-label">Square Feet</label>
+            {{ form.square_feet }}
+            {% if form.square_feet.errors %}
+            <div class="sap-alert--error">{{ form.square_feet.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="form-grid" style="margin-top: 1rem;">
+          <div class="sap-form-group">
+            <label for="{{ form.status.id_for_label }}" class="sap-form-label">Status</label>
+            {{ form.status }}
+            {% if form.status.errors %}
+            <div class="sap-alert--error">{{ form.status.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="sap-form-group">
+            <label for="{{ form.listed_by.id_for_label }}" class="sap-form-label">Listed By</label>
+            {{ form.listed_by }}
+            {% if form.listed_by.errors %}
+            <div class="sap-alert--error">{{ form.listed_by.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+        <div class="sap-form-group" style="margin-top: 1rem;">
+          <label for="{{ form.image.id_for_label }}" class="sap-form-label">Image</label>
+          {{ form.image }}
+          {% if form.image.errors %}
+          <div class="sap-alert--error">{{ form.image.errors }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <div class="sap-card" style="margin-bottom: 1.5rem;">
+      <div class="sap-card-header">Financial</div>
+      <div class="sap-card-body">
+        <div class="form-grid">
+          <div class="sap-form-group">
+            <label for="{{ form.price.id_for_label }}" class="sap-form-label">Price</label>
+            {{ form.price }}
+            {% if form.price.errors %}
+            <div class="sap-alert--error">{{ form.price.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="sap-form-group">
+            <label for="{{ form.monthly_rent.id_for_label }}" class="sap-form-label">Monthly Rent</label>
+            {{ form.monthly_rent }}
+            {% if form.monthly_rent.errors %}
+            <div class="sap-alert--error">{{ form.monthly_rent.errors }}</div>
+            {% endif %}
+          </div>
+          <div class="sap-form-group">
+            <label for="{{ form.hoa_fee.id_for_label }}" class="sap-form-label">HOA Fee</label>
+            {{ form.hoa_fee }}
+            {% if form.hoa_fee.errors %}
+            <div class="sap-alert--error">{{ form.hoa_fee.errors }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sap-card" style="margin-bottom: 1.5rem;">
+      <div class="sap-card-header">Features</div>
+      <div class="sap-card-body">
+        <div class="form-grid">
+          <div class="sap-form-group">
+            <label class="sap-checkbox">
+              {{ form.has_garage }} Garage
+            </label>
+          </div>
+          <div class="sap-form-group">
+            <label class="sap-checkbox">
+              {{ form.has_pool }} Pool
+            </label>
+          </div>
+          <div class="sap-form-group">
+            <label class="sap-checkbox">
+              {{ form.has_garden }} Garden
+            </label>
+          </div>
+          <div class="sap-form-group">
+            <label class="sap-checkbox">
+              {{ form.pet_friendly }} Pet Friendly
+            </label>
+          </div>
+        </div>
+        <div class="sap-form-group" style="margin-top: 1rem;">
+          <label class="sap-checkbox">
+            {{ form.is_featured }} Featured Property
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <button type="submit" class="sap-btn sap-btn-emphasized">
+        {% if property %}Update Property{% else %}Create Property{% endif %}
+      </button>
+      <a href="{% url 'property_list' %}" class="sap-btn sap-btn-default">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock content %}

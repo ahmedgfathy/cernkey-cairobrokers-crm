@@ -1,0 +1,172 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="fas fa-user-plus me-2"></i>Leads</h1>
+                <p class="page-subtitle">Manage your sales leads</p>
+            </div>
+            <a href="{% url 'lead_create' %}" class="sap-btn sap-btn-emphasized">
+                <i class="fas fa-plus me-1"></i> Add Lead
+            </a>
+        </div>
+    </div>
+
+    <div class="sap-card mb-4">
+        <div class="sap-card-body">
+            <form method="get" class="filter-bar">
+                <div class="filter-bar-item filter-bar-search">
+                    <span class="filter-icon"><i class="fas fa-search"></i></span>
+                    <input type="text" name="q" class="sap-input" placeholder="Search leads..." value="{{ request.GET.q|default:'' }}" onchange="this.form.submit()">
+                </div>
+                <div class="filter-bar-item">
+                    <span class="filter-icon"><i class="fas fa-flag"></i></span>
+                    <select name="status" class="sap-select" onchange="this.form.submit()">
+                        <option value="">All Status</option>
+                        {% for status in statuses %}
+                        <option value="{{ status.pk }}" {% if request.GET.status == status.pk|stringformat:"d" %}selected{% endif %}>{{ status.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-bar-item">
+                    <span class="filter-icon"><i class="fas fa-arrow-up"></i></span>
+                    <select name="priority" class="sap-select" onchange="this.form.submit()">
+                        <option value="">All Priority</option>
+                        <option value="low" {% if request.GET.priority == "low" %}selected{% endif %}>Low</option>
+                        <option value="medium" {% if request.GET.priority == "medium" %}selected{% endif %}>Medium</option>
+                        <option value="high" {% if request.GET.priority == "high" %}selected{% endif %}>High</option>
+                        <option value="urgent" {% if request.GET.priority == "urgent" %}selected{% endif %}>Urgent</option>
+                    </select>
+                </div>
+                <div class="filter-bar-item">
+                    <span class="filter-icon"><i class="fas fa-link"></i></span>
+                    <select name="source" class="sap-select" onchange="this.form.submit()">
+                        <option value="">All Sources</option>
+                        {% for source in sources %}
+                        <option value="{{ source.pk }}" {% if request.GET.source == source.pk|stringformat:"d" %}selected{% endif %}>{{ source.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {% if request.GET.status or request.GET.priority or request.GET.source or request.GET.q %}
+                <a href="{% url 'lead_list' %}" class="filter-clear-btn" title="Clear filters">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+    <div class="sap-card">
+        <div class="sap-card-body p-0">
+            <div class="table-responsive">
+                <table class="sap-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Source</th>
+                            <th>Status</th>
+                            <th>Assigned To</th>
+                            <th>Priority</th>
+                            <th>Created</th>
+                            <th class="text-center">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for lead in leads %}
+                        <tr>
+                            <td>
+                                <a href="{% url 'lead_detail' pk=lead.pk %}" class="fw-semibold text-decoration-none">
+                                    {{ lead.full_name }}
+                                </a>
+                            </td>
+                            <td>{{ lead.email|default:"-" }}</td>
+                            <td>{{ lead.phone|default:"-" }}</td>
+                            <td>
+                                {% if lead.source %}
+                                <span class="sap-badge sap-badge--info">{{ lead.source }}</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if lead.status %}
+                                <span class="sap-badge sap-badge--default">{{ lead.status }}</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ lead.assigned_to|default:"-" }}</td>
+                            <td>
+                                {% if lead.priority == "urgent" %}
+                                <span class="sap-badge sap-badge--error">Urgent</span>
+                                {% elif lead.priority == "high" %}
+                                <span class="sap-badge sap-badge--warning">High</span>
+                                {% elif lead.priority == "medium" %}
+                                <span class="sap-badge sap-badge--info">Medium</span>
+                                {% elif lead.priority == "low" %}
+                                <span class="sap-badge sap-badge--success">Low</span>
+                                {% else %}
+                                <span class="text-muted">-</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ lead.created_at|date:"M d, Y" }}</td>
+                            <td class="text-center">
+                                <a href="{% url 'lead_detail' pk=lead.pk %}" class="sap-btn sap-btn-sm sap-btn-transparent me-1" title="View">
+                                    <i class="fas fa-eye"></i>
+                                </a>
+                                <a href="{% url 'lead_update' pk=lead.pk %}" class="sap-btn sap-btn-sm sap-btn-transparent me-1" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'lead_delete' pk=lead.pk %}" class="sap-btn sap-btn-sm sap-btn-transparent" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9">
+                                <div class="empty-state">
+                                    <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
+                                    No leads found.
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    {% if is_paginated %}
+    <nav class="mt-3">
+        <ul class="pagination justify-content-center">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    <i class="fas fa-chevron-left"></i>
+                </a>
+            </li>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
+            </li>
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <li class="page-item">
+                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
+                    <i class="fas fa-chevron-right"></i>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock content %}

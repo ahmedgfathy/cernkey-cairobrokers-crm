@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Agent Performance - Cairobrokers CRM{% endblock %}
+{% block content %}
+<div class="page-header d-flex justify-content-between align-items-center">
+    <div>
+        <h1><i class="fas fa-users me-2"></i>Agent Performance</h1>
+        <div class="page-subtitle">Per-agent leads, properties, deals & task metrics</div>
+    </div>
+    <a href="{% url 'reports_dashboard' %}" class="sap-btn sap-btn-default"><i class="fas fa-arrow-left me-1"></i> Back</a>
+</div>
+
+<div class="report-kpi-row">
+    <div class="kpi-card brand"><div class="kpi-icon"><i class="fas fa-users"></i></div><div class="kpi-value">{{ agents|length }}</div><div class="kpi-label">Active Agents</div></div>
+    <div class="kpi-card success"><div class="kpi-icon"><i class="fas fa-user-plus"></i></div><div class="kpi-value">{{ total_leads }}</div><div class="kpi-label">Total Leads</div></div>
+    <div class="kpi-card info"><div class="kpi-icon"><i class="fas fa-handshake"></i></div><div class="kpi-value">{{ total_opps }}</div><div class="kpi-label">Total Deals</div></div>
+    <div class="kpi-card warning"><div class="kpi-icon"><i class="fas fa-tasks"></i></div><div class="kpi-value">{{ total_tasks }}</div><div class="kpi-label">Total Tasks</div></div>
+</div>
+
+<div class="sap-card">
+    <div class="sap-card-header"><h3><i class="fas fa-chart-bar me-2"></i>Agent Metrics</h3></div>
+    <div class="sap-card-body no-padding">
+        <div class="table-responsive">
+            <table class="sap-table">
+                <thead><tr><th>Agent</th><th>Type</th><th>Leads</th><th>Properties</th><th>Deals</th><th>Deal Value</th><th>Tasks</th><th>Completed</th><th>Completion</th></tr></thead>
+                <tbody>
+                    {% for agent in agents %}
+                    <tr>
+                        <td><span class="fw-bold">{{ agent.first_name|default:agent.username }} {{ agent.last_name }}</span></td>
+                        <td><span class="sap-badge sap-badge--info">{{ agent.get_user_type_display }}</span></td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <div class="chart-bar-track" style="width:6rem;"><div class="chart-bar-fill chart-bar-brand" style="width:{% widthratio agent.lead_count total_leads 100 %}%"></div></div>
+                                <span class="fw-bold">{{ agent.lead_count }}</span>
+                            </div>
+                        </td>
+                        <td>{{ agent.property_count }}</td>
+                        <td>{{ agent.opp_count }}</td>
+                        <td>${{ agent.opp_value|floatformat:0|default:"0" }}</td>
+                        <td>{{ agent.task_count }}</td>
+                        <td>{{ agent.tasks_completed }}</td>
+                        <td>
+                            {% if agent.task_count > 0 %}
+                            {% widthratio agent.tasks_completed agent.task_count 100 as pct %}
+                            <span class="sap-badge {% if pct > 75 %}sap-badge--success{% elif pct > 40 %}sap-badge--warning{% else %}sap-badge--error{% endif %}">{{ pct }}%</span>
+                            {% else %}
+                            <span class="text-muted">-</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="9"><div class="empty-state"><p>No agents found</p></div></td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="page-header">
+    <h1><i class="fas fa-folder" style="margin-right:0.5rem; opacity:0.7;"></i> Create Task Category</h1>
+    <div class="page-header-actions">
+        <a href="{% url 'task_category_list' %}" class="sap-btn sap-btn-default">
+            <i class="fas fa-arrow-left"></i> Back to List
+        </a>
+    </div>
+</div>
+
+<div class="sap-card">
+    <div class="sap-card-body">
+        <form method="post">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="sap-alert sap-alert--error">
+                <i class="fas fa-exclamation-circle"></i>
+                {% for error in form.non_field_errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="object-page-section">
+                <div class="section-title">Category Details</div>
+                <div class="form-grid">
+                    <div class="sap-form-group">
+                        <label for="{{ form.name.id_for_label }}" class="sap-form-label">Name <span class="required">*</span></label>
+                        {{ form.name }}
+                        {% if form.name.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="sap-form-group">
+                        <label for="{{ form.color.id_for_label }}" class="sap-form-label">Color</label>
+                        <div style="display:flex; align-items:center; gap:0.75rem;">
+                            {{ form.color }}
+                            <span class="text-muted" style="font-size:0.8125rem;">Choose a color for this category</span>
+                        </div>
+                        {% if form.color.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.color.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="sap-form-group" style="grid-column: 1 / -1;">
+                        <label for="{{ form.description.id_for_label }}" class="sap-form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="sap-alert sap-alert--error" style="margin-top:0.375rem; padding:0.375rem 0.625rem; font-size:0.75rem;">{{ form.description.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:flex-end; gap:0.5rem; padding-top:0.75rem; border-top:1px solid var(--sapNeutralBorderColor);">
+                <a href="{% url 'task_category_list' %}" class="sap-btn sap-btn-default">Cancel</a>
+                <button type="submit" class="sap-btn sap-btn-emphasized">
+                    <i class="fas fa-save"></i> Create Category
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock content %}

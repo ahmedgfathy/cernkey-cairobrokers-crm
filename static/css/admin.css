@@ -321,6 +321,85 @@ ul.errorlist li { color: #EE3939; font-size: 0.8125rem; font-weight: 500; }
     .object-tools li a { width: 100%; justify-content: center; }
 }
 
+/* ===== ADMIN INDEX - CARDS ===== */
+.admin-card {
+    background: #fff; border: 1px solid #D9D9D9; border-radius: 0.5rem;
+    box-shadow: 0 0.125rem 0.5rem rgba(0,0,0,0.04); margin-bottom: 1.25rem; overflow: hidden;
+}
+.admin-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    background: linear-gradient(135deg, #354A5F 0%, #2C3E50 100%);
+    padding: 0.75rem 1.25rem;
+}
+.admin-card-title {
+    color: #fff; font-family: 'Roboto', sans-serif; font-size: 0.9375rem; font-weight: 600;
+    margin: 0; display: flex; align-items: center; gap: 0.5rem;
+}
+.admin-card-title i { font-size: 0.875rem; opacity: 0.7; }
+.admin-card-badge {
+    background: rgba(255,255,255,0.15); color: rgba(255,255,255,0.9);
+    font-size: 0.6875rem; font-weight: 500; padding: 0.25rem 0.625rem;
+    border-radius: 1rem; text-transform: uppercase; letter-spacing: 0.05em;
+}
+.admin-card-body { padding: 0; }
+
+/* Model Row */
+.admin-model-row {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0.75rem 1.25rem; border-bottom: 1px solid #EBEEF0;
+    transition: background 0.1s;
+}
+.admin-model-row:last-child { border-bottom: none; }
+.admin-model-row:hover { background: #F0F7FF; }
+
+.admin-model-name { flex: 1; }
+.admin-model-name a {
+    color: #32363A; font-weight: 500; font-size: 0.875rem;
+    text-decoration: none; transition: color 0.15s;
+}
+.admin-model-name a:hover { color: #0A6ED1; }
+
+/* Model Actions */
+.admin-model-actions {
+    display: flex; align-items: center; gap: 0.75rem; flex-shrink: 0;
+}
+.admin-action {
+    display: inline-flex; align-items: center; gap: 0.375rem;
+    padding: 0.375rem 0.75rem; border-radius: 0.375rem;
+    font-size: 0.8125rem; font-weight: 500; text-decoration: none;
+    transition: all 0.15s; cursor: pointer;
+}
+.admin-action-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 1.5rem; height: 1.5rem; border-radius: 50%;
+    font-size: 0.625rem; color: #fff;
+}
+.admin-action-text { line-height: 1; }
+
+.admin-action--add { color: #2E7D32; background: #E8F5E9; }
+.admin-action--add:hover { background: #C8E6C9; }
+.admin-action--add .admin-action-icon { background: #36B37E; }
+
+.admin-action--change { color: #1565C0; background: #E3F2FD; }
+.admin-action--change:hover { background: #BBDEFB; }
+.admin-action--change .admin-action-icon { background: #0A6ED1; }
+
+/* Empty state */
+.admin-empty {
+    text-align: center; padding: 3rem; color: #6A6D70;
+}
+.admin-empty i { font-size: 2rem; margin-bottom: 0.75rem; opacity: 0.3; }
+.admin-empty p { font-size: 0.9375rem; }
+
+/* ===== BACK LINK ===== */
+.back-link {
+    font-family: 'Roboto', sans-serif; font-size: 0.8125rem; font-weight: 500;
+    background: #F5F6F7; color: #32363A; border: 1px solid #D9D9D9; border-radius: 0.5rem;
+    padding: 0.5rem 1rem; transition: all 0.15s; text-decoration: none;
+    display: inline-flex; align-items: center; gap: 0.375rem; cursor: pointer;
+}
+.back-link:hover { background: #0A6ED1; color: #fff; border-color: #0A6ED1; }
+
 /* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: #F5F6F7; }

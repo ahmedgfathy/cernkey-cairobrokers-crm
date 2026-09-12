@@ -29,30 +29,14 @@
             </div>
         </a>
         <nav class="shell-bar-nav">
-            <a href="{% url 'dashboard' %}">
-                <i class="fas fa-th-large"></i> Home
-            </a>
-            <a href="{% url 'lead_list' %}">
-                <i class="fas fa-user-plus"></i> Leads
-            </a>
-            <a href="{% url 'property_list' %}">
-                <i class="fas fa-building"></i> Properties
-            </a>
-            <a href="{% url 'opportunity_list' %}">
-                <i class="fas fa-handshake"></i> Opportunities
-            </a>
-            <a href="{% url 'task_list' %}">
-                <i class="fas fa-tasks"></i> Tasks
-            </a>
-            <a href="{% url 'document_list' %}">
-                <i class="fas fa-file-alt"></i> Documents
-            </a>
-            <a href="{% url 'reports_dashboard' %}">
-                <i class="fas fa-chart-bar"></i> Analytics
-            </a>
-            <a href="{% url 'admin:index' %}" class="active">
-                <i class="fas fa-cog"></i> Admin
-            </a>
+            <a href="{% url 'dashboard' %}"><i class="fas fa-th-large"></i> Home</a>
+            <a href="{% url 'lead_list' %}"><i class="fas fa-user-plus"></i> Leads</a>
+            <a href="{% url 'property_list' %}"><i class="fas fa-building"></i> Properties</a>
+            <a href="{% url 'opportunity_list' %}"><i class="fas fa-handshake"></i> Opportunities</a>
+            <a href="{% url 'task_list' %}"><i class="fas fa-tasks"></i> Tasks</a>
+            <a href="{% url 'document_list' %}"><i class="fas fa-file-alt"></i> Documents</a>
+            <a href="{% url 'reports_dashboard' %}"><i class="fas fa-chart-bar"></i> Analytics</a>
+            <a href="{% url 'admin:index' %}" class="active"><i class="fas fa-cog"></i> Admin</a>
         </nav>
         <div class="shell-bar-right">
             <a href="{% url 'notification_list' %}" class="user-btn notification-badge" title="Notifications">
@@ -61,8 +45,7 @@
             </a>
             <div class="dropdown">
                 <a class="user-btn dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                    <i class="fas fa-user-circle"></i>
-                    {{ user.get_full_name|default:user.username }}
+                    <i class="fas fa-user-circle"></i> {{ user.get_full_name|default:user.username }}
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end">
                     <li>
@@ -92,94 +75,57 @@
         <aside class="side-nav">
             <div class="nav-group">
                 <div class="nav-group-header" onclick="this.parentElement.classList.toggle('collapsed')">
-                    <span>CRM</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <span>CRM</span><i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="nav-group-items">
-                    <a href="{% url 'lead_list' %}" class="nav-item">
-                        <i class="fas fa-user-plus"></i> Leads
-                    </a>
-                    <a href="{% url 'lead_source_list' %}" class="nav-item">
-                        <i class="fas fa-sitemap"></i> Lead Sources
-                    </a>
-                    <a href="{% url 'lead_status_list' %}" class="nav-item">
-                        <i class="fas fa-flag"></i> Lead Statuses
-                    </a>
+                    <a href="{% url 'lead_list' %}" class="nav-item"><i class="fas fa-user-plus"></i> Leads</a>
+                    <a href="{% url 'lead_source_list' %}" class="nav-item"><i class="fas fa-sitemap"></i> Lead Sources</a>
+                    <a href="{% url 'lead_status_list' %}" class="nav-item"><i class="fas fa-flag"></i> Lead Statuses</a>
                 </div>
             </div>
             <div class="nav-group">
                 <div class="nav-group-header" onclick="this.parentElement.classList.toggle('collapsed')">
-                    <span>Real Estate</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <span>Real Estate</span><i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="nav-group-items">
-                    <a href="{% url 'property_list' %}" class="nav-item">
-                        <i class="fas fa-building"></i> Properties
-                    </a>
-                    <a href="{% url 'property_type_list' %}" class="nav-item">
-                        <i class="fas fa-th-large"></i> Property Types
-                    </a>
-                    <a href="{% url 'property_status_list' %}" class="nav-item">
-                        <i class="fas fa-tag"></i> Property Statuses
-                    </a>
+                    <a href="{% url 'property_list' %}" class="nav-item"><i class="fas fa-building"></i> Properties</a>
+                    <a href="{% url 'property_type_list' %}" class="nav-item"><i class="fas fa-th-large"></i> Property Types</a>
+                    <a href="{% url 'property_status_list' %}" class="nav-item"><i class="fas fa-tag"></i> Property Statuses</a>
                 </div>
             </div>
             <div class="nav-group">
                 <div class="nav-group-header" onclick="this.parentElement.classList.toggle('collapsed')">
-                    <span>Sales</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <span>Sales</span><i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="nav-group-items">
-                    <a href="{% url 'opportunity_list' %}" class="nav-item">
-                        <i class="fas fa-handshake"></i> Opportunities
-                    </a>
-                    <a href="{% url 'opportunity_stage_list' %}" class="nav-item">
-                        <i class="fas fa-layer-group"></i> Opp. Stages
-                    </a>
+                    <a href="{% url 'opportunity_list' %}" class="nav-item"><i class="fas fa-handshake"></i> Opportunities</a>
+                    <a href="{% url 'opportunity_stage_list' %}" class="nav-item"><i class="fas fa-layer-group"></i> Opp. Stages</a>
                 </div>
             </div>
             <div class="nav-group">
                 <div class="nav-group-header" onclick="this.parentElement.classList.toggle('collapsed')">
-                    <span>Tasks</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <span>Tasks</span><i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="nav-group-items">
-                    <a href="{% url 'task_list' %}" class="nav-item">
-                        <i class="fas fa-tasks"></i> All Tasks
-                    </a>
-                    <a href="{% url 'task_category_list' %}" class="nav-item">
-                        <i class="fas fa-folder"></i> Categories
-                    </a>
-                    <a href="{% url 'task_priority_list' %}" class="nav-item">
-                        <i class="fas fa-arrow-up"></i> Priorities
-                    </a>
-                    <a href="{% url 'task_status_list' %}" class="nav-item">
-                        <i class="fas fa-info-circle"></i> Statuses
-                    </a>
+                    <a href="{% url 'task_list' %}" class="nav-item"><i class="fas fa-tasks"></i> All Tasks</a>
+                    <a href="{% url 'task_category_list' %}" class="nav-item"><i class="fas fa-folder"></i> Categories</a>
+                    <a href="{% url 'task_priority_list' %}" class="nav-item"><i class="fas fa-arrow-up"></i> Priorities</a>
+                    <a href="{% url 'task_status_list' %}" class="nav-item"><i class="fas fa-info-circle"></i> Statuses</a>
                 </div>
             </div>
             <div class="nav-group">
                 <div class="nav-group-header" onclick="this.parentElement.classList.toggle('collapsed')">
-                    <span>More</span>
-                    <i class="fas fa-chevron-down"></i>
+                    <span>More</span><i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="nav-group-items">
-                    <a href="{% url 'document_list' %}" class="nav-item">
-                        <i class="fas fa-folder-open"></i> Documents
-                    </a>
-                    <a href="{% url 'document_type_list' %}" class="nav-item">
-                        <i class="fas fa-file-alt"></i> Document Types
-                    </a>
+                    <a href="{% url 'document_list' %}" class="nav-item"><i class="fas fa-folder-open"></i> Documents</a>
+                    <a href="{% url 'document_type_list' %}" class="nav-item"><i class="fas fa-file-alt"></i> Document Types</a>
                     <a href="{% url 'notification_list' %}" class="nav-item">
                         <i class="fas fa-bell"></i> Notifications
                         {% if unread_notification_count %}<span class="nav-badge">{{ unread_notification_count }}</span>{% endif %}
                     </a>
-                    <a href="{% url 'reports_dashboard' %}" class="nav-item">
-                        <i class="fas fa-chart-bar"></i> Reports
-                    </a>
-                    <a href="{% url 'admin:index' %}" class="nav-item active">
-                        <i class="fas fa-cog"></i> Admin Panel
-                    </a>
+                    <a href="{% url 'reports_dashboard' %}" class="nav-item"><i class="fas fa-chart-bar"></i> Reports</a>
+                    <a href="{% url 'admin:index' %}" class="nav-item active"><i class="fas fa-cog"></i> Admin Panel</a>
                 </div>
             </div>
         </aside>
@@ -195,16 +141,19 @@
             {% endfor %}
             {% endif %}
 
-            {% block breadcrumbs %}{% endblock %}
+            {% block breadcrumbs_wrapper %}
+            <div class="admin-breadcrumbs">
+                {% block breadcrumbs %}{% endblock %}
+            </div>
+            {% endblock %}
 
-            <div id="content" class="sap-card" style="overflow:visible;">
+            {% block object-tools %}{% endblock %}
+
+            <div id="content" class="admin-content-card">
                 {% block pretitle %}{% endblock %}
                 {% block content_title %}{% endblock %}
                 {% block content %}{% endblock %}
-                {% block sidebar %}{% endblock %}
             </div>
-
-            {% block object-tools %}{% endblock %}
         </main>
     </div>
     {% else %}

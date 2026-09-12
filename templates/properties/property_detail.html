@@ -1,197 +1,226 @@
 {% extends "base.html" %}
-
-{% block title %}{{ property.title }} - Cairobrokers CRM{% endblock %}
+{% load static %}
 
 {% block content %}
-<div class="page-header">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <div class="d-flex align-items-center gap-2 mb-1">
-                <h1 style="margin:0;">{{ property.title }}</h1>
-                {% if property.status.name == 'Available' %}
-                <span class="sap-badge sap-badge--success" style="font-size:0.8125rem; padding:0.25rem 0.75rem;">Available</span>
-                {% elif property.status.name == 'Sold' %}
-                <span class="sap-badge sap-badge--error" style="font-size:0.8125rem; padding:0.25rem 0.75rem;">Sold</span>
-                {% elif property.status.name == 'Rented' %}
-                <span class="sap-badge sap-badge--info" style="font-size:0.8125rem; padding:0.25rem 0.75rem;">Rented</span>
-                {% else %}
-                <span class="sap-badge sap-badge--warning" style="font-size:0.8125rem; padding:0.25rem 0.75rem;">{{ property.status }}</span>
-                {% endif %}
-                {% if property.is_featured %}
-                <span class="sap-badge sap-badge--warning" style="font-size:0.8125rem; padding:0.25rem 0.75rem;"><i class="fas fa-star me-1"></i>Featured</span>
-                {% endif %}
-            </div>
-            <p class="page-subtitle" style="margin:0;"><i class="fas fa-map-marker-alt me-1"></i>{{ property.full_address }}</p>
-        </div>
-        <div class="d-flex gap-2">
-            <a href="{% url 'property_update' pk=property.pk %}" class="sap-btn sap-btn-emphasized"><i class="fas fa-edit me-1"></i> Edit</a>
-            <a href="{% url 'property_delete' pk=property.pk %}" class="sap-btn sap-btn-danger"><i class="fas fa-trash me-1"></i> Delete</a>
-            <a href="{% url 'property_list' %}" class="sap-btn sap-btn-default"><i class="fas fa-arrow-left me-1"></i> Back</a>
-        </div>
-    </div>
-</div>
-
-<div class="property-hero-stats">
-    <div class="property-hero-price">
-        <div class="property-hero-price-label">Price</div>
-        <div class="property-hero-price-value">${{ property.price|floatformat:0 }}</div>
-    </div>
-    <div class="property-hero-stat">
-        <div class="property-hero-stat-icon"><i class="fas fa-bed"></i></div>
-        <div class="property-hero-stat-value">{{ property.bedrooms }}</div>
-        <div class="property-hero-stat-label">Beds</div>
-    </div>
-    <div class="property-hero-stat">
-        <div class="property-hero-stat-icon"><i class="fas fa-bath"></i></div>
-        <div class="property-hero-stat-value">{{ property.bathrooms }}</div>
-        <div class="property-hero-stat-label">Baths</div>
-    </div>
-    <div class="property-hero-stat">
-        <div class="property-hero-stat-icon"><i class="fas fa-ruler-combined"></i></div>
-        <div class="property-hero-stat-value">{{ property.square_feet|floatformat:0 }}</div>
-        <div class="property-hero-stat-label">Sq Ft</div>
-    </div>
-    {% if property.lot_size %}
-    <div class="property-hero-stat">
-        <div class="property-hero-stat-icon"><i class="fas fa-expand-arrows-alt"></i></div>
-        <div class="property-hero-stat-value">{{ property.lot_size }}</div>
-        <div class="property-hero-stat-label">Lot Size</div>
-    </div>
-    {% endif %}
-    {% if property.year_built %}
-    <div class="property-hero-stat">
-        <div class="property-hero-stat-icon"><i class="fas fa-calendar-alt"></i></div>
-        <div class="property-hero-stat-value">{{ property.year_built }}</div>
-        <div class="property-hero-stat-label">Year Built</div>
-    </div>
-    {% endif %}
-</div>
-
-<div class="content-grid-2" style="display:grid; grid-template-columns: 2fr 1fr; gap:1rem; margin-bottom:1.5rem;">
-    <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-align-left me-2"></i>Description</h3></div>
-        <div class="sap-card-body">
-            <div class="property-description">
-                {{ property.description|linebreaksbr }}
-            </div>
-        </div>
-    </div>
-    <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-info-circle me-2"></i>Quick Facts</h3></div>
-        <div class="sap-card-body">
-            <div class="property-quick-facts">
-                <div class="quick-fact-row">
-                    <span class="quick-fact-label"><i class="fas fa-th-large me-2"></i>Type</span>
-                    <span class="quick-fact-value">{{ property.property_type|default:"-" }}</span>
-                </div>
-                <div class="quick-fact-row">
-                    <span class="quick-fact-label"><i class="fas fa-home me-2"></i>Status</span>
-                    <span class="quick-fact-value">
-                        {% if property.status.name == 'Available' %}
-                        <span class="sap-badge sap-badge--success">{{ property.status }}</span>
-                        {% elif property.status.name == 'Sold' %}
-                        <span class="sap-badge sap-badge--error">{{ property.status }}</span>
-                        {% else %}
-                        <span class="sap-badge sap-badge--warning">{{ property.status }}</span>
-                        {% endif %}
-                    </span>
-                </div>
-                <div class="quick-fact-row">
-                    <span class="quick-fact-label"><i class="fas fa-user me-2"></i>Listed By</span>
-                    <span class="quick-fact-value">{{ property.listed_by|default:"-" }}</span>
-                </div>
-                <div class="quick-fact-row">
-                    <span class="quick-fact-label"><i class="fas fa-map me-2"></i>Address</span>
-                    <span class="quick-fact-value">{{ property.address }}</span>
-                </div>
-                <div class="quick-fact-row">
-                    <span class="quick-fact-label"><i class="fas fa-city me-2"></i>City</span>
-                    <span class="quick-fact-value">{{ property.city }}, {{ property.state }}</span>
-                </div>
-                <div class="quick-fact-row">
-                    <span class="quick-fact-label"><i class="fas fa-mail-bulk me-2"></i>Zip Code</span>
-                    <span class="quick-fact-value">{{ property.zip_code }}</span>
-                </div>
-                <div class="quick-fact-row">
-                    <span class="quick-fact-label"><i class="fas fa-globe me-2"></i>Country</span>
-                    <span class="quick-fact-value">{{ property.country }}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="content-grid-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
-    <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-dollar-sign me-2"></i>Financial Details</h3></div>
-        <div class="sap-card-body">
-            <div class="property-financial">
-                <div class="financial-row financial-highlight">
-                    <span class="financial-label">Sale Price</span>
-                    <span class="financial-value financial-primary">${{ property.price|floatformat:0 }}</span>
-                </div>
-                {% if property.monthly_rent %}
-                <div class="financial-row">
-                    <span class="financial-label">Monthly Rent</span>
-                    <span class="financial-value">${{ property.monthly_rent|floatformat:0 }}</span>
-                </div>
-                {% endif %}
-                {% if property.hoa_fee %}
-                <div class="financial-row">
-                    <span class="financial-label">HOA Fee</span>
-                    <span class="financial-value">${{ property.hoa_fee|floatformat:0 }}/mo</span>
-                </div>
-                {% endif %}
-                <div class="financial-row">
-                    <span class="financial-label">Price per Sq Ft</span>
-                    <span class="financial-value">${% widthratio property.price property.square_feet 1 %}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="sap-card">
-        <div class="sap-card-header"><h3><i class="fas fa-star me-2"></i>Features & Amenities</h3></div>
-        <div class="sap-card-body">
-            <div class="property-features">
-                <div class="feature-item {% if property.has_garage %}feature-yes{% else %}feature-no{% endif %}">
-                    <i class="fas {% if property.has_garage %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
-                    <span>Garage{% if property.garage_spaces %} ({{ property.garage_spaces }} spaces){% endif %}</span>
-                </div>
-                <div class="feature-item {% if property.has_pool %}feature-yes{% else %}feature-no{% endif %}">
-                    <i class="fas {% if property.has_pool %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
-                    <span>Swimming Pool</span>
-                </div>
-                <div class="feature-item {% if property.has_garden %}feature-yes{% else %}feature-no{% endif %}">
-                    <i class="fas {% if property.has_garden %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
-                    <span>Garden</span>
-                </div>
-                <div class="feature-item {% if property.pet_friendly %}feature-yes{% else %}feature-no{% endif %}">
-                    <i class="fas {% if property.pet_friendly %}fa-check-circle{% else %}fa-times-circle{% endif %}"></i>
-                    <span>Pet Friendly</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="sap-card">
-    <div class="sap-card-body">
+<div class="container-fluid">
+    <div class="page-header">
         <div class="d-flex justify-content-between align-items-center">
-            <div class="d-flex gap-3">
-                <div>
-                    <span class="form-field-label">Created</span>
-                    <div class="form-field-value">{{ property.created_at|date:"M d, Y H:i" }}</div>
-                </div>
-                <div>
-                    <span class="form-field-label">Updated</span>
-                    <div class="form-field-value">{{ property.updated_at|date:"M d, Y H:i" }}</div>
-                </div>
+            <div>
+                <h1><i class="fas fa-home me-2"></i>{{ property.title }}</h1>
+                <p class="page-subtitle"><i class="fas fa-map-marker-alt me-1"></i>{{ property.address }}, {{ property.city }}</p>
             </div>
             <div class="d-flex gap-2">
-                <a href="{% url 'property_update' pk=property.pk %}" class="sap-btn sap-btn-emphasized"><i class="fas fa-edit me-1"></i> Edit Property</a>
+                <a href="{% url 'property_update' pk=property.pk %}" class="sap-btn sap-btn-emphasized"><i class="fas fa-edit me-1"></i> Edit</a>
                 <a href="{% url 'property_delete' pk=property.pk %}" class="sap-btn sap-btn-danger"><i class="fas fa-trash me-1"></i> Delete</a>
+                <a href="{% url 'property_list' %}" class="sap-btn sap-btn-default"><i class="fas fa-arrow-left me-1"></i> Back</a>
             </div>
         </div>
+    </div>
+
+    <div class="property-hero-stats" style="background:linear-gradient(135deg, #0070f2 0%, #1a237e 100%); border-radius:12px; padding:1.5rem 2rem; margin-bottom:1.5rem; display:flex; flex-wrap:wrap; gap:2rem; align-items:center; color:#fff;">
+        <div style="font-size:2rem; font-weight:700;">${{ property.price|floatformat:0 }}</div>
+        {% if property.bedrooms %}<div><i class="fas fa-bed me-1"></i> {{ property.bedrooms }} Bed{{ property.bedrooms|pluralize }}</div>{% endif %}
+        {% if property.bathrooms %}<div><i class="fas fa-bath me-1"></i> {{ property.bathrooms }} Bath{{ property.bathrooms|pluralize }}</div>{% endif %}
+        {% if property.area_sqft %}<div><i class="fas fa-ruler-combined me-1"></i> {{ property.area_sqft|floatformat:0 }} sqft</div>{% endif %}
+        {% if property.status %}<div><span class="sap-badge sap-badge--light">{{ property.status }}</span></div>{% endif %}
+        {% if property.property_type %}<div><span class="sap-badge sap-badge--light">{{ property.property_type }}</span></div>{% endif %}
+    </div>
+
+    <div class="report-kpi-row">
+        <div class="kpi-card brand"><div class="kpi-icon"><i class="fas fa-eye"></i></div><div class="kpi-value">{{ viewings|length }}</div><div class="kpi-label">Viewings</div></div>
+        <div class="kpi-card success"><div class="kpi-icon"><i class="fas fa-handshake"></i></div><div class="kpi-value">{{ offers|length }}</div><div class="kpi-label">Offers</div></div>
+        <div class="kpi-card warning"><div class="kpi-icon"><i class="fas fa-th-large"></i></div><div class="kpi-value">{{ units|length }}</div><div class="kpi-label">Units</div></div>
+        <div class="kpi-card info"><div class="kpi-icon"><i class="fas fa-sticky-note"></i></div><div class="kpi-value">{{ notes|length }}</div><div class="kpi-label">Notes</div></div>
+    </div>
+
+    <div class="content-grid-2" style="display:grid; grid-template-columns: 1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+        <div class="sap-card">
+            <div class="sap-card-header"><h3><i class="fas fa-align-left me-2"></i>Description</h3></div>
+            <div class="sap-card-body">
+                <div class="property-description">{{ property.description|linebreaksbr|default:"No description available." }}</div>
+            </div>
+        </div>
+
+        <div class="sap-card">
+            <div class="sap-card-header"><h3><i class="fas fa-info-circle me-2"></i>Quick Facts</h3></div>
+            <div class="sap-card-body">
+                <div class="property-quick-facts">
+                    <div class="quick-fact-row"><span class="quick-fact-label"><i class="fas fa-dollar-sign me-2"></i>Price</span><span class="quick-fact-value">${{ property.price|floatformat:0 }}</span></div>
+                    {% if property.area_sqft %}<div class="quick-fact-row"><span class="quick-fact-label"><i class="fas fa-ruler-combined me-2"></i>Area</span><span class="quick-fact-value">{{ property.area_sqft|floatformat:0 }} sqft</span></div>{% endif %}
+                    {% if property.bedrooms %}<div class="quick-fact-row"><span class="quick-fact-label"><i class="fas fa-bed me-2"></i>Bedrooms</span><span class="quick-fact-value">{{ property.bedrooms }}</span></div>{% endif %}
+                    {% if property.bathrooms %}<div class="quick-fact-row"><span class="quick-fact-label"><i class="fas fa-bath me-2"></i>Bathrooms</span><span class="quick-fact-value">{{ property.bathrooms }}</span></div>{% endif %}
+                    {% if property.year_built %}<div class="quick-fact-row"><span class="quick-fact-label"><i class="fas fa-calendar me-2"></i>Year Built</span><span class="quick-fact-value">{{ property.year_built }}</span></div>{% endif %}
+                    {% if property.garage %}<div class="quick-fact-row"><span class="quick-fact-label"><i class="fas fa-warehouse me-2"></i>Garage</span><span class="quick-fact-value">{{ property.garage }}</span></div>{% endif %}
+                    {% if property.lot_size %}<div class="quick-fact-row"><span class="quick-fact-label"><i class="fas fa-expand-arrows-alt me-2"></i>Lot Size</span><span class="quick-fact-value">{{ property.lot_size }}</span></div>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if property.features %}
+    <div class="sap-card" style="margin-bottom:1.5rem;">
+        <div class="sap-card-header"><h3><i class="fas fa-check-circle me-2"></i>Features</h3></div>
+        <div class="sap-card-body">
+            <div class="property-features-grid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:0.75rem;">
+                {% for feature in property.features_list %}<div class="feature-item" style="display:flex; align-items:center; gap:0.5rem; padding:0.5rem 0;"><i class="fas fa-check" style="color:#28a745; font-size:0.8rem;"></i><span>{{ feature }}</span></div>{% empty %}<p>No features listed</p>{% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="sap-card" style="margin-bottom:1.5rem;">
+        <div class="sap-card-header">
+            <h3><i class="fas fa-th-large me-2"></i>Units</h3>
+            <button class="sap-btn sap-btn-sm sap-btn-emphasized" onclick="document.getElementById('unitModal').style.display='flex'"><i class="fas fa-plus me-1"></i> Add Unit</button>
+        </div>
+        <div class="sap-card-body no-padding">
+            <div class="table-responsive">
+                <table class="sap-table">
+                    <thead><tr><th>Unit #</th><th>Floor</th><th>Bed</th><th>Bath</th><th>Area (sqft)</th><th>Rent/Mo</th><th>Sale Price</th><th>Status</th><th>Actions</th></tr></thead>
+                    <tbody>
+                        {% for unit in units %}
+                        <tr>
+                            <td class="fw-bold">{{ unit.unit_number }}</td>
+                            <td>{{ unit.floor|default:"-" }}</td>
+                            <td>{{ unit.bedrooms }}</td>
+                            <td>{{ unit.bathrooms }}</td>
+                            <td>{{ unit.square_feet }}</td>
+                            <td>{% if unit.monthly_rent %}${{ unit.monthly_rent|floatformat:0 }}{% else %}-{% endif %}</td>
+                            <td>{% if unit.sale_price %}${{ unit.sale_price|floatformat:0 }}{% else %}-{% endif %}</td>
+                            <td><span class="sap-badge {% if unit.status == 'available' %}sap-badge--success{% elif unit.status == 'occupied' %}sap-badge--info{% elif unit.status == 'reserved' %}sap-badge--warning{% else %}sap-badge--default{% endif %}">{{ unit.get_status_display }}</span></td>
+                            <td>
+                                <a href="{% url 'property_unit_update' pk=unit.pk %}" class="sap-btn sap-btn-sm sap-btn-default"><i class="fas fa-edit"></i></a>
+                                <a href="{% url 'property_unit_delete' pk=unit.pk %}" class="sap-btn sap-btn-sm sap-btn-danger" onclick="return confirm('Delete this unit?')"><i class="fas fa-trash"></i></a>
+                            </td>
+                        </tr>
+                        {% empty %}<tr><td colspan="9"><div class="empty-state"><p>No units configured for this property</p></div></td></tr>{% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+        <div class="sap-card">
+            <div class="sap-card-header">
+                <h3><i class="fas fa-eye me-2"></i>Viewings</h3>
+                <button class="sap-btn sap-btn-sm sap-btn-emphasized" onclick="document.getElementById('viewingModal').style.display='flex'"><i class="fas fa-plus me-1"></i> Add Viewing</button>
+            </div>
+            <div class="sap-card-body">
+                {% for viewing in viewings %}
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background:rgba(0,123,255,0.1); color:#007bff;"><i class="fas fa-eye"></i></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">{{ viewing.prospect_name }}</div>
+                        <div class="timeline-meta">{{ viewing.viewing_date|date:"M d, Y H:i" }} &middot; {{ viewing.get_status_display }}</div>
+                        {% if viewing.notes %}<div class="timeline-desc">{{ viewing.notes|truncatewords:20 }}</div>{% endif %}
+                    </div>
+                    <a href="{% url 'property_viewing_delete' pk=viewing.pk %}" class="sap-btn sap-btn-sm sap-btn-danger" onclick="return confirm('Delete?')"><i class="fas fa-trash"></i></a>
+                </div>
+                {% empty %}<div class="empty-state"><p>No viewings scheduled</p></div>{% endfor %}
+            </div>
+        </div>
+
+        <div class="sap-card">
+            <div class="sap-card-header">
+                <h3><i class="fas fa-handshake me-2"></i>Offers</h3>
+                <button class="sap-btn sap-btn-sm sap-btn-emphasized" onclick="document.getElementById('offerModal').style.display='flex'"><i class="fas fa-plus me-1"></i> Add Offer</button>
+            </div>
+            <div class="sap-card-body">
+                {% for offer in offers %}
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background:rgba(40,167,69,0.1); color:#28a745;"><i class="fas fa-handshake"></i></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">${{ offer.offer_amount|floatformat:0 }} from {{ offer.buyer_name }}</div>
+                        <div class="timeline-meta">{{ offer.created_at|date:"M d, Y" }} &middot; {{ offer.get_status_display }}</div>
+                        {% if offer.contingencies %}<div class="timeline-desc">Contingencies: {{ offer.contingencies|truncatewords:15 }}</div>{% endif %}
+                    </div>
+                    <div>
+                        <a href="{% url 'property_offer_update' pk=offer.pk %}" class="sap-btn sap-btn-sm sap-btn-default"><i class="fas fa-edit"></i></a>
+                        <a href="{% url 'property_offer_delete' pk=offer.pk %}" class="sap-btn sap-btn-sm sap-btn-danger" onclick="return confirm('Delete?')"><i class="fas fa-trash"></i></a>
+                    </div>
+                </div>
+                {% empty %}<div class="empty-state"><p>No offers yet</p></div>{% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="content-grid-2" style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1.5rem;">
+        <div class="sap-card">
+            <div class="sap-card-header">
+                <h3><i class="fas fa-clock me-2"></i>Activity Timeline</h3>
+            </div>
+            <div class="sap-card-body" style="max-height:28rem; overflow-y:auto;">
+                {% for activity in all_activities %}
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background:{{ activity.color }}20; color:{{ activity.color }};"><i class="fas {{ activity.icon }}"></i></div>
+                    <div class="timeline-content">
+                        <div class="timeline-title">{{ activity.title }}</div>
+                        <div class="timeline-meta">{{ activity.date|date:"M d, Y H:i" }} &middot; {{ activity.status }}</div>
+                    </div>
+                </div>
+                {% empty %}<div class="empty-state"><p>No activities</p></div>{% endfor %}
+            </div>
+        </div>
+
+        <div class="sap-card">
+            <div class="sap-card-header">
+                <h3><i class="fas fa-sticky-note me-2"></i>Notes</h3>
+                <button class="sap-btn sap-btn-sm sap-btn-emphasized" onclick="document.getElementById('propertyNoteModal').style.display='flex'"><i class="fas fa-plus me-1"></i> Add Note</button>
+            </div>
+            <div class="sap-card-body">
+                {% for note in notes %}
+                <div class="timeline-item">
+                    <div class="timeline-icon" style="background:rgba(253,126,20,0.1); color:#fd7e14;"><i class="fas fa-sticky-note"></i></div>
+                    <div class="timeline-content">
+                        <div class="timeline-desc">{{ note.content }}</div>
+                        <div class="timeline-meta">{{ note.created_at|date:"M d, Y H:i" }} &middot; {{ note.created_by|default:"System" }}</div>
+                    </div>
+                    <a href="{% url 'property_note_delete' pk=note.pk %}" class="sap-btn sap-btn-sm sap-btn-danger" onclick="return confirm('Delete?')"><i class="fas fa-trash"></i></a>
+                </div>
+                {% empty %}<div class="empty-state"><p>No notes</p></div>{% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="unitModal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header"><h3>Add Unit</h3><button class="modal-close" onclick="document.getElementById('unitModal').style.display='none'">&times;</button></div>
+        <form method="post" action="{% url 'property_unit_create' property_pk=property.pk %}">{% csrf_token %}
+            <div class="modal-body">{{ unit_form.as_p }}</div>
+            <div class="modal-footer"><button type="submit" class="sap-btn sap-btn-emphasized">Save</button><button type="button" class="sap-btn sap-btn-default" onclick="document.getElementById('unitModal').style.display='none'">Cancel</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="viewingModal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header"><h3>Add Viewing</h3><button class="modal-close" onclick="document.getElementById('viewingModal').style.display='none'">&times;</button></div>
+        <form method="post" action="{% url 'property_viewing_create' property_pk=property.pk %}">{% csrf_token %}
+            <div class="modal-body">{{ viewing_form.as_p }}</div>
+            <div class="modal-footer"><button type="submit" class="sap-btn sap-btn-emphasized">Save</button><button type="button" class="sap-btn sap-btn-default" onclick="document.getElementById('viewingModal').style.display='none'">Cancel</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="offerModal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header"><h3>Add Offer</h3><button class="modal-close" onclick="document.getElementById('offerModal').style.display='none'">&times;</button></div>
+        <form method="post" action="{% url 'property_offer_create' property_pk=property.pk %}">{% csrf_token %}
+            <div class="modal-body">{{ offer_form.as_p }}</div>
+            <div class="modal-footer"><button type="submit" class="sap-btn sap-btn-emphasized">Save</button><button type="button" class="sap-btn sap-btn-default" onclick="document.getElementById('offerModal').style.display='none'">Cancel</button></div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-overlay" id="propertyNoteModal" style="display:none;">
+    <div class="modal-content">
+        <div class="modal-header"><h3>Add Note</h3><button class="modal-close" onclick="document.getElementById('propertyNoteModal').style.display='none'">&times;</button></div>
+        <form method="post" action="{% url 'property_note_create' property_pk=property.pk %}">{% csrf_token %}
+            <div class="modal-body">{{ note_form.as_p }}</div>
+            <div class="modal-footer"><button type="submit" class="sap-btn sap-btn-emphasized">Save</button><button type="button" class="sap-btn sap-btn-default" onclick="document.getElementById('propertyNoteModal').style.display='none'">Cancel</button></div>
+        </form>
     </div>
 </div>
 {% endblock content %}

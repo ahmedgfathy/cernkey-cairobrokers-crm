@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -70,6 +71,128 @@ class Property(models.Model):
     def full_address(self):
         return f"{self.address}, {self.city}, {self.state} {self.zip_code}"
 
+    @property
+    def total_units(self):
+        return self.units.count()
+
+    @property
+    def available_units(self):
+        return self.units.filter(status='available').count()
+
     class Meta:
         db_table = 'properties_property'
+        ordering = ['-created_at']
+
+
+class PropertyUnit(models.Model):
+    STATUS_CHOICES = [
+        ('available', 'Available'),
+        ('occupied', 'Occupied'),
+        ('reserved', 'Reserved'),
+        ('maintenance', 'Under Maintenance'),
+    ]
+
+    related_property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='units')
+    unit_number = models.CharField(max_length=50)
+    floor = models.CharField(max_length=20, blank=True)
+    bedrooms = models.PositiveIntegerField(default=1)
+    bathrooms = models.PositiveIntegerField(default=1)
+    square_feet = models.PositiveIntegerField()
+    monthly_rent = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    sale_price = models.DecimalField(max_digits=12, decimal_places=2, null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='available')
+    description = models.TextField(blank=True)
+    tenant_name = models.CharField(max_length=200, blank=True)
+    tenant_phone = models.CharField(max_length=20, blank=True)
+    lease_start = models.DateField(null=True, blank=True)
+    lease_end = models.DateField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Unit {self.unit_number} - {self.related_property.title}"
+
+    @property
+    def is_available(self):
+        return self.status == 'available'
+
+    class Meta:
+        db_table = 'properties_property_unit'
+        ordering = ['unit_number']
+        unique_together = ['related_property', 'unit_number']
+
+
+class PropertyViewing(models.Model):
+    STATUS_CHOICES = [
+        ('scheduled', 'Scheduled'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+        ('no_show', 'No Show'),
+    ]
+
+    related_property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='viewings')
+    prospect_name = models.CharField(max_length=200)
+    prospect_phone = models.CharField(max_length=20, blank=True)
+    prospect_email = models.EmailField(blank=True)
+    viewing_date = models.DateTimeField()
+    notes = models.TextField(blank=True)
+    feedback = models.TextField(blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
+    agent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='property_viewings')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Viewing: {self.prospect_name} - {self.related_property.title}"
+
+    class Meta:
+        db_table = 'properties_property_viewing'
+        ordering = ['-viewing_date']
+
+
+class PropertyOffer(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('accepted', 'Accepted'),
+        ('rejected', 'Rejected'),
+        ('countered', 'Counter Offer'),
+        ('withdrawn', 'Withdrawn'),
+    ]
+
+    related_property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='offers')
+    buyer_name = models.CharField(max_length=200)
+    buyer_phone = models.CharField(max_length=20, blank=True)
+    buyer_email = models.EmailField(blank=True)
+    offer_amount = models.DecimalField(max_digits=12, decimal_places=2)
+    offer_date = models.DateField(default=timezone.now)
+    closing_date = models.DateField(null=True, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    notes = models.TextField(blank=True)
+    agent = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='property_offers')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"${self.offer_amount} - {self.buyer_name} for {self.related_property.title}"
+
+    @property
+    def difference_from_asking(self):
+        return self.offer_amount - self.related_property.price
+
+    class Meta:
+        db_table = 'properties_property_offer'
+        ordering = ['-offer_date']
+
+
+class PropertyNote(models.Model):
+    related_property = models.ForeignKey(Property, on_delete=models.CASCADE, related_name='property_notes')
+    content = models.TextField()
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"Note on {self.related_property}"
+
+    class Meta:
+        db_table = 'properties_property_note'
         ordering = ['-created_at']

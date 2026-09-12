@@ -2,8 +2,10 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
-from .models import Lead, LeadSource, LeadStatus
-from .forms import LeadForm, LeadSourceForm, LeadStatusForm
+from .models import (Lead, LeadSource, LeadStatus, LeadTask, LeadCall,
+                     LeadMeeting, LeadEmail, LeadNote)
+from .forms import (LeadForm, LeadSourceForm, LeadStatusForm, LeadTaskForm,
+                    LeadCallForm, LeadMeetingForm, LeadEmailForm, LeadNoteForm)
 
 
 @login_required
@@ -42,7 +44,38 @@ def lead_list(request):
 @login_required
 def lead_detail(request, pk):
     lead = get_object_or_404(Lead, pk=pk)
-    return render(request, 'leads/lead_detail.html', {'lead': lead})
+    tasks = lead.lead_tasks.all()[:10]
+    calls = lead.lead_calls.all()[:10]
+    meetings = lead.lead_meetings.all()[:10]
+    emails = lead.lead_emails.all()[:10]
+    notes = lead.lead_notes.all()[:10]
+
+    all_activities = []
+    for t in tasks:
+        all_activities.append({'type': 'task', 'title': t.title, 'date': t.created_at, 'status': t.status, 'icon': 'fa-tasks', 'color': '#6f42c1'})
+    for c in calls:
+        all_activities.append({'type': 'call', 'title': f"Call - {c.get_outcome_display()}", 'date': c.call_date, 'status': c.outcome, 'icon': 'fa-phone', 'color': '#007bff'})
+    for m in meetings:
+        all_activities.append({'type': 'meeting', 'title': m.title, 'date': m.meeting_date, 'status': m.get_status_display(), 'icon': 'fa-calendar', 'color': '#28a745'})
+    for e in emails:
+        all_activities.append({'type': 'email', 'title': e.subject, 'date': e.sent_at, 'status': e.get_direction_display(), 'icon': 'fa-envelope', 'color': '#fd7e14'})
+    all_activities.sort(key=lambda x: x['date'], reverse=True)
+
+    context = {
+        'lead': lead,
+        'tasks': tasks,
+        'calls': calls,
+        'meetings': meetings,
+        'emails': emails,
+        'notes': notes,
+        'all_activities': all_activities[:20],
+        'task_form': LeadTaskForm(),
+        'call_form': LeadCallForm(),
+        'meeting_form': LeadMeetingForm(),
+        'email_form': LeadEmailForm(),
+        'note_form': LeadNoteForm(),
+    }
+    return render(request, 'leads/lead_detail.html', context)
 
 
 @login_required
@@ -82,6 +115,143 @@ def lead_delete(request, pk):
         messages.success(request, 'Lead deleted successfully.')
         return redirect('lead_list')
     return render(request, 'leads/lead_confirm_delete.html', {'lead': lead})
+
+
+@login_required
+def lead_task_create(request, lead_pk):
+    lead = get_object_or_404(Lead, pk=lead_pk)
+    if request.method == 'POST':
+        form = LeadTaskForm(request.POST)
+        if form.is_valid():
+            task = form.save(commit=False)
+            task.lead = lead
+            task.assigned_to = request.user
+            task.save()
+            messages.success(request, 'Task created.')
+    return redirect('lead_detail', pk=lead_pk)
+
+
+@login_required
+def lead_task_update(request, pk):
+    task = get_object_or_404(LeadTask, pk=pk)
+    if request.method == 'POST':
+        form = LeadTaskForm(request.POST, instance=task)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Task updated.')
+    return redirect('lead_detail', pk=task.lead.pk)
+
+
+@login_required
+def lead_task_complete(request, pk):
+    task = get_object_or_404(LeadTask, pk=pk)
+    from django.utils import timezone
+    task.status = 'completed'
+    task.completed_at = timezone.now()
+    task.save()
+    messages.success(request, 'Task marked as completed.')
+    return redirect('lead_detail', pk=task.lead.pk)
+
+
+@login_required
+def lead_task_delete(request, pk):
+    task = get_object_or_404(LeadTask, pk=pk)
+    lead_pk = task.lead.pk
+    task.delete()
+    messages.success(request, 'Task deleted.')
+    return redirect('lead_detail', pk=lead_pk)
+
+
+@login_required
+def lead_call_create(request, lead_pk):
+    lead = get_object_or_404(Lead, pk=lead_pk)
+    if request.method == 'POST':
+        form = LeadCallForm(request.POST)
+        if form.is_valid():
+            call = form.save(commit=False)
+            call.lead = lead
+            call.called_by = request.user
+            call.save()
+            messages.success(request, 'Call logged.')
+    return redirect('lead_detail', pk=lead_pk)
+
+
+@login_required
+def lead_call_delete(request, pk):
+    call = get_object_or_404(LeadCall, pk=pk)
+    lead_pk = call.lead.pk
+    call.delete()
+    messages.success(request, 'Call log deleted.')
+    return redirect('lead_detail', pk=lead_pk)
+
+
+@login_required
+def lead_meeting_create(request, lead_pk):
+    lead = get_object_or_404(Lead, pk=lead_pk)
+    if request.method == 'POST':
+        form = LeadMeetingForm(request.POST)
+        if form.is_valid():
+            meeting = form.save(commit=False)
+            meeting.lead = lead
+            meeting.organized_by = request.user
+            meeting.save()
+            messages.success(request, 'Meeting scheduled.')
+    return redirect('lead_detail', pk=lead_pk)
+
+
+@login_required
+def lead_meeting_delete(request, pk):
+    meeting = get_object_or_404(LeadMeeting, pk=pk)
+    lead_pk = meeting.lead.pk
+    meeting.delete()
+    messages.success(request, 'Meeting deleted.')
+    return redirect('lead_detail', pk=lead_pk)
+
+
+@login_required
+def lead_email_create(request, lead_pk):
+    lead = get_object_or_404(Lead, pk=lead_pk)
+    if request.method == 'POST':
+        form = LeadEmailForm(request.POST)
+        if form.is_valid():
+            email = form.save(commit=False)
+            email.lead = lead
+            email.sent_by = request.user
+            email.save()
+            messages.success(request, 'Email logged.')
+    return redirect('lead_detail', pk=lead_pk)
+
+
+@login_required
+def lead_email_delete(request, pk):
+    email = get_object_or_404(LeadEmail, pk=pk)
+    lead_pk = email.lead.pk
+    email.delete()
+    messages.success(request, 'Email deleted.')
+    return redirect('lead_detail', pk=lead_pk)
+
+
+@login_required
+def lead_note_create(request, lead_pk):
+    lead = get_object_or_404(Lead, pk=lead_pk)
+    if request.method == 'POST':
+        form = LeadNoteForm(request.POST)
+        if form.is_valid():
+            note = form.save(commit=False)
+            note.lead = lead
+            note.created_by = request.user
+            note.save()
+            messages.success(request, 'Note added.')
+    return redirect('lead_detail', pk=lead_pk)
+
+
+@login_required
+def lead_note_delete(request, pk):
+    note = get_object_or_404(LeadNote, pk=pk)
+    lead_pk = note.lead.pk
+    note.delete()
+    messages.success(request, 'Note deleted.')
+    return redirect('lead_detail', pk=lead_pk)
 
 
 @login_required

@@ -834,6 +834,95 @@ body {
 .empty-state h4 { font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem; }
 .empty-state p { font-size: 0.9375rem; }
 
+/* ============ TIMELINE ============ */
+.timeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--sapBorderColor);
+    position: relative;
+}
+.timeline-item:last-child { border-bottom: none; }
+.timeline-icon {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+}
+.timeline-content { flex: 1; min-width: 0; }
+.timeline-title { font-weight: 600; font-size: 0.9375rem; margin-bottom: 0.125rem; }
+.timeline-meta { font-size: 0.8125rem; color: var(--sapTextColorLight); }
+.timeline-desc { font-size: 0.8125rem; color: var(--sapTextColorLight); margin-top: 0.25rem; line-height: 1.4; }
+
+/* ============ MODAL ============ */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+.modal-content {
+    background: #fff;
+    border-radius: 0.5rem;
+    width: 100%;
+    max-width: 32rem;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--sapBorderColor);
+}
+.modal-header h3 { margin: 0; font-size: 1rem; font-weight: 600; }
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--sapTextColorLight);
+    padding: 0;
+    line-height: 1;
+}
+.modal-close:hover { color: var(--sapTextColor); }
+.modal-body { padding: 1.25rem; }
+.modal-body label { display: block; font-weight: 600; margin-bottom: 0.25rem; font-size: 0.875rem; }
+.modal-body input,
+.modal-body select,
+.modal-body textarea {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 0.25rem;
+    font-size: 0.9375rem;
+    margin-bottom: 0.75rem;
+}
+.modal-body textarea { min-height: 5rem; resize: vertical; }
+.modal-body .help-text { font-size: 0.75rem; color: var(--sapTextColorLight); margin-top: -0.5rem; margin-bottom: 0.5rem; }
+.modal-body .errorlist { list-style: none; padding: 0; margin: 0 0 0.5rem; color: var(--sapErrorColor); font-size: 0.8125rem; }
+.modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-top: 1px solid var(--sapBorderColor);
+}
+
 /* ============ ALERTS ============ */
 .sap-alert {
     padding: 0.75rem 1rem;

@@ -1,5 +1,6 @@
 from django import forms
-from .models import Property, PropertyType, PropertyStatus
+from .models import (Property, PropertyType, PropertyStatus, PropertyUnit,
+                     PropertyViewing, PropertyOffer, PropertyNote)
 
 
 class PropertyForm(forms.ModelForm):
@@ -72,3 +73,68 @@ class PropertySearchForm(forms.Form):
     city = forms.CharField(required=False, widget=forms.TextInput(attrs={
         'class': 'sap-input', 'placeholder': 'City', 'onchange': 'this.form.submit()'
     }))
+
+
+class PropertyUnitForm(forms.ModelForm):
+    class Meta:
+        model = PropertyUnit
+        fields = ['unit_number', 'floor', 'bedrooms', 'bathrooms', 'square_feet',
+                  'monthly_rent', 'sale_price', 'status', 'description',
+                  'tenant_name', 'tenant_phone', 'lease_start', 'lease_end']
+        widgets = {
+            'unit_number': forms.TextInput(attrs={'class': 'sap-input'}),
+            'floor': forms.TextInput(attrs={'class': 'sap-input'}),
+            'bedrooms': forms.NumberInput(attrs={'class': 'sap-input'}),
+            'bathrooms': forms.NumberInput(attrs={'class': 'sap-input'}),
+            'square_feet': forms.NumberInput(attrs={'class': 'sap-input'}),
+            'monthly_rent': forms.NumberInput(attrs={'class': 'sap-input'}),
+            'sale_price': forms.NumberInput(attrs={'class': 'sap-input'}),
+            'status': forms.Select(attrs={'class': 'sap-select'}),
+            'description': forms.Textarea(attrs={'class': 'sap-textarea', 'rows': 3}),
+            'tenant_name': forms.TextInput(attrs={'class': 'sap-input'}),
+            'tenant_phone': forms.TextInput(attrs={'class': 'sap-input'}),
+            'lease_start': forms.DateInput(attrs={'class': 'sap-input', 'type': 'date'}),
+            'lease_end': forms.DateInput(attrs={'class': 'sap-input', 'type': 'date'}),
+        }
+
+
+class PropertyViewingForm(forms.ModelForm):
+    class Meta:
+        model = PropertyViewing
+        fields = ['prospect_name', 'prospect_phone', 'prospect_email',
+                  'viewing_date', 'status', 'notes', 'feedback']
+        widgets = {
+            'prospect_name': forms.TextInput(attrs={'class': 'sap-input'}),
+            'prospect_phone': forms.TextInput(attrs={'class': 'sap-input'}),
+            'prospect_email': forms.EmailInput(attrs={'class': 'sap-input'}),
+            'viewing_date': forms.DateTimeInput(attrs={'class': 'sap-input', 'type': 'datetime-local'}),
+            'status': forms.Select(attrs={'class': 'sap-select'}),
+            'notes': forms.Textarea(attrs={'class': 'sap-textarea', 'rows': 3}),
+            'feedback': forms.Textarea(attrs={'class': 'sap-textarea', 'rows': 3}),
+        }
+
+
+class PropertyOfferForm(forms.ModelForm):
+    class Meta:
+        model = PropertyOffer
+        fields = ['buyer_name', 'buyer_phone', 'buyer_email', 'offer_amount',
+                  'offer_date', 'closing_date', 'status', 'notes']
+        widgets = {
+            'buyer_name': forms.TextInput(attrs={'class': 'sap-input'}),
+            'buyer_phone': forms.TextInput(attrs={'class': 'sap-input'}),
+            'buyer_email': forms.EmailInput(attrs={'class': 'sap-input'}),
+            'offer_amount': forms.NumberInput(attrs={'class': 'sap-input'}),
+            'offer_date': forms.DateInput(attrs={'class': 'sap-input', 'type': 'date'}),
+            'closing_date': forms.DateInput(attrs={'class': 'sap-input', 'type': 'date'}),
+            'status': forms.Select(attrs={'class': 'sap-select'}),
+            'notes': forms.Textarea(attrs={'class': 'sap-textarea', 'rows': 3}),
+        }
+
+
+class PropertyNoteForm(forms.ModelForm):
+    class Meta:
+        model = PropertyNote
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={'class': 'sap-textarea', 'rows': 3, 'placeholder': 'Add a note...'}),
+        }

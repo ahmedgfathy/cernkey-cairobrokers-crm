@@ -7,8 +7,11 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from faker import Faker
 
-from leads.models import LeadSource, LeadStatus, Lead
-from properties.models import PropertyType, PropertyStatus, Property
+from leads.models import (LeadSource, LeadStatus, Lead, LeadTask, LeadCall,
+                          LeadMeeting, LeadEmail, LeadNote)
+from properties.models import (PropertyType, PropertyStatus, Property,
+                                PropertyUnit, PropertyViewing, PropertyOffer,
+                                PropertyNote)
 from opportunities.models import OpportunityStage, Opportunity
 from tasks.models import TaskCategory, TaskPriority, TaskStatus, Task
 from notifications.models import NotificationType, Notification
@@ -47,6 +50,8 @@ class Command(BaseCommand):
         self._create_tasks(task_categories, task_priorities, task_statuses, leads, properties, opportunities, users)
         self._create_notifications(notif_types, users, leads, properties, opportunities)
         self._create_documents(doc_types, users, leads, properties, opportunities)
+        self._create_lead_activities(leads, users)
+        self._create_property_activities(properties, users)
 
         self.stdout.write(self.style.SUCCESS('Database seeded successfully!'))
 
@@ -560,3 +565,218 @@ class Command(BaseCommand):
 
         self.stdout.write(f'  Created {len(docs)} documents')
         return docs
+
+    def _create_lead_activities(self, leads, users):
+        def future_date():
+            return date.today() + timedelta(days=random.randint(1, 90))
+
+        def past_date():
+            return date.today() - timedelta(days=random.randint(1, 90))
+
+        task_titles = [
+            'Follow up on inquiry', 'Send property details', 'Schedule property viewing',
+            'Prepare comparative market analysis', 'Send welcome package',
+            'Follow up after viewing', 'Check financing pre-approval',
+            'Send neighborhood guide', 'Schedule second viewing',
+            'Prepare offer documents', 'Check in with client',
+            'Send market update report', 'Schedule listing appointment',
+            'Review client feedback', 'Update client on negotiations'
+        ]
+        call_outcomes = ['connected', 'voicemail', 'no_answer', 'callback_requested', 'interested', 'not_interested']
+        meeting_types = ['in_person', 'video_call', 'phone', 'open_house']
+        meeting_statuses = ['scheduled', 'completed', 'cancelled', 'rescheduled']
+        email_subjects = [
+            'Property listing recommendations', 'Viewing confirmation',
+            'Follow-up from our meeting', 'Market analysis report',
+            'New properties matching your criteria', 'Offer update',
+            'Thank you for your interest', 'Documents for your review',
+            'Neighborhood information', 'Financing options'
+        ]
+        note_contents = [
+            'Client is very interested in downtown properties. Prefers modern style.',
+            'Budget increased to $500K after speaking with mortgage broker.',
+            'Looking to move within 3 months due to new job.',
+            'Has two young children - needs good school district.',
+            'Prefers quiet neighborhood, not interested in busy streets.',
+            'Investment buyer looking for rental yield above 6%.',
+            'Relocating from out of state, needs virtual tour options.',
+            'Very particular about natural light and open floor plans.',
+            'Wants to sell current home first before buying.',
+            'Has a dog - needs a fenced yard.'
+        ]
+
+        tasks = []
+        calls = []
+        meetings = []
+        emails = []
+        notes = []
+
+        for lead in leads:
+            # 2-4 tasks per lead
+            for _ in range(random.randint(2, 4)):
+                status = random.choice(['pending', 'in_progress', 'completed', 'cancelled'])
+                task = LeadTask.objects.create(
+                    lead=lead,
+                    assigned_to=random.choice(users),
+                    title=random.choice(task_titles),
+                    description=fake.paragraph(nb_sentences=2),
+                    task_type=random.choice(['follow_up', 'meeting', 'call', 'email', 'document', 'other']),
+                    priority=random.choice(['low', 'medium', 'high', 'urgent']),
+                    status=status,
+                    due_date=future_date() if status != 'completed' else past_date(),
+                    completed_at=timezone.now() - timedelta(days=random.randint(1, 30)) if status == 'completed' else None,
+                )
+                tasks.append(task)
+
+            # 1-3 calls per lead
+            for _ in range(random.randint(1, 3)):
+                call = LeadCall.objects.create(
+                    lead=lead,
+                    called_by=random.choice(users),
+                    duration_minutes=random.randint(3, 45),
+                    outcome=random.choice(call_outcomes),
+                    notes=fake.sentence(nb_words=15),
+                )
+                calls.append(call)
+
+            # 1-2 meetings per lead
+            for _ in range(random.randint(1, 2)):
+                meeting = LeadMeeting.objects.create(
+                    lead=lead,
+                    organized_by=random.choice(users),
+                    title=random.choice([
+                        'Property viewing', 'Needs assessment meeting',
+                        'Contract review', 'Market consultation',
+                        'Open house follow-up', 'Second viewing'
+                    ]),
+                    meeting_date=timezone.now() - timedelta(days=random.randint(1, 30)),
+                    location=fake.address(),
+                    status=random.choice(meeting_statuses),
+                    notes=fake.sentence(nb_words=10),
+                )
+                meetings.append(meeting)
+
+            # 1-3 emails per lead
+            for _ in range(random.randint(1, 3)):
+                email = LeadEmail.objects.create(
+                    lead=lead,
+                    sent_by=random.choice(users),
+                    subject=random.choice(email_subjects),
+                    body=fake.paragraph(nb_sentences=3),
+                    direction=random.choice(['incoming', 'outgoing']),
+                )
+                emails.append(email)
+
+            # 1-2 notes per lead
+            for _ in range(random.randint(1, 2)):
+                note = LeadNote.objects.create(
+                    lead=lead,
+                    created_by=random.choice(users),
+                    content=random.choice(note_contents),
+                )
+                notes.append(note)
+
+        self.stdout.write(f'  Created {len(tasks)} lead tasks, {len(calls)} calls, {len(meetings)} meetings, {len(emails)} emails, {len(notes)} notes')
+
+    def _create_property_activities(self, properties, users):
+        def future_date():
+            return date.today() + timedelta(days=random.randint(1, 90))
+
+        unit_statuses = ['available', 'occupied', 'reserved', 'maintenance']
+        viewing_statuses = ['scheduled', 'completed', 'cancelled', 'no_show']
+        offer_statuses = ['pending', 'accepted', 'rejected', 'countered', 'withdrawn']
+        note_contents = [
+            'Property gets excellent natural light in the mornings.',
+            'Recently renovated kitchen with modern appliances.',
+            'Street parking only - no garage available.',
+            'HOA fee includes water and garbage.',
+            'Roof replaced in 2022, all major systems updated.',
+            'Corner lot with extra outdoor space.',
+            'Building has elevator access and wheelchair accessibility.',
+            'Great rental history - current tenant lease expires next month.',
+            'Walking distance to public transit and shopping.',
+            'Noise level is low - great for families.',
+            'Property taxes increased this year - factor into pricing.',
+            'Previous inspection showed minor foundation crack - monitor.',
+            'Solar panels owned outright, not leased.',
+            'Pool and gym access included in HOA.',
+            'Pets allowed with $500 deposit.'
+        ]
+
+        units = []
+        viewings = []
+        offers = []
+        notes = []
+
+        for prop in properties:
+            # 1-4 units per property
+            num_units = random.randint(1, 4) if prop.property_type and 'condo' in str(prop.property_type).lower() else random.randint(0, 2)
+            for i in range(num_units):
+                unit = PropertyUnit.objects.create(
+                    related_property=prop,
+                    unit_number=f'{chr(65 + i)}{random.randint(1, 20):02d}',
+                    floor=str(random.randint(1, 30)),
+                    square_feet=random.randint(400, 2500),
+                    monthly_rent=Decimal(str(round(random.uniform(800, 5000), 2))),
+                    sale_price=prop.price + Decimal(str(random.randint(-50000, 100000))) if prop.price else None,
+                    bedrooms=random.choice([0, 1, 1, 2, 2, 3]),
+                    bathrooms=random.choice([1, 1, 2, 2]),
+                    status=random.choice(unit_statuses),
+                    description=fake.paragraph(nb_sentences=1),
+                )
+                units.append(unit)
+
+            # 1-3 viewings per property
+            for _ in range(random.randint(1, 3)):
+                viewing = PropertyViewing.objects.create(
+                    related_property=prop,
+                    agent=random.choice(users),
+                    prospect_name=fake.name(),
+                    prospect_email=fake.email(),
+                    prospect_phone=fake.phone_number(),
+                    viewing_date=timezone.now() - timedelta(days=random.randint(1, 30)),
+                    status=random.choice(viewing_statuses),
+                    feedback=random.choice([
+                        'Loved the property, very interested.',
+                        'Good property but needs some renovations.',
+                        'Price seems high for the area.',
+                        'Perfect match for their needs.',
+                        'Will discuss with partner and get back.',
+                        'Liked the location but wants to see more options.',
+                        'Not the right fit, looking for something bigger.',
+                        'Very impressed, wants to make an offer.'
+                    ]),
+                    notes=fake.sentence(nb_words=10),
+                )
+                viewings.append(viewing)
+
+            # 0-2 offers per property
+            for _ in range(random.randint(0, 2)):
+                base = float(prop.price) if prop.price else 300000
+                offer = PropertyOffer.objects.create(
+                    related_property=prop,
+                    agent=random.choice(users),
+                    buyer_name=fake.name(),
+                    buyer_email=fake.email(),
+                    buyer_phone=fake.phone_number(),
+                    offer_amount=Decimal(str(round(base * random.uniform(0.9, 1.1), -3))),
+                    closing_date=future_date(),
+                    status=random.choice(offer_statuses),
+                    notes=random.choice([
+                        'Inspection contingency', 'Financing contingency',
+                        'Home sale contingency', 'Appraisal contingency',
+                        'None - cash offer', 'Inspection and financing contingencies'
+                    ]),
+                )
+                offers.append(offer)
+
+            # 1-2 notes per property
+            for _ in range(random.randint(1, 2)):
+                note = PropertyNote.objects.create(
+                    related_property=prop,
+                    created_by=random.choice(users),
+                    content=random.choice(note_contents),
+                )
+                notes.append(note)
+
+        self.stdout.write(f'  Created {len(units)} units, {len(viewings)} viewings, {len(offers)} offers, {len(notes)} property notes')

@@ -1,0 +1,763 @@
+/* =====================================================
+   Cairobrokers CRM - Django Admin Custom Styles
+   SAP Fiori Design System
+   ===================================================== */
+
+/* Roboto Font */
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 100;
+    src: url('/static/fonts/roboto/Roboto-Thin.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 300;
+    src: url('/static/fonts/roboto/Roboto-Light.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 400;
+    src: url('/static/fonts/roboto/Roboto-Regular.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 500;
+    src: url('/static/fonts/roboto/Roboto-Medium.ttf') format('truetype');
+}
+@font-face {
+    font-family: 'Roboto';
+    font-style: normal;
+    font-weight: 700;
+    src: url('/static/fonts/roboto/Roboto-Bold.ttf') format('truetype');
+}
+
+:root {
+    --sapShellColor: #354A5F;
+    --sapShellDarkColor: #2C3E50;
+    --sapBrandColor: #0A6ED1;
+    --sapBrandColorHover: #0854A0;
+    --sapNeutralColor: #6A6D70;
+    --sapNeutralBorderColor: #D9D9D9;
+    --sapBackgroundColor: #F5F6F7;
+    --sapCardBackground: #FFFFFF;
+    --sapTextColor: #32363A;
+    --sapTextColorLight: #6A6D70;
+    --sapSuccessColor: #36B37E;
+    --sapWarningColor: #EE6723;
+    --sapErrorColor: #EE3939;
+    --sapInformationColor: #0A6ED1;
+    --sapFontFamily: 'Roboto', 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    --sapBorderRadius: 0.5rem;
+    --sapShadow: 0 0.125rem 0.5rem rgba(0,0,0,0.06);
+    --sapShadowDarker: 0 0.25rem 1rem rgba(0,0,0,0.1);
+}
+
+/* ===== BASE ===== */
+body {
+    font-family: var(--sapFontFamily) !important;
+    font-size: 0.9375rem !important;
+    color: var(--sapTextColor) !important;
+    background: var(--sapBackgroundColor) !important;
+    line-height: 1.6 !important;
+    -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--sapBrandColor) !important; }
+a:hover { color: var(--sapBrandColorHover) !important; }
+
+/* ===== HEADER / BRANDING ===== */
+#header {
+    background: linear-gradient(135deg, var(--sapShellColor) 0%, var(--sapShellDarkColor) 100%) !important;
+    color: #fff !important;
+    padding: 0 !important;
+    height: auto !important;
+}
+
+#branding {
+    float: none !important;
+    padding: 0.75rem 1.5rem !important;
+}
+
+#branding h1 {
+    font-family: var(--sapFontFamily) !important;
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+    margin: 0 !important;
+}
+
+#branding h1 a {
+    color: #fff !important;
+    text-decoration: none !important;
+}
+
+#branding h1 a:hover {
+    color: rgba(255,255,255,0.9) !important;
+}
+
+#header a {
+    color: #fff !important;
+}
+
+#header a:hover {
+    color: rgba(255,255,255,0.85) !important;
+}
+
+#user-tools {
+    padding: 0.75rem 1.5rem !important;
+    font-size: 0.875rem !important;
+    font-weight: 400 !important;
+}
+
+#user-tools a {
+    color: rgba(255,255,255,0.9) !important;
+    text-decoration: none !important;
+    padding: 0.25rem 0.75rem !important;
+    border-radius: var(--sapBorderRadius) !important;
+    transition: background 0.15s ease !important;
+}
+
+#user-tools a:hover {
+    background: rgba(255,255,255,0.15) !important;
+    color: #fff !important;
+}
+
+#user-tools span {
+    color: rgba(255,255,255,0.8) !important;
+}
+
+/* ===== CONTENT ===== */
+#container {
+    max-width: 100% !important;
+    padding: 1rem 1.5rem !important;
+}
+
+#content {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+#content-main {
+    background: var(--sapCardBackground) !important;
+    border-radius: var(--sapBorderRadius) !important;
+    box-shadow: var(--sapShadow) !important;
+    border: 1px solid var(--sapNeutralBorderColor) !important;
+    padding: 1.25rem !important;
+    margin: 0 !important;
+}
+
+/* ===== BREADCRUMBS ===== */
+.breadcrumbs {
+    background: transparent !important;
+    padding: 0.5rem 0 !important;
+    font-size: 0.8125rem !important;
+}
+
+.breadcrumbs a {
+    color: var(--sapBrandColor) !important;
+}
+
+.breadcrumbs .current {
+    color: var(--sapTextColor) !important;
+    font-weight: 500 !important;
+}
+
+/* ===== MODULE / SECTION ===== */
+.module {
+    background: var(--sapCardBackground) !important;
+    border: 1px solid var(--sapNeutralBorderColor) !important;
+    border-radius: var(--sapBorderRadius) !important;
+    box-shadow: var(--sapShadow) !important;
+    margin: 0 0 1rem 0 !important;
+    overflow: hidden !important;
+}
+
+.module h2, .module caption {
+    background: var(--sapBackgroundColor) !important;
+    color: var(--sapTextColor) !important;
+    font-family: var(--sapFontFamily) !important;
+    font-size: 0.9375rem !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 1rem !important;
+    border-bottom: 1px solid var(--sapNeutralBorderColor) !important;
+    border-radius: var(--sapBorderRadius) var(--sapBorderRadius) 0 0 !important;
+}
+
+/* ===== TABLES ===== */
+table {
+    border-collapse: collapse !important;
+    width: 100% !important;
+}
+
+thead th {
+    background: var(--sapBackgroundColor) !important;
+    color: var(--sapTextColor) !important;
+    font-family: var(--sapFontFamily) !important;
+    font-size: 0.8125rem !important;
+    font-weight: 600 !important;
+    padding: 0.75rem 0.75rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.025em !important;
+    border-bottom: 2px solid var(--sapNeutralBorderColor) !important;
+    white-space: nowrap !important;
+}
+
+td, th.field- {
+    padding: 0.625rem 0.75rem !important;
+    font-size: 0.875rem !important;
+    border-bottom: 1px solid #EBEEF0 !important;
+    vertical-align: middle !important;
+    line-height: 1.5 !important;
+}
+
+tr:hover {
+    background: #F0F7FF !important;
+}
+
+tr.selected {
+    background: #E8F4FD !important;
+}
+
+/* ===== FORMS ===== */
+form {
+    font-family: var(--sapFontFamily) !important;
+}
+
+.form-row {
+    padding: 0.75rem 0 !important;
+    border-bottom: 1px solid #EBEEF0 !important;
+    overflow: visible !important;
+}
+
+.form-row:last-child {
+    border-bottom: none !important;
+}
+
+.form-row label {
+    font-family: var(--sapFontFamily) !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    color: var(--sapTextColor) !important;
+    padding: 0.25rem 0 !important;
+    display: block !important;
+}
+
+.form-row .help {
+    font-size: 0.75rem !important;
+    color: var(--sapTextColorLight) !important;
+    font-style: normal !important;
+    margin-top: 0.25rem !important;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="url"],
+input[type="number"],
+input[type="tel"],
+textarea,
+select,
+.vTextField {
+    font-family: var(--sapFontFamily) !important;
+    font-size: 0.9375rem !important;
+    color: var(--sapTextColor) !important;
+    background: #fff !important;
+    border: 1px solid #ccc !important;
+    border-radius: 0.25rem !important;
+    padding: 0.5rem 0.75rem !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
+    width: 100% !important;
+    max-width: 40rem !important;
+    line-height: 1.5 !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="url"]:focus,
+input[type="number"]:focus,
+input[type="tel"]:focus,
+textarea:focus,
+select:focus,
+.vTextField:focus {
+    border-color: var(--sapBrandColor) !important;
+    box-shadow: 0 0 0 2px rgba(10, 110, 209, 0.15) !important;
+    outline: none !important;
+}
+
+textarea {
+    min-height: 5rem !important;
+    resize: vertical !important;
+}
+
+select {
+    appearance: auto !important;
+    cursor: pointer !important;
+}
+
+/* Checkbox / Boolean */
+.checkbox-row label,
+.vCheckboxLabel {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    cursor: pointer !important;
+    font-size: 0.875rem !important;
+}
+
+input[type="checkbox"] {
+    width: auto !important;
+    accent-color: var(--sapBrandColor) !important;
+    cursor: pointer !important;
+}
+
+/* ===== BUTTONS ===== */
+input[type="submit"],
+button[type="submit"],
+.default {
+    font-family: var(--sapFontFamily) !important;
+    font-size: 0.875rem !important;
+    font-weight: 500 !important;
+    background: var(--sapBrandColor) !important;
+    color: #fff !important;
+    border: none !important;
+    border-radius: var(--sapBorderRadius) !important;
+    padding: 0.5rem 1.25rem !important;
+    cursor: pointer !important;
+    transition: background 0.15s ease !important;
+    line-height: 1.5 !important;
+}
+
+input[type="submit"]:hover,
+button[type="submit"]:hover,
+.default:hover {
+    background: var(--sapBrandColorHover) !important;
+    color: #fff !important;
+}
+
+input[type="submit"]:active,
+button[type="submit"]:active {
+    transform: translateY(1px) !important;
+}
+
+a.addlink {
+    font-family: var(--sapFontFamily) !important;
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+}
+
+a.addlink::before {
+    content: "+" !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    background: var(--sapSuccessColor) !important;
+    color: #fff !important;
+    border-radius: 50% !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    margin-right: 0.375rem !important;
+}
+
+a.deletelink {
+    font-family: var(--sapFontFamily) !important;
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+}
+
+a.deletelink::before {
+    content: "\00d7" !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    width: 1.25rem !important;
+    height: 1.25rem !important;
+    background: var(--sapErrorColor) !important;
+    color: #fff !important;
+    border-radius: 50% !important;
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    margin-right: 0.375rem !important;
+}
+
+/* ===== CHANGELIST / RESULTS ===== */
+.results {
+    border: none !important;
+}
+
+#changelist {
+    border: none !important;
+    background: transparent !important;
+}
+
+#changelist-form {
+    background: transparent !important;
+}
+
+.changelist-form-row {
+    background: var(--sapCardBackground) !important;
+}
+
+/* Action bar */
+#actionbar {
+    background: var(--sapCardBackground) !important;
+    border: 1px solid var(--sapNeutralBorderColor) !important;
+    border-radius: var(--sapBorderRadius) !important;
+    padding: 0.5rem 0.75rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+/* ===== SIDEBAR / FILTERS ===== */
+#changelist-filter {
+    background: var(--sapCardBackground) !important;
+    border: 1px solid var(--sapNeutralBorderColor) !important;
+    border-radius: var(--sapBorderRadius) !important;
+    padding: 1rem !important;
+    margin-right: 1rem !important;
+}
+
+#changelist-filter h2 {
+    font-family: var(--sapFontFamily) !important;
+    font-size: 0.9375rem !important;
+    font-weight: 600 !important;
+    color: var(--sapTextColor) !important;
+    background: var(--sapBackgroundColor) !important;
+    padding: 0.5rem 0.75rem !important;
+    border-radius: var(--sapBorderRadius) !important;
+    margin-bottom: 0.75rem !important;
+}
+
+#changelist-filter h3 {
+    font-size: 0.8125rem !important;
+    font-weight: 600 !important;
+    color: var(--sapTextColor) !important;
+    margin: 0.75rem 0 0.375rem 0 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.025em !important;
+}
+
+#changelist-filter ul {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+#changelist-filter li {
+    padding: 0 !important;
+}
+
+#changelist-filter li a {
+    display: block !important;
+    padding: 0.375rem 0.5rem !important;
+    border-radius: 0.25rem !important;
+    font-size: 0.8125rem !important;
+    color: var(--sapTextColorLight) !important;
+    transition: all 0.15s ease !important;
+}
+
+#changelist-filter li a:hover {
+    background: #EBF5FF !important;
+    color: var(--sapBrandColor) !important;
+}
+
+#changelist-filter li.selected a {
+    background: #E8F4FD !important;
+    color: var(--sapBrandColor) !important;
+    font-weight: 500 !important;
+}
+
+#changelist-filter select {
+    max-width: 100% !important;
+    font-size: 0.8125rem !important;
+}
+
+#changelist-filter input[type="submit"] {
+    font-size: 0.8125rem !important;
+    padding: 0.375rem 1rem !important;
+}
+
+/* ===== PAGINATION ===== */
+.paginator {
+    background: var(--sapCardBackground) !important;
+    border: 1px solid var(--sapNeutralBorderColor) !important;
+    border-radius: var(--sapBorderRadius) !important;
+    padding: 0.5rem 0.75rem !important;
+    margin-top: 0.75rem !important;
+    font-size: 0.8125rem !important;
+}
+
+.paginator a {
+    padding: 0.25rem 0.5rem !important;
+    border-radius: 0.25rem !important;
+}
+
+.paginator a:hover {
+    background: #EBF5FF !important;
+}
+
+.paginator .this-page {
+    font-weight: 600 !important;
+    color: var(--sapBrandColor) !important;
+    padding: 0.25rem 0.5rem !important;
+}
+
+/* ===== OBJECT TOOLS ===== */
+.object-tools {
+    margin: 0 0 1rem 0 !important;
+}
+
+.object-tools li {
+    display: inline-block !important;
+    margin-left: 0.5rem !important;
+}
+
+.object-tools li a {
+    font-family: var(--sapFontFamily) !important;
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+    background: var(--sapBackgroundColor) !important;
+    color: var(--sapTextColor) !important;
+    border: 1px solid var(--sapNeutralBorderColor) !important;
+    border-radius: var(--sapBorderRadius) !important;
+    padding: 0.375rem 0.75rem !important;
+    transition: all 0.15s ease !important;
+}
+
+.object-tools li a:hover {
+    background: var(--sapBrandColor) !important;
+    color: #fff !important;
+    border-color: var(--sapBrandColor) !important;
+}
+
+/* ===== SUBMIT ROW ===== */
+.submit-row {
+    background: var(--sapBackgroundColor) !important;
+    border: 1px solid var(--sapNeutralBorderColor) !important;
+    border-radius: var(--sapBorderRadius) !important;
+    padding: 0.75rem 1rem !important;
+    margin-top: 1rem !important;
+}
+
+.submit-row input[type="submit"] {
+    margin-right: 0.5rem !important;
+}
+
+.submit-row .deletelink {
+    float: right !important;
+}
+
+/* ===== MESSAGES ===== */
+.messagelist {
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+.messagelist .success {
+    background: #E8F5E9 !important;
+    border-left: 4px solid var(--sapSuccessColor) !important;
+    color: #2E7D32 !important;
+}
+
+.messagelist .error {
+    background: #FFEBEE !important;
+    border-left: 4px solid var(--sapErrorColor) !important;
+    color: #C62828 !important;
+}
+
+.messagelist .warning {
+    background: #FFF3E0 !important;
+    border-left: 4px solid var(--sapWarningColor) !important;
+    color: #E65100 !important;
+}
+
+.messagelist .info {
+    background: #E3F2FD !important;
+    border-left: 4px solid var(--sapInformationColor) !important;
+    color: #1565C0 !important;
+}
+
+/* ===== ERROR LIST ===== */
+.errornote {
+    background: #FFEBEE !important;
+    border: 1px solid var(--sapErrorColor) !important;
+    border-radius: var(--sapBorderRadius) !important;
+    color: #C62828 !important;
+    padding: 0.75rem 1rem !important;
+    margin-bottom: 1rem !important;
+}
+
+ul.errorlist {
+    list-style: none !important;
+    padding: 0 !important;
+    margin: 0.25rem 0 0 0 !important;
+}
+
+ul.errorlist li {
+    color: var(--sapErrorColor) !important;
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+}
+
+/* ===== TIMELINE (Django admin history) ===== */
+#change-history {
+    background: var(--sapCardBackground) !important;
+    border: 1px solid var(--sapNeutralBorderColor) !important;
+    border-radius: var(--sapBorderRadius) !important;
+    padding: 1rem !important;
+}
+
+#change-history h2 {
+    font-size: 0.9375rem !important;
+    font-weight: 600 !important;
+    color: var(--sapTextColor) !important;
+    margin-bottom: 0.75rem !important;
+}
+
+#change-history table {
+    border: none !important;
+}
+
+#change-history td {
+    padding: 0.5rem 0.75rem !important;
+}
+
+/* ===== LOGIN PAGE ===== */
+.login {
+    background: var(--sapBackgroundColor) !important;
+}
+
+#container {
+    display: flex !important;
+    justify-content: center !important;
+    padding-top: 4rem !important;
+}
+
+.login #content {
+    max-width: 28rem !important;
+    width: 100% !important;
+    margin: 0 auto !important;
+}
+
+#content-main {
+    border-radius: var(--sapBorderRadius) !important;
+}
+
+#header {
+    background: linear-gradient(135deg, var(--sapShellColor) 0%, var(--sapShellDarkColor) 100%) !important;
+    border-radius: var(--sapBorderRadius) var(--sapBorderRadius) 0 0 !important;
+}
+
+.login form {
+    padding: 1.25rem !important;
+}
+
+.login #content-main {
+    border-radius: var(--sapBorderRadius) !important;
+    overflow: hidden !important;
+}
+
+/* ===== INLINE / STACKED / TABULAR ===== */
+.inline-group .tabular table {
+    border: 1px solid var(--sapNeutralBorderColor) !important;
+}
+
+.inline-group .tabular th {
+    background: var(--sapBackgroundColor) !important;
+}
+
+.inline-group .tabular td {
+    padding: 0.5rem !important;
+}
+
+.inline-group .add-row {
+    padding: 0.5rem !important;
+    background: var(--sapBackgroundColor) !important;
+    border-top: 1px solid var(--sapNeutralBorderColor) !important;
+}
+
+.inline-group .add-row a {
+    color: var(--sapBrandColor) !important;
+    font-weight: 500 !important;
+}
+
+/* ===== POPUP / RELATED LOOKUP ===== */
+.vRelatedPopup,
+.related-popup-link {
+    font-size: 0.8125rem !important;
+}
+
+/* ===== FILE UPLOAD ===== {
+.file-upload {
+    border: 2px dashed var(--sapNeutralBorderColor) !important;
+    border-radius: var(--sapBorderRadius) !important;
+    padding: 1rem !important;
+    text-align: center !important;
+    cursor: pointer !important;
+}
+
+.file-upload:hover {
+    border-color: var(--sapBrandColor) !important;
+    background: #F0F7FF !important;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 768px) {
+    #container {
+        padding: 0.5rem !important;
+    }
+
+    #content-main {
+        padding: 0.75rem !important;
+    }
+
+    .form-row label {
+        margin-bottom: 0.25rem !important;
+    }
+
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="url"],
+    input[type="number"],
+    input[type="tel"],
+    textarea,
+    select,
+    .vTextField {
+        max-width: 100% !important;
+    }
+
+    #changelist-filter {
+        margin-right: 0 !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .submit-row {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 0.5rem !important;
+    }
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--sapBackgroundColor);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #C4C8CC;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #A5A9AD;
+}

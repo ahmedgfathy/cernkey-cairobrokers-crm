@@ -8,6 +8,11 @@ urlpatterns = [
     path('<int:pk>/edit/', views.property_update, name='property_update'),
     path('<int:pk>/delete/', views.property_delete, name='property_delete'),
 
+    path('export/csv/', views.property_export_csv, name='property_export_csv'),
+    path('export/excel/', views.property_export_excel, name='property_export_excel'),
+    path('import/', views.property_import, name='property_import'),
+    path('import/map/', views.property_import_map, name='property_import_map'),
+
     path('<int:property_pk>/unit/create/', views.property_unit_create, name='property_unit_create'),
     path('unit/<int:pk>/update/', views.property_unit_update, name='property_unit_update'),
     path('unit/<int:pk>/delete/', views.property_unit_delete, name='property_unit_delete'),

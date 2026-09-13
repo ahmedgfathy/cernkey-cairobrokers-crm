@@ -1,61 +1,124 @@
 {% extends "base.html" %}
 {% load static %}
 
+{% block extra_css %}
+<style>
+    .action-btn-group { display: inline-flex; gap: 0.375rem; }
+    .action-btn {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 2rem; height: 2rem; border-radius: 0.375rem;
+        border: 1px solid #D9D9D9; background: #fff; color: #6A6D70;
+        font-size: 0.8125rem; cursor: pointer; transition: all 0.15s; text-decoration: none;
+    }
+    .action-btn:hover { text-decoration: none; }
+    .action-btn.view-btn:hover { background: #E3F2FD; color: #0A6ED1; border-color: #0A6ED1; }
+    .action-btn.edit-btn:hover { background: #FFF3E0; color: #EE6723; border-color: #EE6723; }
+    .action-btn.delete-btn:hover { background: #FFEBEE; color: #EE3939; border-color: #EE3939; }
+    .action-btn.more-btn:hover { background: #F5F6F7; color: #32363A; border-color: #32363A; }
+    .lead-view-toolbar { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; }
+    .lead-view-toolbar form { margin:0; }
+    .filter-settings { border-top:1px solid #EBEEF0; margin-top:1rem; padding-top:1rem; }
+    .filter-settings[hidden] { display:none; }
+    .column-picker { display:flex; flex-wrap:wrap; gap:.5rem .85rem; padding:.85rem 0 .15rem; border-top:1px solid #EBEEF0; margin-top:.85rem; }
+    .column-picker label { display:inline-flex; align-items:center; gap:.35rem; color:#475467; font-size:.8rem; cursor:pointer; }
+    .column-picker input { accent-color:#0A6ED1; }
+    .saved-filter-form { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+    .saved-filter-form .sap-input { width:12rem; }
+    .load-filter-form { display:flex; align-items:center; gap:.5rem; flex-wrap:wrap; }
+    .load-filter-form .sap-select { min-width:13rem; }
+    .saved-filter-delete { display:inline; margin-left:.35rem; }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
     <div class="page-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <h1><i class="fas fa-user-plus me-2"></i>Leads</h1>
-                <p class="page-subtitle">Manage your sales leads</p>
+              <h1><i class="fas fa-user-plus me-2"></i>Leads</h1>
+              <p class="page-subtitle">Manage your sales leads</p>
             </div>
-            <a href="{% url 'lead_create' %}" class="sap-btn sap-btn-emphasized">
+            <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
+              <div class="action-dropdown">
+                <button type="button" class="sap-btn sap-btn-default" onclick="toggleDropdown(this)" title="Import / Export">
+                  <i class="fas fa-exchange-alt me-1"></i> Import / Export
+                </button>
+                <div class="action-dropdown-menu" style="min-width:12rem;">
+                  <a href="{% url 'lead_export_csv' %}" class="action-dropdown-item"><i class="fas fa-file-csv"></i> Export as CSV</a>
+                  <a href="{% url 'lead_export_excel' %}" class="action-dropdown-item"><i class="fas fa-file-excel"></i> Export as Excel</a>
+                  <div style="height:1px;background:#EBEEF0;margin:0.25rem 0;"></div>
+                  <a href="{% url 'lead_import' %}" class="action-dropdown-item"><i class="fas fa-file-import"></i> Import from File</a>
+                </div>
+              </div>
+              <a href="{% url 'lead_create' %}" class="sap-btn sap-btn-emphasized">
                 <i class="fas fa-plus me-1"></i> Add Lead
-            </a>
+              </a>
+            </div>
         </div>
     </div>
 
     <div class="sap-card mb-4">
         <div class="sap-card-body">
-            <form method="get" class="filter-bar">
-                <div class="filter-bar-item filter-bar-search">
-                    <span class="filter-icon"><i class="fas fa-search"></i></span>
-                    <input type="text" name="q" class="sap-input" placeholder="Search leads..." value="{{ request.GET.q|default:'' }}" onchange="this.form.submit()">
-                </div>
-                <div class="filter-bar-item">
-                    <span class="filter-icon"><i class="fas fa-flag"></i></span>
-                    <select name="status" class="sap-select" onchange="this.form.submit()">
-                        <option value="">All Status</option>
-                        {% for status in statuses %}
-                        <option value="{{ status.pk }}" {% if request.GET.status == status.pk|stringformat:"d" %}selected{% endif %}>{{ status.name }}</option>
+            <div class="lead-view-toolbar">
+                <form method="get" class="load-filter-form">
+                    <label for="savedLeadFilter" class="visually-hidden">Saved filters</label>
+                    <select id="savedLeadFilter" name="view" class="sap-select" onchange="this.form.submit()">
+                        <option value="">Load saved filter</option>
+                        {% for saved_filter in saved_filters %}
+                        <option value="{{ saved_filter.pk }}" {% if active_saved_filter.pk == saved_filter.pk %}selected{% endif %}>{{ saved_filter.name }}{% if saved_filter.is_last_used %} (last used){% endif %}</option>
                         {% endfor %}
                     </select>
-                </div>
-                <div class="filter-bar-item">
-                    <span class="filter-icon"><i class="fas fa-arrow-up"></i></span>
-                    <select name="priority" class="sap-select" onchange="this.form.submit()">
-                        <option value="">All Priority</option>
-                        <option value="low" {% if request.GET.priority == "low" %}selected{% endif %}>Low</option>
-                        <option value="medium" {% if request.GET.priority == "medium" %}selected{% endif %}>Medium</option>
-                        <option value="high" {% if request.GET.priority == "high" %}selected{% endif %}>High</option>
-                        <option value="urgent" {% if request.GET.priority == "urgent" %}selected{% endif %}>Urgent</option>
-                    </select>
-                </div>
-                <div class="filter-bar-item">
-                    <span class="filter-icon"><i class="fas fa-link"></i></span>
-                    <select name="source" class="sap-select" onchange="this.form.submit()">
-                        <option value="">All Sources</option>
-                        {% for source in sources %}
-                        <option value="{{ source.pk }}" {% if request.GET.source == source.pk|stringformat:"d" %}selected{% endif %}>{{ source.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                {% if request.GET.status or request.GET.priority or request.GET.source or request.GET.q %}
-                <a href="{% url 'lead_list' %}" class="filter-clear-btn" title="Clear filters">
-                    <i class="fas fa-times"></i> Clear
-                </a>
-                {% endif %}
-            </form>
+                </form>
+                <button type="button" class="sap-btn sap-btn-default" id="toggleFilterSettings" aria-expanded="false" aria-controls="filterSettings">
+                    <i class="fas fa-sliders"></i> Filter and columns
+                </button>
+            </div>
+            <div class="filter-settings" id="filterSettings" hidden>
+                <form method="get" class="filter-bar" id="leadFilterForm">
+                    <div class="filter-bar-item filter-bar-search">
+                        <span class="filter-icon"><i class="fas fa-search"></i></span>
+                        <input type="text" name="q" class="sap-input" placeholder="Search leads..." value="{{ query }}">
+                    </div>
+                    <div class="filter-bar-item">
+                        <span class="filter-icon"><i class="fas fa-flag"></i></span>
+                        <select name="status" class="sap-select">
+                            <option value="">All Status</option>
+                            {% for status in statuses %}<option value="{{ status.pk }}" {% if selected_status == status.pk|stringformat:"d" %}selected{% endif %}>{{ status.name }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="filter-bar-item">
+                        <span class="filter-icon"><i class="fas fa-arrow-up"></i></span>
+                        <select name="priority" class="sap-select">
+                            <option value="">All Priority</option>
+                            <option value="low" {% if selected_priority == "low" %}selected{% endif %}>Low</option>
+                            <option value="medium" {% if selected_priority == "medium" %}selected{% endif %}>Medium</option>
+                            <option value="high" {% if selected_priority == "high" %}selected{% endif %}>High</option>
+                            <option value="urgent" {% if selected_priority == "urgent" %}selected{% endif %}>Urgent</option>
+                        </select>
+                    </div>
+                    <div class="filter-bar-item">
+                        <span class="filter-icon"><i class="fas fa-link"></i></span>
+                        <select name="source" class="sap-select">
+                            <option value="">All Sources</option>
+                            {% for source in sources %}<option value="{{ source.pk }}" {% if selected_source == source.pk|stringformat:"d" %}selected{% endif %}>{{ source.name }}</option>{% endfor %}
+                        </select>
+                    </div>
+                    <div class="column-picker" aria-label="Choose visible columns">
+                        <strong style="width:100%; color:#32363A; font-size:.8rem;">Choose columns to show</strong>
+                        {% for key, label in columns.items %}<label><input type="checkbox" name="columns" value="{{ key }}" {% if key in selected_columns %}checked{% endif %}> {{ label }}</label>{% endfor %}
+                    </div>
+                    <div style="display:flex; justify-content:flex-end; gap:.5rem; width:100%; margin-top:.75rem;">
+                        <a href="{% url 'lead_list' %}" class="sap-btn sap-btn-default">Reset</a>
+                        <button type="submit" class="sap-btn sap-btn-emphasized"><i class="fas fa-check me-1"></i> Apply filters</button>
+                    </div>
+                </form>
+                <form method="post" action="{% url 'lead_save_filter' %}" class="saved-filter-form" id="saveLeadFilterForm" style="margin-top:1rem; padding-top:1rem; border-top:1px solid #EBEEF0;">
+                    {% csrf_token %}
+                    <input type="hidden" name="q"><input type="hidden" name="status"><input type="hidden" name="priority"><input type="hidden" name="source"><input type="hidden" name="per_page" value="{{ per_page }}">
+                    <input type="text" name="name" class="sap-input" placeholder="Name this filter" required maxlength="100">
+                    <button type="submit" class="sap-btn sap-btn-default"><i class="fas fa-bookmark me-1"></i> Save current filter</button>
+                </form>
+            </div>
         </div>
     </div>
 
@@ -65,43 +128,45 @@
                 <table class="sap-table">
                     <thead>
                         <tr>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Phone</th>
-                            <th>Source</th>
-                            <th>Status</th>
-                            <th>Assigned To</th>
-                            <th>Priority</th>
-                            <th>Created</th>
-                            <th class="text-center">Actions</th>
+                            {% if 'name' in selected_columns %}<th>Name</th>{% endif %}
+                            {% if 'email' in selected_columns %}<th>Email</th>{% endif %}
+                            {% if 'phone' in selected_columns %}<th>Phone</th>{% endif %}
+                            {% if 'company' in selected_columns %}<th>Company</th>{% endif %}
+                            {% if 'source' in selected_columns %}<th>Source</th>{% endif %}
+                            {% if 'status' in selected_columns %}<th>Status</th>{% endif %}
+                            {% if 'assigned_to' in selected_columns %}<th>Assigned To</th>{% endif %}
+                            {% if 'priority' in selected_columns %}<th>Priority</th>{% endif %}
+                            {% if 'created_at' in selected_columns %}<th>Created</th>{% endif %}
+                            {% if 'actions' in selected_columns %}<th class="text-center">Actions</th>{% endif %}
                         </tr>
                     </thead>
                     <tbody>
                         {% for lead in leads %}
                         <tr>
-                            <td>
+                            {% if 'name' in selected_columns %}<td>
                                 <a href="{% url 'lead_detail' pk=lead.pk %}" class="fw-semibold text-decoration-none">
                                     {{ lead.full_name }}
                                 </a>
-                            </td>
-                            <td>{{ lead.email|default:"-" }}</td>
-                            <td>{{ lead.phone|default:"-" }}</td>
-                            <td>
+                            </td>{% endif %}
+                            {% if 'email' in selected_columns %}<td>{{ lead.email|default:"-" }}</td>{% endif %}
+                            {% if 'phone' in selected_columns %}<td>{{ lead.phone|default:"-" }}</td>{% endif %}
+                            {% if 'company' in selected_columns %}<td>{{ lead.company|default:"-" }}</td>{% endif %}
+                            {% if 'source' in selected_columns %}<td>
                                 {% if lead.source %}
                                 <span class="sap-badge sap-badge--info">{{ lead.source }}</span>
                                 {% else %}
                                 <span class="text-muted">-</span>
                                 {% endif %}
-                            </td>
-                            <td>
+                            </td>{% endif %}
+                            {% if 'status' in selected_columns %}<td>
                                 {% if lead.status %}
                                 <span class="sap-badge sap-badge--default">{{ lead.status }}</span>
                                 {% else %}
                                 <span class="text-muted">-</span>
                                 {% endif %}
-                            </td>
-                            <td>{{ lead.assigned_to|default:"-" }}</td>
-                            <td>
+                            </td>{% endif %}
+                            {% if 'assigned_to' in selected_columns %}<td>{{ lead.assigned_to|default:"-" }}</td>{% endif %}
+                            {% if 'priority' in selected_columns %}<td>
                                 {% if lead.priority == "urgent" %}
                                 <span class="sap-badge sap-badge--error">Urgent</span>
                                 {% elif lead.priority == "high" %}
@@ -113,23 +178,48 @@
                                 {% else %}
                                 <span class="text-muted">-</span>
                                 {% endif %}
-                            </td>
-                            <td>{{ lead.created_at|date:"M d, Y" }}</td>
-                            <td class="text-center">
-                                <a href="{% url 'lead_detail' pk=lead.pk %}" class="sap-btn sap-btn-sm sap-btn-transparent me-1" title="View">
-                                    <i class="fas fa-eye"></i>
-                                </a>
-                                <a href="{% url 'lead_update' pk=lead.pk %}" class="sap-btn sap-btn-sm sap-btn-transparent me-1" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="{% url 'lead_delete' pk=lead.pk %}" class="sap-btn sap-btn-sm sap-btn-transparent" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
+                            </td>{% endif %}
+                            {% if 'created_at' in selected_columns %}<td>{{ lead.created_at|date:"M d, Y" }}</td>{% endif %}
+                            {% if 'actions' in selected_columns %}<td class="text-center">
+                                <div class="action-btn-group">
+                                    <a href="{% url 'lead_detail' pk=lead.pk %}" class="action-btn view-btn" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    <a href="{% url 'lead_update' pk=lead.pk %}" class="action-btn edit-btn" title="Edit Lead">
+                                        <i class="fas fa-pen"></i>
+                                    </a>
+                                    <div class="action-dropdown">
+                                        <button type="button" class="action-btn more-btn" title="More Actions" onclick="toggleDropdown(this)">
+                                            <i class="fas fa-ellipsis-v"></i>
+                                        </button>
+                                        <div class="action-dropdown-menu">
+                                            <a href="{% url 'lead_detail' pk=lead.pk %}" class="action-dropdown-item">
+                                                <i class="fas fa-eye"></i> View Details
+                                            </a>
+                                            <a href="{% url 'lead_update' pk=lead.pk %}" class="action-dropdown-item">
+                                                <i class="fas fa-pen"></i> Edit Lead
+                                            </a>
+                                            <a href="{% url 'lead_detail' pk=lead.pk %}#tasks" class="action-dropdown-item">
+                                                <i class="fas fa-tasks"></i> Add Task
+                                            </a>
+                                            <a href="{% url 'lead_detail' pk=lead.pk %}#calls" class="action-dropdown-item">
+                                                <i class="fas fa-phone"></i> Log Call
+                                            </a>
+                                            <a href="{% url 'lead_detail' pk=lead.pk %}#meetings" class="action-dropdown-item">
+                                                <i class="fas fa-calendar"></i> Schedule Meeting
+                                            </a>
+                                            <div style="height:1px;background:#EBEEF0;margin:0.25rem 0;"></div>
+                                            <a href="{% url 'lead_delete' pk=lead.pk %}" class="action-dropdown-item danger">
+                                                <i class="fas fa-trash"></i> Delete Lead
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>{% endif %}
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="9">
+                            <td colspan="{{ selected_columns|length }}">
                                 <div class="empty-state">
                                     <i class="fas fa-inbox fa-2x mb-2 d-block"></i>
                                     No leads found.
@@ -143,30 +233,99 @@
         </div>
     </div>
 
-    {% if is_paginated %}
-    <nav class="mt-3">
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                    <i class="fas fa-chevron-left"></i>
+    {% if paginator.num_pages > 1 %}
+    <div class="pagination-bar" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:0.75rem; margin-top:1.25rem; padding:0.875rem 1.25rem; background:#fff; border:1px solid #EBEEF0; border-radius:0.5rem;">
+        <div style="display:flex; align-items:center; gap:0.75rem;">
+            <span style="font-size:0.8125rem; color:#6A6D70;">Rows per page:</span>
+            <div style="display:flex; gap:0.25rem;">
+                {% for pp in page_sizes %}
+                <a href="?per_page={{ pp }}{% if query %}&q={{ query }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}{% if selected_source %}&source={{ selected_source }}{% endif %}"
+                   class="sap-btn {% if per_page == pp %}sap-btn-emphasized{% else %}sap-btn-default{% endif %}"
+                   style="min-width:2.25rem; padding:0.25rem 0.5rem; font-size:0.8125rem; text-decoration:none;">
+                    {{ pp }}
                 </a>
-            </li>
-            {% endif %}
-            {% for num in page_obj.paginator.page_range %}
-            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
-                <a class="page-link" href="?page={{ num }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">{{ num }}</a>
-            </li>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div style="font-size:0.8125rem; color:#6A6D70;">
+            Showing {{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ paginator.count }}
+        </div>
+
+        <div style="display:flex; align-items:center; gap:0.375rem;">
+            <a href="?page=1{% if per_page != 25 %}&per_page={{ per_page }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}{% if selected_source %}&source={{ selected_source }}{% endif %}"
+               class="sap-btn sap-btn-default" style="min-width:2rem; padding:0.25rem 0.5rem; text-decoration:none; {% if not page_obj.has_previous %}opacity:0.4;pointer-events:none;{% endif %}"
+               title="First page"><i class="fas fa-angle-double-left"></i></a>
+            <a href="{% if prev_page %}?page={{ prev_page }}{% if per_page != 25 %}&per_page={{ per_page }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}{% if selected_source %}&source={{ selected_source }}{% endif %}{% endif %}"
+               class="sap-btn sap-btn-default" style="min-width:2rem; padding:0.25rem 0.5rem; text-decoration:none; {% if not prev_page %}opacity:0.4;pointer-events:none;{% endif %}"
+               title="Previous page"><i class="fas fa-chevron-left"></i></a>
+
+            {% for num in paginator.page_range %}
+                {% if page_obj.number == num %}
+                <span class="sap-btn sap-btn-emphasized" style="min-width:2rem; padding:0.25rem 0.5rem; cursor:default;">{{ num }}</span>
+                {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+                <a href="?page={{ num }}{% if per_page != 25 %}&per_page={{ per_page }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}{% if selected_source %}&source={{ selected_source }}{% endif %}"
+                   class="sap-btn sap-btn-default" style="min-width:2rem; padding:0.25rem 0.5rem; text-decoration:none;">{{ num }}</a>
+                {% elif num == 1 or num == paginator.num_pages %}
+                <a href="?page={{ num }}{% if per_page != 25 %}&per_page={{ per_page }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}{% if selected_source %}&source={{ selected_source }}{% endif %}"
+                   class="sap-btn sap-btn-default" style="min-width:2rem; padding:0.25rem 0.5rem; text-decoration:none;">{{ num }}</a>
+                {% elif num == page_obj.number|add:"-3" or num == page_obj.number|add:"3" %}
+                <span style="padding:0 0.25rem; color:#6A6D70;">...</span>
+                {% endif %}
             {% endfor %}
-            {% if page_obj.has_next %}
-            <li class="page-item">
-                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}">
-                    <i class="fas fa-chevron-right"></i>
-                </a>
-            </li>
-            {% endif %}
-        </ul>
-    </nav>
+
+            <a href="{% if next_page %}?page={{ next_page }}{% if per_page != 25 %}&per_page={{ per_page }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}{% if selected_source %}&source={{ selected_source }}{% endif %}{% endif %}"
+               class="sap-btn sap-btn-default" style="min-width:2rem; padding:0.25rem 0.5rem; text-decoration:none; {% if not next_page %}opacity:0.4;pointer-events:none;{% endif %}"
+               title="Next page"><i class="fas fa-chevron-right"></i></a>
+            <a href="?page={{ paginator.num_pages }}{% if per_page != 25 %}&per_page={{ per_page }}{% endif %}{% if query %}&q={{ query }}{% endif %}{% if selected_status %}&status={{ selected_status }}{% endif %}{% if selected_priority %}&priority={{ selected_priority }}{% endif %}{% if selected_source %}&source={{ selected_source }}{% endif %}"
+               class="sap-btn sap-btn-default" style="min-width:2rem; padding:0.25rem 0.5rem; text-decoration:none; {% if not page_obj.has_next %}opacity:0.4;pointer-events:none;{% endif %}"
+               title="Last page"><i class="fas fa-angle-double-right"></i></a>
+        </div>
+    </div>
     {% endif %}
 </div>
+
+<script>
+function toggleDropdown(btn) {
+    var menu = btn.nextElementSibling;
+    var wasOpen = menu.classList.contains('show');
+    document.querySelectorAll('.action-dropdown-menu').forEach(function(m) { m.classList.remove('show'); });
+    if (!wasOpen) menu.classList.add('show');
+}
+document.addEventListener('click', function(e) {
+    if (!e.target.closest('.action-dropdown')) {
+        document.querySelectorAll('.action-dropdown-menu').forEach(function(m) { m.classList.remove('show'); });
+    }
+});
+
+var filterSettings = document.getElementById('filterSettings');
+var toggleFilterSettings = document.getElementById('toggleFilterSettings');
+if (filterSettings && toggleFilterSettings) {
+    toggleFilterSettings.addEventListener('click', function() {
+        var isHidden = filterSettings.hasAttribute('hidden');
+        if (isHidden) filterSettings.removeAttribute('hidden');
+        else filterSettings.setAttribute('hidden', '');
+        toggleFilterSettings.setAttribute('aria-expanded', String(isHidden));
+    });
+}
+
+var saveLeadFilterForm = document.getElementById('saveLeadFilterForm');
+var leadFilterForm = document.getElementById('leadFilterForm');
+if (saveLeadFilterForm && leadFilterForm) {
+    saveLeadFilterForm.addEventListener('submit', function() {
+        ['q', 'status', 'priority', 'source'].forEach(function(name) {
+            saveLeadFilterForm.elements[name].value = leadFilterForm.elements[name].value;
+        });
+        saveLeadFilterForm.querySelectorAll('input[data-saved-column]').forEach(function(input) { input.remove(); });
+        leadFilterForm.querySelectorAll('input[name="columns"]:checked').forEach(function(column) {
+            var input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'columns';
+            input.value = column.value;
+            input.dataset.savedColumn = 'true';
+            saveLeadFilterForm.appendChild(input);
+        });
+    });
+}
+</script>
 {% endblock content %}

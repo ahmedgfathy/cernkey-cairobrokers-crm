@@ -8,6 +8,13 @@ urlpatterns = [
     path('<int:pk>/edit/', views.lead_update, name='lead_update'),
     path('<int:pk>/delete/', views.lead_delete, name='lead_delete'),
 
+    path('export/csv/', views.lead_export_csv, name='lead_export_csv'),
+    path('export/excel/', views.lead_export_excel, name='lead_export_excel'),
+    path('import/', views.lead_import, name='lead_import'),
+    path('import/map/', views.lead_import_map, name='lead_import_map'),
+    path('filters/save/', views.lead_save_filter, name='lead_save_filter'),
+    path('filters/<int:pk>/delete/', views.lead_delete_filter, name='lead_delete_filter'),
+
     path('<int:lead_pk>/task/create/', views.lead_task_create, name='lead_task_create'),
     path('task/<int:pk>/update/', views.lead_task_update, name='lead_task_update'),
     path('task/<int:pk>/complete/', views.lead_task_complete, name='lead_task_complete'),

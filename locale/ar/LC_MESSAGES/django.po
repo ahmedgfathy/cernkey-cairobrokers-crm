@@ -1,0 +1,143 @@
+msgid ""
+msgstr ""
+"Language: ar\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 ? 4 : 5;\n"
+
+msgid "Language"
+msgstr "اللغة"
+
+msgid "Change language"
+msgstr "تغيير اللغة"
+
+msgid "Home"
+msgstr "الرئيسية"
+
+msgid "Leads"
+msgstr "العملاء المحتملون"
+
+msgid "Properties"
+msgstr "العقارات"
+
+msgid "Opportunities"
+msgstr "الفرص"
+
+msgid "Tasks"
+msgstr "المهام"
+
+msgid "Documents"
+msgstr "المستندات"
+
+msgid "Analytics"
+msgstr "التحليلات"
+
+msgid "Admin"
+msgstr "الإدارة"
+
+msgid "CRM"
+msgstr "إدارة علاقات العملاء"
+
+msgid "Lead Sources"
+msgstr "مصادر العملاء المحتملين"
+
+msgid "Lead Statuses"
+msgstr "حالات العملاء المحتملين"
+
+msgid "Real Estate"
+msgstr "العقارات"
+
+msgid "Property Types"
+msgstr "أنواع العقارات"
+
+msgid "Property Statuses"
+msgstr "حالات العقارات"
+
+msgid "Sales"
+msgstr "المبيعات"
+
+msgid "Pipeline Stages"
+msgstr "مراحل المبيعات"
+
+msgid "Task Management"
+msgstr "إدارة المهام"
+
+msgid "My Tasks"
+msgstr "مهامي"
+
+msgid "Categories"
+msgstr "التصنيفات"
+
+msgid "Priorities"
+msgstr "الأولويات"
+
+msgid "Statuses"
+msgstr "الحالات"
+
+msgid "Administration"
+msgstr "الإدارة"
+
+msgid "Notifications"
+msgstr "الإشعارات"
+
+msgid "Reports"
+msgstr "التقارير"
+
+msgid "Admin Panel"
+msgstr "لوحة الإدارة"
+
+msgid "Detailed Reports"
+msgstr "التقارير التفصيلية"
+
+msgid "Dashboard"
+msgstr "لوحة التحكم"
+
+msgid "Agents"
+msgstr "الموظفون"
+
+msgid "Pipeline"
+msgstr "مسار المبيعات"
+
+msgid "Revenue"
+msgstr "الإيرادات"
+
+msgid "Sources, status, priority, agent performance"
+msgstr "المصادر والحالة والأولوية وأداء الموظفين"
+
+msgid "Types, prices, cities, features"
+msgstr "الأنواع والأسعار والمدن والمميزات"
+
+msgid "Pipeline, win rate, types, monthly trends"
+msgstr "المسار ومعدل الفوز والأنواع والاتجاهات الشهرية"
+
+msgid "Completion, overdue, agent load"
+msgstr "الإنجاز والمتأخر وأعباء الموظفين"
+
+msgid "Per-agent leads, deals, tasks"
+msgstr "العملاء والصفقات والمهام لكل موظف"
+
+msgid "Stage analysis, conversion funnel"
+msgstr "تحليل المراحل ومسار التحويل"
+
+msgid "Monthly revenue, closed deals, avg deal size"
+msgstr "الإيرادات الشهرية والصفقات المغلقة ومتوسط قيمة الصفقة"
+
+msgid "Leads Report"
+msgstr "تقرير العملاء المحتملين"
+
+msgid "Properties Report"
+msgstr "تقرير العقارات"
+
+msgid "Opportunities Report"
+msgstr "تقرير الفرص"
+
+msgid "Tasks Report"
+msgstr "تقرير المهام"
+
+msgid "Agent Performance"
+msgstr "أداء الموظفين"
+
+msgid "Pipeline Report"
+msgstr "تقرير مسار المبيعات"
+
+msgid "Revenue Report"
+msgstr "تقرير الإيرادات"

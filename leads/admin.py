@@ -1,5 +1,12 @@
 from django.contrib import admin
-from .models import Lead, LeadSource, LeadStatus
+from .models import Lead, LeadSavedFilter, LeadSource, LeadStatus
+
+
+@admin.register(LeadSavedFilter)
+class LeadSavedFilterAdmin(admin.ModelAdmin):
+    list_display = ('name', 'user', 'is_last_used', 'updated_at')
+    list_filter = ('is_last_used',)
+    search_fields = ('name', 'user__username')
 
 @admin.register(LeadSource)
 class LeadSourceAdmin(admin.ModelAdmin):

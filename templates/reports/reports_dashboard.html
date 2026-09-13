@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
+{% load static i18n %}
 
 {% block title %}Analytics & Reports - Cairobrokers CRM{% endblock %}
 
@@ -53,57 +53,57 @@
 </div>
 
 <div class="page-header" style="margin-bottom:1.5rem;">
-    <h1 style="font-size:1.25rem;"><i class="fas fa-file-alt me-2"></i>Detailed Reports</h1>
+    <h1 style="font-size:1.25rem;"><i class="fas fa-file-alt me-2"></i>{% translate "Detailed Reports" %}</h1>
 </div>
 
 <div class="kpi-row" style="grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr)); margin-bottom:1.5rem;">
     <a href="{% url 'report_leads' %}" class="sap-card report-card text-decoration-none">
         <div class="sap-card-body report-card-body">
             <div class="kpi-icon" style="background:rgba(10,110,209,0.1); color:var(--sapBrandColor);"><i class="fas fa-user-plus"></i></div>
-            <div class="report-card-title">Leads Report</div>
-            <div class="report-card-desc">Sources, status, priority, agent performance</div>
+                <div class="report-card-title">{% translate "Leads Report" %}</div>
+                    <div class="report-card-desc">{% translate "Sources, status, priority, agent performance" %}</div>
         </div>
     </a>
     <a href="{% url 'report_properties' %}" class="sap-card report-card text-decoration-none">
         <div class="sap-card-body report-card-body">
             <div class="kpi-icon" style="background:rgba(54,179,126,0.1); color:var(--sapSuccessColor);"><i class="fas fa-building"></i></div>
-            <div class="report-card-title">Properties Report</div>
-            <div class="report-card-desc">Types, prices, cities, features</div>
+            <div class="report-card-title">{% translate "Properties Report" %}</div>
+            <div class="report-card-desc">{% translate "Types, prices, cities, features" %}</div>
         </div>
     </a>
     <a href="{% url 'report_opportunities' %}" class="sap-card report-card text-decoration-none">
         <div class="sap-card-body report-card-body">
             <div class="kpi-icon" style="background:rgba(238,103,35,0.1); color:var(--sapWarningColor);"><i class="fas fa-handshake"></i></div>
-            <div class="report-card-title">Opportunities Report</div>
-            <div class="report-card-desc">Pipeline, win rate, types, monthly trends</div>
+            <div class="report-card-title">{% translate "Opportunities Report" %}</div>
+            <div class="report-card-desc">{% translate "Pipeline, win rate, types, monthly trends" %}</div>
         </div>
     </a>
     <a href="{% url 'report_tasks' %}" class="sap-card report-card text-decoration-none">
         <div class="sap-card-body report-card-body">
             <div class="kpi-icon" style="background:rgba(111,66,193,0.1); color:#6f42c1;"><i class="fas fa-clipboard-check"></i></div>
-            <div class="report-card-title">Tasks Report</div>
-            <div class="report-card-desc">Completion, overdue, agent load</div>
+            <div class="report-card-title">{% translate "Tasks Report" %}</div>
+            <div class="report-card-desc">{% translate "Completion, overdue, agent load" %}</div>
         </div>
     </a>
     <a href="{% url 'report_agents' %}" class="sap-card report-card text-decoration-none">
         <div class="sap-card-body report-card-body">
             <div class="kpi-icon" style="background:rgba(0,123,255,0.1); color:#007bff;"><i class="fas fa-users"></i></div>
-            <div class="report-card-title">Agent Performance</div>
-            <div class="report-card-desc">Per-agent leads, deals, tasks</div>
+            <div class="report-card-title">{% translate "Agent Performance" %}</div>
+            <div class="report-card-desc">{% translate "Per-agent leads, deals, tasks" %}</div>
         </div>
     </a>
     <a href="{% url 'report_pipeline' %}" class="sap-card report-card text-decoration-none">
         <div class="sap-card-body report-card-body">
             <div class="kpi-icon" style="background:rgba(255,193,7,0.1); color:#ffc107;"><i class="fas fa-filter"></i></div>
-            <div class="report-card-title">Pipeline Report</div>
-            <div class="report-card-desc">Stage analysis, conversion funnel</div>
+            <div class="report-card-title">{% translate "Pipeline Report" %}</div>
+            <div class="report-card-desc">{% translate "Stage analysis, conversion funnel" %}</div>
         </div>
     </a>
     <a href="{% url 'report_revenue' %}" class="sap-card report-card text-decoration-none">
         <div class="sap-card-body report-card-body">
             <div class="kpi-icon" style="background:rgba(40,167,69,0.1); color:#28a745;"><i class="fas fa-coins"></i></div>
-            <div class="report-card-title">Revenue Report</div>
-            <div class="report-card-desc">Monthly revenue, closed deals, avg deal size</div>
+            <div class="report-card-title">{% translate "Revenue Report" %}</div>
+            <div class="report-card-desc">{% translate "Monthly revenue, closed deals, avg deal size" %}</div>
         </div>
     </a>
 </div>

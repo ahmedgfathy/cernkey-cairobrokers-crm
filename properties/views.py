@@ -1,18 +1,21 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
 from .models import (Property, PropertyType, PropertyStatus, PropertyUnit,
                      PropertyViewing, PropertyOffer, PropertyNote)
 from .forms import (PropertyForm, PropertyTypeForm, PropertyStatusForm,
                     PropertySearchForm, PropertyUnitForm, PropertyViewingForm,
                     PropertyOfferForm, PropertyNoteForm)
+from core.import_export import export_csv, export_excel, parse_uploaded_file, auto_match_headers
 
 
 @login_required
 def property_list(request):
     properties = Property.objects.filter(is_active=True)
     search_form = PropertySearchForm(request.GET)
+    per_page = request.GET.get('per_page', '25')
 
     if search_form.is_valid():
         query = search_form.cleaned_data.get('query')
@@ -35,9 +38,30 @@ def property_list(request):
         if city:
             properties = properties.filter(city__icontains=city)
 
+    properties = properties.select_related('property_type', 'status', 'listed_by').order_by('-created_at')
+
+    try:
+        per_page = int(per_page)
+        if per_page not in [10, 25, 50, 100]:
+            per_page = 25
+    except (ValueError, TypeError):
+        per_page = 25
+
+    paginator = Paginator(properties, per_page)
+    page_number = request.GET.get('page', '1')
+    try:
+        page_obj = paginator.get_page(page_number)
+    except EmptyPage:
+        page_obj = paginator.get_page(paginator.num_pages)
+
     context = {
-        'properties': properties,
+        'properties': page_obj,
+        'page_obj': page_obj,
+        'paginator': paginator,
         'search_form': search_form,
+        'per_page': per_page,
+        'prev_page': page_obj.previous_page_number() if page_obj.has_previous() else None,
+        'next_page': page_obj.next_page_number() if page_obj.has_next() else None,
     }
     return render(request, 'properties/property_list.html', context)
 
@@ -310,3 +334,216 @@ def property_status_delete(request, pk):
         messages.success(request, 'Property status deleted successfully.')
         return redirect('property_status_list')
     return render(request, 'properties/property_status_confirm_delete.html', {'pstatus': pstatus})
+
+
+PROPERTY_EXPORT_FIELDS = [
+    'title', 'description', 'address', 'city', 'state', 'zip_code', 'country',
+    'property_type__name', 'status__name',
+    'bedrooms', 'bathrooms', 'square_feet', 'lot_size', 'year_built',
+    'price', 'monthly_rent', 'hoa_fee',
+    'has_garage', 'garage_spaces', 'has_pool', 'has_garden', 'pet_friendly',
+    'listed_by__first_name', 'is_featured', 'created_at',
+]
+PROPERTY_EXPORT_HEADERS = [
+    'Title', 'Description', 'Address', 'City', 'State', 'Zip Code', 'Country',
+    'Property Type', 'Status',
+    'Bedrooms', 'Bathrooms', 'Square Feet', 'Lot Size', 'Year Built',
+    'Price', 'Monthly Rent', 'HOA Fee',
+    'Has Garage', 'Garage Spaces', 'Has Pool', 'Has Garden', 'Pet Friendly',
+    'Listed By', 'Featured', 'Created At',
+]
+PROPERTY_DB_FIELDS = {
+    'title': 'Title',
+    'description': 'Description',
+    'address': 'Address',
+    'city': 'City',
+    'state': 'State',
+    'zip_code': 'Zip Code',
+    'country': 'Country',
+    'property_type': 'Property Type',
+    'status': 'Status',
+    'bedrooms': 'Bedrooms',
+    'bathrooms': 'Bathrooms',
+    'square_feet': 'Square Feet',
+    'lot_size': 'Lot Size',
+    'year_built': 'Year Built',
+    'price': 'Price',
+    'monthly_rent': 'Monthly Rent',
+    'hoa_fee': 'HOA Fee',
+    'has_garage': 'Has Garage',
+    'garage_spaces': 'Garage Spaces',
+    'has_pool': 'Has Pool',
+    'has_garden': 'Has Garden',
+    'pet_friendly': 'Pet Friendly',
+    'listed_by': 'Listed By',
+    'is_featured': 'Featured',
+}
+
+
+@login_required
+def property_export_csv(request):
+    properties = Property.objects.select_related('property_type', 'status', 'listed_by').all()
+    return export_csv(properties, PROPERTY_EXPORT_FIELDS, PROPERTY_EXPORT_HEADERS, 'properties_export')
+
+
+@login_required
+def property_export_excel(request):
+    properties = Property.objects.select_related('property_type', 'status', 'listed_by').all()
+    return export_excel(properties, PROPERTY_EXPORT_FIELDS, PROPERTY_EXPORT_HEADERS, 'properties_export')
+
+
+@login_required
+def property_import(request):
+    if request.method == 'POST':
+        if 'file' in request.FILES:
+            file = request.FILES['file']
+            try:
+                headers, rows = parse_uploaded_file(file)
+            except (OSError, ValueError, ImportError) as exc:
+                messages.error(request, f'Could not read this file: {exc}')
+                return redirect('property_import')
+            if not headers:
+                messages.error(request, 'Could not parse the uploaded file. Add a header row and at least one data row.')
+                return redirect('property_import')
+            auto_map = auto_match_headers(headers, PROPERTY_DB_FIELDS)
+            request.session['import_headers'] = headers
+            request.session['import_rows'] = rows
+            request.session['import_auto_map'] = {str(k): v for k, v in auto_map.items()}
+            request.session['import_module'] = 'properties'
+            return redirect('property_import_map')
+        elif 'confirm' in request.POST:
+            mapping = {}
+            for idx_str, field in request.POST.items():
+                if idx_str.startswith('col_') and field:
+                    try:
+                        idx = int(idx_str.replace('col_', ''))
+                    except ValueError:
+                        continue
+                    if field in PROPERTY_DB_FIELDS:
+                        mapping[idx] = field
+            headers = request.session.get('import_headers', [])
+            rows = request.session.get('import_rows', [])
+            if not headers or not rows:
+                messages.error(request, 'This import session has expired. Upload the file again.')
+                return redirect('property_import')
+            created = 0
+            updated = 0
+            skipped = 0
+            errors = []
+            for row_idx, row in enumerate(rows):
+                data = {}
+                for idx, field in mapping.items():
+                    if idx < len(row):
+                        data[field] = str(row[idx]).strip()
+                if not any(data.values()):
+                    skipped += 1
+                    continue
+                prop_data = {field: data.get(field, '') for field in (
+                    'title', 'description', 'address', 'city', 'state', 'zip_code', 'country'
+                )}
+                prop_data['description'] = prop_data['description'] or 'No description'
+                prop_data['country'] = prop_data['country'] or 'USA'
+                for field, default in (
+                    ('bedrooms', 1), ('bathrooms', 1), ('square_feet', 1000),
+                    ('price', 0),
+                ):
+                    try:
+                        prop_data[field] = int(data.get(field) or default)
+                    except (TypeError, ValueError):
+                        prop_data[field] = default
+                for field in ('price', 'lot_size', 'monthly_rent', 'hoa_fee'):
+                    if data.get(field):
+                        try:
+                            prop_data[field] = float(data[field])
+                        except (TypeError, ValueError):
+                            errors.append(f'Row {row_idx + 2}: invalid {PROPERTY_DB_FIELDS[field]}')
+                if data.get('year_built'):
+                    try: prop_data['year_built'] = int(data['year_built'])
+                    except (TypeError, ValueError): errors.append(f'Row {row_idx + 2}: invalid Year Built')
+                if data.get('garage_spaces'):
+                    try: prop_data['garage_spaces'] = int(data['garage_spaces'])
+                    except (TypeError, ValueError): errors.append(f'Row {row_idx + 2}: invalid Garage Spaces')
+                for bool_field in ['has_garage', 'has_pool', 'has_garden', 'pet_friendly', 'is_featured']:
+                    if data.get(bool_field):
+                        val = data[bool_field].strip().lower()
+                        prop_data[bool_field] = val in ['yes', 'true', '1', 'on']
+                if data.get('property_type'):
+                    type_name = data['property_type'].strip()
+                    ptype = PropertyType.objects.filter(name__iexact=type_name).first()
+                    prop_data['property_type'] = ptype or PropertyType.objects.create(name=type_name)
+                if data.get('status'):
+                    status_name = data['status'].strip()
+                    pstatus = PropertyStatus.objects.filter(name__iexact=status_name).first()
+                    prop_data['status'] = pstatus or PropertyStatus.objects.create(name=status_name)
+                if data.get('listed_by'):
+                    from django.contrib.auth import get_user_model
+                    User = get_user_model()
+                    agent = User.objects.filter(
+                        Q(first_name__icontains=data['listed_by'].strip()) |
+                        Q(last_name__icontains=data['listed_by'].strip()) |
+                        Q(username__iexact=data['listed_by'].strip())
+                    ).first()
+                    if agent:
+                        prop_data['listed_by'] = agent
+                try:
+                    # Titles are the import identity.  Treat capitalization and
+                    # surrounding whitespace consistently so an imported record
+                    # updates the existing property instead of creating a copy.
+                    prop_data['title'] = prop_data['title'].strip()
+                    existing = Property.objects.filter(title__iexact=prop_data['title']).first()
+                    if existing:
+                        for k, v in prop_data.items():
+                            setattr(existing, k, v)
+                        existing.save()
+                        updated += 1
+                    else:
+                        Property.objects.create(**prop_data)
+                        created += 1
+                except Exception as e:
+                    skipped += 1
+                    errors.append(f"Row {row_idx + 2}: {str(e)}")
+            request.session.pop('import_headers', None)
+            request.session.pop('import_rows', None)
+            request.session.pop('import_auto_map', None)
+            msg = f'Import complete: {created} created, {updated} updated, {skipped} skipped.'
+            if errors:
+                msg += f' {len(errors)} row errors.'
+                messages.warning(request, msg)
+            else:
+                messages.success(request, msg)
+            return redirect('property_list')
+    return render(request, 'properties/property_import.html', {
+        'db_fields': PROPERTY_DB_FIELDS,
+    })
+
+
+@login_required
+def property_import_map(request):
+    headers = request.session.get('import_headers', [])
+    rows = request.session.get('import_rows', [])
+    auto_map = request.session.get('import_auto_map', {})
+    if not headers:
+        messages.error(request, 'No import data found. Please upload a file first.')
+        return redirect('property_import')
+    preview_rows = rows[:5]
+    columns = []
+    for index, header in enumerate(headers):
+        sample = next((row[index] for row in preview_rows if index < len(row) and row[index]), '')
+        columns.append({
+            'index': index,
+            'header': header or f'Column {index + 1}',
+            'sample': sample,
+            'mapped_field': auto_map.get(str(index), auto_map.get(index, '')),
+        })
+    mapped_fields = {column['mapped_field'] for column in columns}
+    return render(request, 'properties/property_import_map.html', {
+        'headers': headers,
+        'preview_rows': preview_rows,
+        'total_rows': len(rows),
+        'auto_map': auto_map,
+        'columns': columns,
+        'mapped_count': len(mapped_fields - {''}),
+        'unmapped_count': len(headers) - len(auto_map),
+        'missing_required': [],
+        'db_fields': PROPERTY_DB_FIELDS,
+    })

@@ -1,13 +1,15 @@
-{% load static %}
+{% load static i18n %}
+{% get_current_language as CURRENT_LANGUAGE %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ CURRENT_LANGUAGE }}" dir="{% if CURRENT_LANGUAGE == 'ar' %}rtl{% else %}ltr{% endif %}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}Cairobrokers CRM{% endblock %}</title>
+    <link rel="icon" type="image/x-icon" href="{% static 'favicon.ico' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="{% static 'css/style.css' %}" rel="stylesheet">
+    <link href="{% static 'css/style.css' %}?v=3" rel="stylesheet">
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -26,33 +28,44 @@
         </a>
         <nav class="shell-bar-nav">
             <a href="{% url 'dashboard' %}" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
-                <i class="fas fa-th-large"></i> Home
+                <i class="fas fa-th-large"></i> {% translate "Home" %}
             </a>
             <a href="{% url 'lead_list' %}" class="{% if 'lead' in request.resolver_match.url_name %}active{% endif %}">
-                <i class="fas fa-user-plus"></i> Leads
+                <i class="fas fa-user-plus"></i> {% translate "Leads" %}
             </a>
             <a href="{% url 'property_list' %}" class="{% if 'property' in request.resolver_match.url_name %}active{% endif %}">
-                <i class="fas fa-building"></i> Properties
+                <i class="fas fa-building"></i> {% translate "Properties" %}
             </a>
             <a href="{% url 'opportunity_list' %}" class="{% if 'opportunity' in request.resolver_match.url_name %}active{% endif %}">
-                <i class="fas fa-handshake"></i> Opportunities
+                <i class="fas fa-handshake"></i> {% translate "Opportunities" %}
             </a>
             <a href="{% url 'task_list' %}" class="{% if 'task' in request.resolver_match.url_name %}active{% endif %}">
-                <i class="fas fa-tasks"></i> Tasks
+                <i class="fas fa-tasks"></i> {% translate "Tasks" %}
             </a>
             <a href="{% url 'document_list' %}" class="{% if 'document' in request.resolver_match.url_name %}active{% endif %}">
-                <i class="fas fa-file-alt"></i> Documents
+                <i class="fas fa-file-alt"></i> {% translate "Documents" %}
             </a>
             <a href="{% url 'reports_dashboard' %}" class="{% if 'report' in request.resolver_match.url_name %}active{% endif %}">
-                <i class="fas fa-chart-bar"></i> Analytics
+                <i class="fas fa-chart-bar"></i> {% translate "Analytics" %}
             </a>
             {% if user.is_staff %}
             <a href="{% url 'admin:index' %}">
-                <i class="fas fa-cog"></i> Admin
+                <i class="fas fa-cog"></i> {% translate "Admin" %}
             </a>
             {% endif %}
         </nav>
         <div class="shell-bar-right">
+            <form method="post" action="{% url 'set_language' %}" class="language-switcher">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                <label for="languageSelect" class="visually-hidden">{% translate "Language" %}</label>
+                <select id="languageSelect" name="language" onchange="this.form.submit()" aria-label="{% translate 'Change language' %}">
+                    {% get_available_languages as available_languages %}
+                    {% for language_code, language_name in available_languages %}
+                    <option value="{{ language_code }}" {% if language_code == CURRENT_LANGUAGE %}selected{% endif %}>{{ language_name }}</option>
+                    {% endfor %}
+                </select>
+            </form>
             <a href="{% url 'notification_list' %}" class="user-btn notification-badge" title="Notifications">
                 <i class="fas fa-bell"></i>
                 {% if unread_notification_count %}<span class="badge">{{ unread_notification_count }}</span>{% endif %}
@@ -91,94 +104,94 @@
         <aside class="side-nav">
             <div class="nav-group">
                 <div class="nav-group-header" onclick="this.parentElement.classList.toggle('collapsed')">
-                    <span>CRM</span>
+                    <span>{% translate "CRM" %}</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="nav-group-items">
                     <a href="{% url 'lead_list' %}" class="nav-item {% if 'lead' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-user-plus"></i> Leads
+                        <i class="fas fa-user-plus"></i> {% translate "Leads" %}
                     </a>
                     <a href="{% url 'lead_source_list' %}" class="nav-item {% if request.resolver_match.url_name == 'lead_source_list' %}active{% endif %}">
-                        <i class="fas fa-sitemap"></i> Lead Sources
+                        <i class="fas fa-sitemap"></i> {% translate "Lead Sources" %}
                     </a>
                     <a href="{% url 'lead_status_list' %}" class="nav-item {% if request.resolver_match.url_name == 'lead_status_list' %}active{% endif %}">
-                        <i class="fas fa-flag"></i> Lead Statuses
+                        <i class="fas fa-flag"></i> {% translate "Lead Statuses" %}
                     </a>
                 </div>
             </div>
             <div class="nav-group">
                 <div class="nav-group-header" onclick="this.parentElement.classList.toggle('collapsed')">
-                    <span>Real Estate</span>
+                    <span>{% translate "Real Estate" %}</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="nav-group-items">
                     <a href="{% url 'property_list' %}" class="nav-item {% if 'property' in request.resolver_match.url_name and 'type' not in request.resolver_match.url_name and 'status' not in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-building"></i> Properties
+                        <i class="fas fa-building"></i> {% translate "Properties" %}
                     </a>
                     <a href="{% url 'property_type_list' %}" class="nav-item {% if request.resolver_match.url_name == 'property_type_list' %}active{% endif %}">
-                        <i class="fas fa-th-large"></i> Property Types
+                        <i class="fas fa-th-large"></i> {% translate "Property Types" %}
                     </a>
                     <a href="{% url 'property_status_list' %}" class="nav-item {% if request.resolver_match.url_name == 'property_status_list' %}active{% endif %}">
-                        <i class="fas fa-tag"></i> Property Statuses
+                        <i class="fas fa-tag"></i> {% translate "Property Statuses" %}
                     </a>
                 </div>
             </div>
             <div class="nav-group">
                 <div class="nav-group-header" onclick="this.parentElement.classList.toggle('collapsed')">
-                    <span>Sales</span>
+                    <span>{% translate "Sales" %}</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="nav-group-items">
                     <a href="{% url 'opportunity_list' %}" class="nav-item {% if 'opportunity' in request.resolver_match.url_name and 'stage' not in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-handshake"></i> Opportunities
+                        <i class="fas fa-handshake"></i> {% translate "Opportunities" %}
                     </a>
                     <a href="{% url 'opportunity_stage_list' %}" class="nav-item {% if request.resolver_match.url_name == 'opportunity_stage_list' %}active{% endif %}">
-                        <i class="fas fa-layer-group"></i> Pipeline Stages
+                        <i class="fas fa-layer-group"></i> {% translate "Pipeline Stages" %}
                     </a>
                 </div>
             </div>
             <div class="nav-group">
                 <div class="nav-group-header" onclick="this.parentElement.classList.toggle('collapsed')">
-                    <span>Task Management</span>
+                    <span>{% translate "Task Management" %}</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="nav-group-items">
                     <a href="{% url 'task_list' %}" class="nav-item {% if 'task' in request.resolver_match.url_name and 'category' not in request.resolver_match.url_name and 'priority' not in request.resolver_match.url_name and 'status' not in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-tasks"></i> My Tasks
+                        <i class="fas fa-tasks"></i> {% translate "My Tasks" %}
                     </a>
                     <a href="{% url 'task_category_list' %}" class="nav-item {% if request.resolver_match.url_name == 'task_category_list' %}active{% endif %}">
-                        <i class="fas fa-folder"></i> Categories
+                        <i class="fas fa-folder"></i> {% translate "Categories" %}
                     </a>
                     <a href="{% url 'task_priority_list' %}" class="nav-item {% if request.resolver_match.url_name == 'task_priority_list' %}active{% endif %}">
-                        <i class="fas fa-arrow-up"></i> Priorities
+                        <i class="fas fa-arrow-up"></i> {% translate "Priorities" %}
                     </a>
                     <a href="{% url 'task_status_list' %}" class="nav-item {% if request.resolver_match.url_name == 'task_status_list' %}active{% endif %}">
-                        <i class="fas fa-check-circle"></i> Statuses
+                        <i class="fas fa-check-circle"></i> {% translate "Statuses" %}
                     </a>
                 </div>
             </div>
             <div class="nav-group">
                 <div class="nav-group-header" onclick="this.parentElement.classList.toggle('collapsed')">
-                    <span>Administration</span>
+                    <span>{% translate "Administration" %}</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="nav-group-items">
                     <a href="{% url 'document_list' %}" class="nav-item {% if 'document' in request.resolver_match.url_name and 'type' not in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-file-alt"></i> Documents
+                        <i class="fas fa-file-alt"></i> {% translate "Documents" %}
                     </a>
                     <a href="{% url 'document_type_list' %}" class="nav-item {% if request.resolver_match.url_name == 'document_type_list' %}active{% endif %}">
-                        <i class="fas fa-folder-open"></i> Document Types
+                        <i class="fas fa-folder-open"></i> {% translate "Document Types" %}
                     </a>
                     <a href="{% url 'notification_list' %}" class="nav-item {% if 'notification' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-bell"></i> Notifications
+                        <i class="fas fa-bell"></i> {% translate "Notifications" %}
                         {% if unread_notification_count %}<span class="nav-badge">{{ unread_notification_count }}</span>{% endif %}
                     </a>
                     <a href="{% url 'reports_dashboard' %}" class="nav-item {% if 'report' in request.resolver_match.url_name %}active{% endif %}">
-                        <i class="fas fa-chart-bar"></i> Reports
+                        <i class="fas fa-chart-bar"></i> {% translate "Reports" %}
                     </a>
                     {% if user.is_staff %}
                     <a href="{% url 'admin:index' %}" class="nav-item">
-                        <i class="fas fa-cog"></i> Admin Panel
+                        <i class="fas fa-cog"></i> {% translate "Admin Panel" %}
                     </a>
                     {% endif %}
                 </div>
@@ -204,6 +217,7 @@
     {% endif %}
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/arabic-ui.js' %}?v=3"></script>
     <script>
         // Mobile menu toggle
         const mobileToggle = document.getElementById('mobile-menu-toggle');

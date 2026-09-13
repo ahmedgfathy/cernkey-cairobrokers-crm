@@ -72,6 +72,25 @@ class Lead(models.Model):
         ordering = ['-created_at']
 
 
+class LeadSavedFilter(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='lead_saved_filters')
+    name = models.CharField(max_length=100)
+    columns = models.JSONField(default=list)
+    filters = models.JSONField(default=dict)
+    is_last_used = models.BooleanField(default=False)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user} - {self.name}"
+
+    class Meta:
+        db_table = 'leads_saved_filter'
+        ordering = ['name']
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'name'], name='unique_lead_saved_filter_name'),
+        ]
+
+
 class LeadTask(models.Model):
     TASK_TYPE_CHOICES = [
         ('call', 'Follow-up Call'),

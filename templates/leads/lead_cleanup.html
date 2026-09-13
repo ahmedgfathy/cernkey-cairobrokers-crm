@@ -1,0 +1,77 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="sap-page">
+  <div class="page-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h1><i class="fas fa-broom me-2"></i>Cleanup Leads</h1>
+        <p class="page-subtitle">Remove duplicates or clear all lead data</p>
+      </div>
+      <a href="{% url 'lead_list' %}" class="sap-btn sap-btn-default"><i class="fas fa-arrow-left me-1"></i> Back to Leads</a>
+    </div>
+  </div>
+
+  <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+
+    <div class="sap-card">
+      <div class="sap-card-header"><h3><i class="fas fa-copy me-2"></i>Remove Duplicates</h3></div>
+      <div class="sap-card-body">
+        <div style="text-align:center; margin-bottom:1.25rem;">
+          <div style="font-size:3rem; font-weight:700; color:#EE6723;">{{ duplicates_count }}</div>
+          <div style="font-size:0.875rem; color:#6A6D70;">Duplicate leads found</div>
+        </div>
+        <p style="font-size:0.8125rem; color:#6A6D70; margin-bottom:1rem;">
+          Duplicates are identified by matching: first name, last name, email, phone, and company.
+          One copy of each duplicate group will be kept.
+        </p>
+        {% if duplicates_count > 0 %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="remove_duplicates">
+          <button type="submit" class="sap-btn sap-btn-emphasized" style="width:100%; justify-content:center;"
+                  onclick="return confirm('This will remove {{ duplicates_count }} duplicate leads. Continue?');">
+            <i class="fas fa-trash me-1"></i> Remove {{ duplicates_count }} Duplicates
+          </button>
+        </form>
+        {% else %}
+        <div style="padding:1rem; background:#E8F5E9; border-radius:0.5rem; text-align:center;">
+          <i class="fas fa-check-circle" style="color:#2E7D32; font-size:1.5rem; margin-bottom:0.5rem; display:block;"></i>
+          <p style="color:#2E7D32; font-weight:500; margin:0;">No duplicates found</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="sap-card">
+      <div class="sap-card-header"><h3><i class="fas fa-exclamation-triangle me-2"></i>Remove All Data</h3></div>
+      <div class="sap-card-body">
+        <div style="text-align:center; margin-bottom:1.25rem;">
+          <div style="font-size:3rem; font-weight:700; color:#EE3939;">{{ total_leads }}</div>
+          <div style="font-size:0.875rem; color:#6A6D70;">Total leads in database</div>
+        </div>
+        <p style="font-size:0.8125rem; color:#EE3939; margin-bottom:1rem; background:#FFEBEE; padding:0.75rem; border-radius:0.5rem;">
+          <i class="fas fa-exclamation-triangle me-1"></i>
+          <strong>Warning:</strong> This will permanently delete ALL {{ total_leads }} leads. This action cannot be undone.
+        </p>
+        {% if total_leads > 0 %}
+        <form method="post">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="remove_all">
+          <button type="submit" class="sap-btn" style="width:100%; justify-content:center; background:#EE3939; color:#fff; border-color:#EE3939;"
+                  onclick="return confirm('This will permanently delete ALL {{ total_leads }} leads. Are you sure?');">
+            <i class="fas fa-trash me-1"></i> Delete All {{ total_leads }} Leads
+          </button>
+        </form>
+        {% else %}
+        <div style="padding:1rem; background:#E8F5E9; border-radius:0.5rem; text-align:center;">
+          <i class="fas fa-check-circle" style="color:#2E7D32; font-size:1.5rem; margin-bottom:0.5rem; display:block;"></i>
+          <p style="color:#2E7D32; font-weight:500; margin:0;">No leads to delete</p>
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock content %}

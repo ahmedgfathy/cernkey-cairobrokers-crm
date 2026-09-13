@@ -15,6 +15,17 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# Local development and IDE previews can serve this app from a different
+# hostname than the Django process (for example, localhost vs. 127.0.0.1).
+# Trust those explicit origins for CSRF checks.  Additional HTTPS preview or
+# deployment origins can be supplied as a comma-separated environment value.
+_default_csrf_origins = 'http://localhost:8000,http://127.0.0.1:8000,http://0.0.0.0:8000'
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip().rstrip('/')
+    for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', _default_csrf_origins).split(',')
+    if origin.strip()
+]
+
 AUTH_USER_MODEL = 'accounts.User'
 
 LOGIN_URL = 'login'
@@ -73,6 +84,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+        # Imports can write many rows while another request is reading the
+        # property list.  SQLite otherwise raises "database is locked"
+        # immediately instead of waiting for that short-lived write to finish.
+        'OPTIONS': {
+            'timeout': 30,
+        },
     }
 }
 

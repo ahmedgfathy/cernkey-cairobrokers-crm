@@ -21,3 +21,6 @@ staticfiles.json
 Thumbs.db
 venv/
 .venv/
+Leads.csv
+.gitignore
+Property.csv

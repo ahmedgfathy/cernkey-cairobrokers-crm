@@ -11,7 +11,9 @@ from .models import (Lead, LeadSource, LeadStatus, LeadTask, LeadCall,
                      LeadMeeting, LeadEmail, LeadNote, LeadSavedFilter)
 from .forms import (LeadForm, LeadSourceForm, LeadStatusForm, LeadTaskForm,
                     LeadCallForm, LeadMeetingForm, LeadEmailForm, LeadNoteForm)
-from core.import_export import export_csv, export_excel, parse_uploaded_file, auto_match_headers
+from core.import_export import (export_csv, export_excel, parse_uploaded_file,
+                                auto_match_headers, store_import_data,
+                                load_import_data, clear_import_data)
 
 
 LEAD_LIST_COLUMNS = {
@@ -480,7 +482,28 @@ LEAD_DB_FIELDS = {
     'email_direction': 'Email Direction',
     'email_sent_at': 'Email Sent At',
     'note_content': 'Note Content',
+    # Legacy Leads.csv fields
+    'lead_number': 'Lead Number',
+    'salutation': 'Salutation',
+    'call_result': 'المكالمه',
+    'last_follow_up': 'اخر متابعه',
+    'customer_status': 'حاله العميل',
+    'assigned_to_name': 'Assigned To (legacy name)',
+    'interested_unit_type': 'نوع الوحده المهتم بها العميل',
+    'legacy_created_time': 'Created Time',
+    'activity_type': 'نوع النشاط',
+    'legacy_modified_time': 'Modified Time',
+    'feedback': 'فيدباك',
+    'legacy_description': 'Description',
+    'last_modified_by_name': 'Last Modified By',
 }
+
+LEAD_LEGACY_FIELDS = (
+    'lead_number', 'salutation', 'call_result', 'last_follow_up',
+    'customer_status', 'assigned_to_name', 'interested_unit_type',
+    'legacy_created_time', 'activity_type', 'legacy_modified_time', 'feedback',
+    'legacy_description', 'last_modified_by_name',
+)
 
 
 def _import_datetime(value, date_only=False, time_only=False):
@@ -584,10 +607,12 @@ def lead_import(request):
                 messages.error(request, 'Could not parse the uploaded file. Add a header row and at least one data row.')
                 return redirect('lead_import')
             auto_map = auto_match_headers(headers, LEAD_DB_FIELDS)
-            request.session['import_headers'] = headers
-            request.session['import_rows'] = rows
-            request.session['import_auto_map'] = {str(k): v for k, v in auto_map.items()}
-            request.session['import_module'] = 'leads'
+            # The legacy export calls the main phone field "MOBILE 1".
+            for index, header in enumerate(headers):
+                if header.strip().casefold() == 'mobile 1':
+                    auto_map[index] = 'phone'
+            store_import_data(request, 'leads', headers, rows)
+            request.session['lead_import_auto_map'] = {str(k): v for k, v in auto_map.items()}
             return redirect('lead_import_map')
         elif 'confirm' in request.POST:
             mapping = {}
@@ -599,8 +624,7 @@ def lead_import(request):
                         continue
                     if field in LEAD_DB_FIELDS:
                         mapping[idx] = field
-            headers = request.session.get('import_headers', [])
-            rows = request.session.get('import_rows', [])
+            headers, rows = load_import_data(request, 'leads')
             if not headers or not rows:
                 messages.error(request, 'This import session has expired. Upload the file again.')
                 return redirect('lead_import')
@@ -628,6 +652,10 @@ def lead_import(request):
                     'priority': data.get('priority', 'medium').lower(),
                     'notes': data.get('notes', ''),
                 }
+                for field in LEAD_LEGACY_FIELDS:
+                    lead_data[field] = data.get(field, '')
+                if not lead_data['notes']:
+                    lead_data['notes'] = lead_data['legacy_description']
                 if lead_data['priority'] not in ['low', 'medium', 'high']:
                     lead_data['priority'] = 'medium'
                 if data.get('source'):
@@ -636,28 +664,34 @@ def lead_import(request):
                 if data.get('status'):
                     status, _ = LeadStatus.objects.get_or_create(name=data['status'])
                     lead_data['status'] = status
-                if data.get('assigned_to'):
+                assigned_name = data.get('assigned_to_name') or data.get('assigned_to')
+                if assigned_name:
+                    lead_data['assigned_to_name'] = assigned_name
                     from django.contrib.auth import get_user_model
                     User = get_user_model()
                     agent = User.objects.filter(
-                        Q(first_name__icontains=data['assigned_to'].strip()) |
-                        Q(last_name__icontains=data['assigned_to'].strip()) |
-                        Q(username__iexact=data['assigned_to'].strip())
+                        Q(first_name__icontains=assigned_name.strip()) |
+                        Q(last_name__icontains=assigned_name.strip()) |
+                        Q(username__iexact=assigned_name.strip())
                     ).first()
                     if agent:
                         lead_data['assigned_to'] = agent
                 try:
-                    if lead_data['email']:
+                    if lead_data['customer_status'] and not lead_data.get('status'):
+                        status, _ = LeadStatus.objects.get_or_create(name=lead_data['customer_status'])
+                        lead_data['status'] = status
+                    if lead_data['lead_number']:
+                        existing = Lead.objects.filter(lead_number__iexact=lead_data['lead_number']).first()
+                    elif lead_data['email']:
                         existing = Lead.objects.filter(email=lead_data['email']).first()
-                        if existing:
-                            for k, v in lead_data.items():
-                                setattr(existing, k, v)
-                            existing.save()
-                            updated += 1
-                        else:
-                            lead_data['created_by'] = request.user
-                            lead = Lead.objects.create(**lead_data)
-                            created += 1
+                    else:
+                        existing = None
+                    if existing:
+                        for k, v in lead_data.items():
+                            setattr(existing, k, v)
+                        existing.save()
+                        lead = existing
+                        updated += 1
                     else:
                         lead_data['created_by'] = request.user
                         lead = Lead.objects.create(**lead_data)
@@ -665,9 +699,8 @@ def lead_import(request):
                     _create_import_activities(lead, data, request.user)
                 except Exception as e:
                     errors.append(f"Row {row_idx + 2}: {str(e)}")
-            request.session.pop('import_headers', None)
-            request.session.pop('import_rows', None)
-            request.session.pop('import_auto_map', None)
+            clear_import_data(request, 'leads')
+            request.session.pop('lead_import_auto_map', None)
             msg = f'Import complete: {created} created, {updated} updated, {skipped} skipped.'
             if errors:
                 msg += f' {len(errors)} row errors. ' + ' '.join(errors[:3])
@@ -682,9 +715,8 @@ def lead_import(request):
 
 @login_required
 def lead_import_map(request):
-    headers = request.session.get('import_headers', [])
-    rows = request.session.get('import_rows', [])
-    auto_map = request.session.get('import_auto_map', {})
+    headers, rows = load_import_data(request, 'leads')
+    auto_map = request.session.get('lead_import_auto_map', {})
     if not headers:
         messages.error(request, 'No import data found. Please upload a file first.')
         return redirect('lead_import')
@@ -705,8 +737,55 @@ def lead_import_map(request):
         'total_rows': len(rows),
         'auto_map': auto_map,
         'columns': columns,
-        'mapped_count': len(mapped_fields - {''}),
-        'unmapped_count': len(headers) - len(auto_map),
-        'missing_required': [],
-        'db_fields': LEAD_DB_FIELDS,
+            'mapped_count': len(mapped_fields - {''}),
+            'unmapped_count': len(headers) - len(auto_map),
+            'missing_required': [],
+            'db_fields': LEAD_DB_FIELDS,
+        })
+
+
+@login_required
+def lead_cleanup(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'remove_duplicates':
+            from django.db.models import Count
+            duplicates = (
+                Lead.objects.values('first_name', 'last_name', 'email', 'phone', 'company')
+                .annotate(cnt=Count('id'))
+                .filter(cnt__gt=1)
+            )
+            removed = 0
+            for dup in duplicates:
+                leads = Lead.objects.filter(
+                    first_name=dup['first_name'],
+                    last_name=dup['last_name'],
+                    email=dup['email'],
+                    phone=dup['phone'],
+                    company=dup['company'],
+                )
+                keep = leads.first()
+                to_delete = leads.exclude(pk=keep.pk)
+                count = to_delete.count()
+                to_delete.delete()
+                removed += count
+            messages.success(request, f'Removed {removed} duplicate leads.')
+            return redirect('lead_list')
+        elif action == 'remove_all':
+            count = Lead.objects.count()
+            Lead.objects.all().delete()
+            messages.success(request, f'Removed all {count} leads.')
+            return redirect('lead_list')
+    duplicates_count = 0
+    from django.db.models import Count
+    dups = (
+        Lead.objects.values('first_name', 'last_name', 'email', 'phone', 'company')
+        .annotate(cnt=Count('id'))
+        .filter(cnt__gt=1)
+    )
+    for dup in dups:
+        duplicates_count += dup['cnt'] - 1
+    return render(request, 'leads/lead_cleanup.html', {
+        'total_leads': Lead.objects.count(),
+        'duplicates_count': duplicates_count,
     })

@@ -3,12 +3,15 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage
 from django.db.models import Q
+from django.views.decorators.csrf import ensure_csrf_cookie
 from .models import (Property, PropertyType, PropertyStatus, PropertyUnit,
                      PropertyViewing, PropertyOffer, PropertyNote)
 from .forms import (PropertyForm, PropertyTypeForm, PropertyStatusForm,
                     PropertySearchForm, PropertyUnitForm, PropertyViewingForm,
                     PropertyOfferForm, PropertyNoteForm)
-from core.import_export import export_csv, export_excel, parse_uploaded_file, auto_match_headers
+from core.import_export import (export_csv, export_excel, parse_uploaded_file,
+                                auto_match_headers, store_import_data,
+                                load_import_data, clear_import_data)
 
 
 @login_required
@@ -62,6 +65,7 @@ def property_list(request):
         'per_page': per_page,
         'prev_page': page_obj.previous_page_number() if page_obj.has_previous() else None,
         'next_page': page_obj.next_page_number() if page_obj.has_next() else None,
+        'page_sizes': [10, 25, 50, 100],
     }
     return render(request, 'properties/property_list.html', context)
 
@@ -377,7 +381,63 @@ PROPERTY_DB_FIELDS = {
     'pet_friendly': 'Pet Friendly',
     'listed_by': 'Listed By',
     'is_featured': 'Featured',
+    # Legacy Property.csv fields. Existing CRM fields above retain their
+    # normalized meanings (Type, Total Price, Description, STATUS).
+    'listing_purpose': 'Unit For',
+    'property_number': 'Property Number',
+    'area': 'Area',
+    'unit_license': 'UNIT LICENSE',
+    'phase': 'Phase',
+    'community_name': 'COMMUNITY NAME',
+    'mall_name': 'MALL NAME',
+    'view_me': 'VIEW ME',
+    'call_made_date': 'date call make',
+    'finishing': 'Finished',
+    'building': 'Building',
+    'space_m': 'SPACE \\ M',
+    'unit_number': 'Unit NO',
+    'property_offered_by': 'Property Offered By',
+    'update_4': '4 UBDATE',
+    'contact_name': 'Name',
+    'updated_by_name': 'UBDATE BY',
+    'mobile_no': 'Mobile No.',
+    'last_follow_in': 'Last Follow in',
+    'telephone': 'Tel',
+    'call_update': 'ابديت المكالمات',
+    'call_note': 'NOTE OF CALL',
+    'feedback': 'NEW FEEDBACK',
+    'last_call_date': 'DATE OF LAST CALL',
+    'more_units': 'MORE UINITS',
+    'rent_to': 'Rent To',
+    'reminder_time': 'RIMINDER TIME',
+    'duplicate_note': 'البيان مكرر',
+    'reminder_date': 'RIMINDER DATE',
+    'compound_name': 'Property Name - Compound Name',
+    'handler': 'Handler',
+    'area_label': 'AREA LABLE',
+    'legacy_modified_time': 'Modified Time',
+    'legacy_created_time': 'Created Time',
+    'land_area': 'Land area',
+    'floors': 'The Floors',
+    'business_activity': 'النشاط',
+    'category': 'catogry',
+    'compound_location': 'داخل كمبوند / خارج كمبوند',
+    'send_a_message': 'SEND A MESSAGE',
+    'sales': 'Sales',
+    'last_modified_by_name': 'Last Modified By',
 }
+
+PROPERTY_LEGACY_FIELDS = (
+    'listing_purpose', 'property_number', 'area', 'unit_license', 'phase',
+    'community_name', 'mall_name', 'view_me', 'call_made_date', 'finishing',
+    'building', 'space_m', 'unit_number', 'property_offered_by', 'update_4',
+    'contact_name', 'updated_by_name', 'mobile_no', 'last_follow_in',
+    'telephone', 'call_update', 'call_note', 'feedback', 'last_call_date',
+    'more_units', 'rent_to', 'reminder_time', 'duplicate_note', 'reminder_date',
+    'compound_name', 'handler', 'area_label', 'legacy_modified_time',
+    'legacy_created_time', 'land_area', 'floors', 'business_activity', 'category',
+    'compound_location', 'send_a_message', 'sales', 'last_modified_by_name',
+)
 
 
 @login_required
@@ -393,6 +453,7 @@ def property_export_excel(request):
 
 
 @login_required
+@ensure_csrf_cookie
 def property_import(request):
     if request.method == 'POST':
         if 'file' in request.FILES:
@@ -406,10 +467,8 @@ def property_import(request):
                 messages.error(request, 'Could not parse the uploaded file. Add a header row and at least one data row.')
                 return redirect('property_import')
             auto_map = auto_match_headers(headers, PROPERTY_DB_FIELDS)
-            request.session['import_headers'] = headers
-            request.session['import_rows'] = rows
-            request.session['import_auto_map'] = {str(k): v for k, v in auto_map.items()}
-            request.session['import_module'] = 'properties'
+            store_import_data(request, 'properties', headers, rows)
+            request.session['property_import_auto_map'] = {str(k): v for k, v in auto_map.items()}
             return redirect('property_import_map')
         elif 'confirm' in request.POST:
             mapping = {}
@@ -421,8 +480,7 @@ def property_import(request):
                         continue
                     if field in PROPERTY_DB_FIELDS:
                         mapping[idx] = field
-            headers = request.session.get('import_headers', [])
-            rows = request.session.get('import_rows', [])
+            headers, rows = load_import_data(request, 'properties')
             if not headers or not rows:
                 messages.error(request, 'This import session has expired. Upload the file again.')
                 return redirect('property_import')
@@ -441,6 +499,12 @@ def property_import(request):
                 prop_data = {field: data.get(field, '') for field in (
                     'title', 'description', 'address', 'city', 'state', 'zip_code', 'country'
                 )}
+                for field in PROPERTY_LEGACY_FIELDS:
+                    prop_data[field] = data.get(field, '')
+                prop_data['title'] = (
+                    prop_data['title'].strip() or prop_data['compound_name'].strip() or
+                    prop_data['property_number'].strip() or 'Untitled property'
+                )
                 prop_data['description'] = prop_data['description'] or 'No description'
                 prop_data['country'] = prop_data['country'] or 'USA'
                 for field, default in (
@@ -451,10 +515,15 @@ def property_import(request):
                         prop_data[field] = int(data.get(field) or default)
                     except (TypeError, ValueError):
                         prop_data[field] = default
+                if data.get('space_m') and not data.get('square_feet'):
+                    digits = ''.join(char for char in data['space_m'] if char.isdigit())
+                    if digits:
+                        prop_data['square_feet'] = int(digits)
                 for field in ('price', 'lot_size', 'monthly_rent', 'hoa_fee'):
                     if data.get(field):
                         try:
-                            prop_data[field] = float(data[field])
+                            # Legacy prices commonly include thousands separators.
+                            prop_data[field] = float(str(data[field]).replace(',', '').strip())
                         except (TypeError, ValueError):
                             errors.append(f'Row {row_idx + 2}: invalid {PROPERTY_DB_FIELDS[field]}')
                 if data.get('year_built'):
@@ -486,11 +555,14 @@ def property_import(request):
                     if agent:
                         prop_data['listed_by'] = agent
                 try:
-                    # Titles are the import identity.  Treat capitalization and
-                    # surrounding whitespace consistently so an imported record
-                    # updates the existing property instead of creating a copy.
-                    prop_data['title'] = prop_data['title'].strip()
-                    existing = Property.objects.filter(title__iexact=prop_data['title']).first()
+                    # Legacy property numbers are the stable import identity;
+                    # title remains the fallback for hand-created records.
+                    if prop_data['property_number']:
+                        existing = Property.objects.filter(
+                            property_number__iexact=prop_data['property_number']
+                        ).first()
+                    else:
+                        existing = Property.objects.filter(title__iexact=prop_data['title']).first()
                     if existing:
                         for k, v in prop_data.items():
                             setattr(existing, k, v)
@@ -502,9 +574,8 @@ def property_import(request):
                 except Exception as e:
                     skipped += 1
                     errors.append(f"Row {row_idx + 2}: {str(e)}")
-            request.session.pop('import_headers', None)
-            request.session.pop('import_rows', None)
-            request.session.pop('import_auto_map', None)
+            clear_import_data(request, 'properties')
+            request.session.pop('property_import_auto_map', None)
             msg = f'Import complete: {created} created, {updated} updated, {skipped} skipped.'
             if errors:
                 msg += f' {len(errors)} row errors.'
@@ -519,9 +590,8 @@ def property_import(request):
 
 @login_required
 def property_import_map(request):
-    headers = request.session.get('import_headers', [])
-    rows = request.session.get('import_rows', [])
-    auto_map = request.session.get('import_auto_map', {})
+    headers, rows = load_import_data(request, 'properties')
+    auto_map = request.session.get('property_import_auto_map', {})
     if not headers:
         messages.error(request, 'No import data found. Please upload a file first.')
         return redirect('property_import')
@@ -546,4 +616,52 @@ def property_import_map(request):
         'unmapped_count': len(headers) - len(auto_map),
         'missing_required': [],
         'db_fields': PROPERTY_DB_FIELDS,
+    })
+
+
+@login_required
+def property_cleanup(request):
+    if request.method == 'POST':
+        action = request.POST.get('action')
+        if action == 'remove_duplicates':
+            from django.db.models import Count
+            duplicates = (
+                Property.objects.values('title', 'address', 'price', 'bedrooms', 'bathrooms', 'square_feet')
+                .annotate(cnt=Count('id'))
+                .filter(cnt__gt=1)
+            )
+            removed = 0
+            for dup in duplicates:
+                props = Property.objects.filter(
+                    title=dup['title'],
+                    address=dup['address'],
+                    price=dup['price'],
+                    bedrooms=dup['bedrooms'],
+                    bathrooms=dup['bathrooms'],
+                    square_feet=dup['square_feet'],
+                )
+                keep = props.first()
+                to_delete = props.exclude(pk=keep.pk)
+                count = to_delete.count()
+                to_delete.delete()
+                removed += count
+            messages.success(request, f'Removed {removed} duplicate properties.')
+            return redirect('property_list')
+        elif action == 'remove_all':
+            count = Property.objects.count()
+            Property.objects.all().delete()
+            messages.success(request, f'Removed all {count} properties.')
+            return redirect('property_list')
+    from django.db.models import Count
+    dups = (
+        Property.objects.values('title', 'address', 'price', 'bedrooms', 'bathrooms', 'square_feet')
+        .annotate(cnt=Count('id'))
+        .filter(cnt__gt=1)
+    )
+    duplicates_count = 0
+    for dup in dups:
+        duplicates_count += dup['cnt'] - 1
+    return render(request, 'properties/property_cleanup.html', {
+        'total_properties': Property.objects.count(),
+        'duplicates_count': duplicates_count,
     })

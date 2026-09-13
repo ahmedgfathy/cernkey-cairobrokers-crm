@@ -12,6 +12,7 @@ urlpatterns = [
     path('export/excel/', views.property_export_excel, name='property_export_excel'),
     path('import/', views.property_import, name='property_import'),
     path('import/map/', views.property_import_map, name='property_import_map'),
+    path('cleanup/', views.property_cleanup, name='property_cleanup'),
 
     path('<int:property_pk>/unit/create/', views.property_unit_create, name='property_unit_create'),
     path('unit/<int:pk>/update/', views.property_unit_update, name='property_unit_update'),

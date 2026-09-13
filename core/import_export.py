@@ -1,8 +1,12 @@
 import csv
 import io
+import json
 import re
 import unicodedata
+from pathlib import Path
+from uuid import uuid4
 from datetime import datetime
+from django.conf import settings
 
 def export_csv(queryset, fields, header_labels, filename):
     response = io.StringIO()
@@ -142,3 +146,38 @@ def auto_match_headers(file_headers, db_fields):
                     mapping[idx] = field_key
                     break
     return mapping
+
+
+def store_import_data(request, module, headers, rows):
+    """Stage large import data on disk instead of in the database session."""
+    clear_import_data(request, module)
+    staging_dir = Path(settings.MEDIA_ROOT) / 'import_staging'
+    staging_dir.mkdir(parents=True, exist_ok=True)
+    token = uuid4().hex
+    staging_file = staging_dir / f'{token}.json'
+    with staging_file.open('w', encoding='utf-8') as handle:
+        json.dump({'headers': headers, 'rows': rows}, handle, ensure_ascii=False)
+    request.session[f'import_staging_{module}'] = token
+
+
+def load_import_data(request, module):
+    token = request.session.get(f'import_staging_{module}')
+    if not token or not re.fullmatch(r'[a-f0-9]{32}', token):
+        return [], []
+    staging_file = Path(settings.MEDIA_ROOT) / 'import_staging' / f'{token}.json'
+    try:
+        with staging_file.open(encoding='utf-8') as handle:
+            data = json.load(handle)
+    except (OSError, ValueError, TypeError):
+        return [], []
+    return data.get('headers', []), data.get('rows', [])
+
+
+def clear_import_data(request, module):
+    token = request.session.pop(f'import_staging_{module}', None)
+    if token and re.fullmatch(r'[a-f0-9]{32}', token):
+        staging_file = Path(settings.MEDIA_ROOT) / 'import_staging' / f'{token}.json'
+        try:
+            staging_file.unlink()
+        except FileNotFoundError:
+            pass

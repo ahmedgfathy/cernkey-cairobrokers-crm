@@ -50,6 +50,22 @@ class Lead(models.Model):
     priority = models.CharField(max_length=10, choices=LEAD_PRIORITY_CHOICES, default='medium')
     notes = models.TextField(blank=True)
 
+    # Legacy CRM import fields. These preserve every column in Leads.csv while
+    # the standard CRM fields above remain available for day-to-day work.
+    lead_number = models.CharField(max_length=50, blank=True, db_index=True)
+    salutation = models.CharField(max_length=100, blank=True)
+    call_result = models.CharField(max_length=200, blank=True)
+    last_follow_up = models.CharField(max_length=100, blank=True)
+    customer_status = models.CharField(max_length=200, blank=True)
+    assigned_to_name = models.CharField(max_length=150, blank=True)
+    interested_unit_type = models.CharField(max_length=200, blank=True)
+    legacy_created_time = models.CharField(max_length=100, blank=True)
+    activity_type = models.CharField(max_length=300, blank=True)
+    legacy_modified_time = models.CharField(max_length=100, blank=True)
+    feedback = models.TextField(blank=True)
+    legacy_description = models.TextField(blank=True)
+    last_modified_by_name = models.CharField(max_length=150, blank=True)
+
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='created_leads')

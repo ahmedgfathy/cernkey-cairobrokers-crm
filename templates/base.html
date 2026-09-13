@@ -267,6 +267,34 @@
                 if (mobileToggle) mobileToggle.querySelector('i').className = 'fas fa-bars';
             }
         });
+
+        // Restore a current token before a form is submitted. Browsers can
+        // restore a previous page from their back/forward cache after login,
+        // leaving an otherwise valid form without its CSRF field.
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            return parts.length === 2 ? parts.pop().split(';').shift() : '';
+        }
+
+        document.addEventListener('submit', function(event) {
+            const form = event.target;
+            if (!(form instanceof HTMLFormElement) || form.method.toLowerCase() !== 'post') return;
+            const csrfToken = getCookie('csrftoken');
+            if (!csrfToken) return;
+            let tokenInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
+            if (!tokenInput) {
+                tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = 'csrfmiddlewaretoken';
+                form.appendChild(tokenInput);
+            }
+            tokenInput.value = csrfToken;
+        }, true);
+
+        window.addEventListener('pageshow', function(event) {
+            if (event.persisted) window.location.reload();
+        });
     </script>
     {% block extra_js %}{% endblock %}
 </body>

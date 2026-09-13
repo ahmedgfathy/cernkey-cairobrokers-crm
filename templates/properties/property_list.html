@@ -47,7 +47,7 @@
       <h1><i class="fas fa-building me-2"></i>Properties</h1>
       <div class="page-subtitle">{{ page_obj.start_index }}-{{ page_obj.end_index }} of {{ paginator.count }} properties</div>
     </div>
-    <div style="display:flex; align-items:center; gap:1rem;">
+    <div style="display:flex; align-items:center; gap:0.5rem; flex-wrap:wrap;">
       <div class="action-dropdown">
         <button type="button" class="sap-btn sap-btn-default" onclick="toggleDropdown(this)" title="Import / Export">
           <i class="fas fa-exchange-alt me-1"></i> Import / Export
@@ -59,6 +59,20 @@
           <a href="{% url 'property_import' %}" class="action-dropdown-item"><i class="fas fa-file-import"></i> Import from File</a>
         </div>
       </div>
+      <form method="post" action="{% url 'property_cleanup' %}" style="display:inline;" onsubmit="return confirm('Remove all duplicate properties?');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="remove_duplicates">
+        <button type="submit" class="sap-btn sap-btn-default" title="Remove Duplicates">
+          <i class="fas fa-copy me-1"></i> Remove Duplicates
+        </button>
+      </form>
+      <form method="post" action="{% url 'property_cleanup' %}" style="display:inline;" onsubmit="return confirm('DELETE ALL properties? This cannot be undone!');">
+        {% csrf_token %}
+        <input type="hidden" name="action" value="remove_all">
+        <button type="submit" class="sap-btn" style="background:#EE3939; color:#fff; border-color:#EE3939;" title="Remove All Data">
+          <i class="fas fa-trash me-1"></i> Remove All
+        </button>
+      </form>
       <div class="view-toggle">
         <button type="button" class="view-toggle-btn active" onclick="setView('list')" id="btnListView" title="List View">
           <i class="fas fa-list"></i> List
@@ -216,14 +230,12 @@
     <div style="display:flex; align-items:center; gap:0.75rem;">
       <span style="font-size:0.8125rem; color:#6A6D70;">Rows per page:</span>
       <div style="display:flex; gap:0.25rem;">
-        {% for pp in "10,25,50,100" %}
-        {% with pp_val=pp %}
-        <a href="?per_page={{ pp_val }}{% if search_form.query.value %}&query={{ search_form.query.value }}{% endif %}{% if search_form.min_price.value %}&min_price={{ search_form.min_price.value }}{% endif %}{% if search_form.max_price.value %}&max_price={{ search_form.max_price.value }}{% endif %}{% if search_form.bedrooms.value %}&bedrooms={{ search_form.bedrooms.value }}{% endif %}{% if search_form.city.value %}&city={{ search_form.city.value }}{% endif %}"
-           class="sap-btn {% if per_page == pp_val|add:0 %}sap-btn-emphasized{% else %}sap-btn-default{% endif %}"
+        {% for pp in page_sizes %}
+        <a href="?per_page={{ pp }}{% if search_form.query.value %}&query={{ search_form.query.value }}{% endif %}{% if search_form.min_price.value %}&min_price={{ search_form.min_price.value }}{% endif %}{% if search_form.max_price.value %}&max_price={{ search_form.max_price.value }}{% endif %}{% if search_form.bedrooms.value %}&bedrooms={{ search_form.bedrooms.value }}{% endif %}{% if search_form.city.value %}&city={{ search_form.city.value }}{% endif %}"
+           class="sap-btn {% if per_page == pp %}sap-btn-emphasized{% else %}sap-btn-default{% endif %}"
            style="min-width:2.25rem; padding:0.25rem 0.5rem; font-size:0.8125rem; text-decoration:none;">
-            {{ pp_val }}
+            {{ pp }}
         </a>
-        {% endwith %}
         {% endfor %}
       </div>
     </div>
@@ -233,7 +245,6 @@
     </div>
 
     <div style="display:flex; align-items:center; gap:0.375rem;">
-      {% with base_params="" %}
       <a href="?page=1{% if per_page != 25 %}&per_page={{ per_page }}{% endif %}{% if search_form.query.value %}&query={{ search_form.query.value }}{% endif %}{% if search_form.min_price.value %}&min_price={{ search_form.min_price.value }}{% endif %}{% if search_form.max_price.value %}&max_price={{ search_form.max_price.value }}{% endif %}{% if search_form.bedrooms.value %}&bedrooms={{ search_form.bedrooms.value }}{% endif %}{% if search_form.city.value %}&city={{ search_form.city.value }}{% endif %}"
          class="sap-btn sap-btn-default" style="min-width:2rem; padding:0.25rem 0.5rem; text-decoration:none; {% if not page_obj.has_previous %}opacity:0.4;pointer-events:none;{% endif %}"
          title="First page"><i class="fas fa-angle-double-left"></i></a>
@@ -261,7 +272,6 @@
       <a href="?page={{ paginator.num_pages }}{% if per_page != 25 %}&per_page={{ per_page }}{% endif %}{% if search_form.query.value %}&query={{ search_form.query.value }}{% endif %}{% if search_form.min_price.value %}&min_price={{ search_form.min_price.value }}{% endif %}{% if search_form.max_price.value %}&max_price={{ search_form.max_price.value }}{% endif %}{% if search_form.bedrooms.value %}&bedrooms={{ search_form.bedrooms.value }}{% endif %}{% if search_form.city.value %}&city={{ search_form.city.value }}{% endif %}"
          class="sap-btn sap-btn-default" style="min-width:2rem; padding:0.25rem 0.5rem; text-decoration:none; {% if not page_obj.has_next %}opacity:0.4;pointer-events:none;{% endif %}"
          title="Last page"><i class="fas fa-angle-double-right"></i></a>
-      {% endwith %}
     </div>
   </div>
   {% endif %}

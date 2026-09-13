@@ -50,6 +50,20 @@
                   <a href="{% url 'lead_import' %}" class="action-dropdown-item"><i class="fas fa-file-import"></i> Import from File</a>
                 </div>
               </div>
+              <form method="post" action="{% url 'lead_cleanup' %}" style="display:inline;" onsubmit="return confirm('Remove all duplicate leads?');">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="remove_duplicates">
+                <button type="submit" class="sap-btn sap-btn-default" title="Remove Duplicates">
+                  <i class="fas fa-copy me-1"></i> Remove Duplicates
+                </button>
+              </form>
+              <form method="post" action="{% url 'lead_cleanup' %}" style="display:inline;" onsubmit="return confirm('DELETE ALL leads? This cannot be undone!');">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="remove_all">
+                <button type="submit" class="sap-btn" style="background:#EE3939; color:#fff; border-color:#EE3939;" title="Remove All Data">
+                  <i class="fas fa-trash me-1"></i> Remove All
+                </button>
+              </form>
               <a href="{% url 'lead_create' %}" class="sap-btn sap-btn-emphasized">
                 <i class="fas fa-plus me-1"></i> Add Lead
               </a>

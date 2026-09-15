@@ -68,6 +68,86 @@
     --navBarCollapsedWidth: 3.5rem;
 }
 
+/* Dark Mode */
+[data-theme="dark"] {
+    --sapShellColor: #1a1a2e;
+    --sapShellDarkColor: #16213e;
+    --sapBrandColor: #4da8da;
+    --sapBrandColorHover: #3a86b0;
+    --sapNeutralColor: #9ca3af;
+    --sapNeutralBorderColor: #374151;
+    --sapBackgroundColor: #111827;
+    --sapCardBackground: #1f2937;
+    --sapTextColor: #f3f4f6;
+    --sapTextColorLight: #9ca3af;
+    --sapSuccessColor: #34d399;
+    --sapWarningColor: #fb923c;
+    --sapErrorColor: #f87171;
+    --sapInformationColor: #60a5fa;
+    --sapShadow: 0 0.125rem 0.5rem rgba(0,0,0,0.3);
+    --sapShadowDarker: 0 0.25rem 1rem rgba(0,0,0,0.4);
+}
+
+[data-theme="dark"] body { background: #0f172a; color: #e5e7eb; }
+[data-theme="dark"] .sap-shell-bar { background: #1e293b; border-bottom-color: #334155; }
+[data-theme="dark"] .sap-nav-bar { background: #1e293b; border-right-color: #334155; }
+[data-theme="dark"] .sap-nav-item { color: #cbd5e1; }
+[data-theme="dark"] .sap-nav-item:hover { background: #334155; color: #e2e8f0; }
+[data-theme="dark"] .sap-nav-item.active { background: #1e40af; color: #fff; }
+[data-theme="dark"] .sap-card { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .sap-card-header { border-bottom-color: #334155; }
+[data-theme="dark"] .sap-table { color: #e5e7eb; }
+[data-theme="dark"] .sap-table th { background: #1e293b; color: #94a3b8; border-color: #334155; }
+[data-theme="dark"] .sap-table td { border-color: #334155; }
+[data-theme="dark"] .sap-table tbody tr:hover { background: #334155; }
+[data-theme="dark"] .sap-table tbody tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+[data-theme="dark"] .sap-form-control { background: #111827; border-color: #4b5563; color: #e5e7eb; }
+[data-theme="dark"] .sap-form-control:focus { border-color: #60a5fa; box-shadow: 0 0 0 2px rgba(96,165,250,0.2); }
+[data-theme="dark"] .sap-select { background: #111827; border-color: #4b5563; color: #e5e7eb; }
+[data-theme="dark"] .sap-btn-default { background: #374151; border-color: #4b5563; color: #e5e7eb; }
+[data-theme="dark"] .sap-btn-default:hover { background: #4b5563; }
+[data-theme="dark"] .sap-btn-emphasized { background: #2563eb; border-color: #2563eb; }
+[data-theme="dark"] .sap-btn-emphasized:hover { background: #1d4ed8; }
+[data-theme="dark"] .sap-badge { background: #374151; color: #e5e7eb; }
+[data-theme="dark"] .sap-alert { border-color: #334155; }
+[data-theme="dark"] .sap-modal-overlay { background: rgba(0,0,0,0.7); }
+[data-theme="dark"] .sap-modal { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .sap-modal-header { border-bottom-color: #334155; }
+[data-theme="dark"] .sap-modal-footer { border-top-color: #334155; }
+[data-theme="dark"] .modal-body input,
+[data-theme="dark"] .modal-body select,
+[data-theme="dark"] .modal-body textarea { background: #111827; border-color: #4b5563; color: #e5e7eb; }
+[data-theme="dark"] .filter-bar { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .filter-bar input,
+[data-theme="dark"] .filter-bar select { background: #111827; border-color: #4b5563; color: #e5e7eb; }
+[data-theme="dark"] .kpi-card { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .kpi-card-value { color: #f3f4f6; }
+[data-theme="dark"] .page-header h1 { color: #f3f4f6; }
+[data-theme="dark"] .page-subtitle { color: #9ca3af; }
+[data-theme="dark"] .pagination-bar { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .sap-btn { color: #e5e7eb; }
+[data-theme="dark"] .action-dropdown-menu { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .action-dropdown-item { color: #e5e7eb; }
+[data-theme="dark"] .action-dropdown-item:hover { background: #334155; color: #60a5fa; }
+[data-theme="dark"] .sap-nav-section-title { color: #e2e8f0; }
+[data-theme="dark"] .nav-group { border-bottom-color: #334155; }
+[data-theme="dark"] .nav-group-header { color: #e2e8f0; }
+[data-theme="dark"] .nav-group-header:hover { color: #ffffff; }
+[data-theme="dark"] .property-card { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .property-card-title { color: #f3f4f6; }
+[data-theme="dark"] .property-card-price { color: #f3f4f6; }
+[data-theme="dark"] .property-card-footer { background: #111827; border-color: #334155; }
+[data-theme="dark"] .empty-state { color: #64748b; }
+[data-theme="dark"] .import-bottom-bar { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .mapping-row { border-color: #334155; }
+[data-theme="dark"] .mapping-file-col { color: #e5e7eb; }
+[data-theme="dark"] .timeline-item { border-left-color: #334155; }
+[data-theme="dark"] .activity-item { background: #1e293b; border-color: #334155; }
+[data-theme="dark"] .task-row { border-color: #334155; }
+[data-theme="dark"] .lead-hero-stat { background: #1e293b; }
+[data-theme="dark"] .lead-hero-stat-value { color: #f3f4f6; }
+[data-theme="dark"] .content-grid-2 > div { background: transparent; }
+
 /* Reset */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html { overflow-x: hidden; height: 100%; }
